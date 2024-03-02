@@ -1,0 +1,112 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}
+	{{ title }}
+{% endblock %}
+
+{% block content %}
+	{{parent()}}
+	<div class="row">
+		<div class="col-12">
+			<h1 class="mr-auto mb-0 title-table">{{ title }}
+				{% if (customer_addresses.state) %}{% endif %}
+			</h1>
+		</div>
+	</div>
+	<div class="row mt-3">
+		<div class="col-12">
+			<h3>Cliente:
+				{% if (customer.customer_type_role.id == 1) %}
+					{{customer.name}}</h3>
+			{% else %}
+				{{customer.name}}</h3>
+		{% endif %}
+
+		<p>E-mail:
+			{{customer.email}}<br>
+			Tipo de cliente:
+			{{customer.customer_type_role.name}}<br>
+			Fecha Alta:
+			{{customer.registration_date|date("d/m/Y")}}</p>
+
+	</div>
+	{{form_start(form)}}
+	<div class="row mt-3">
+		<div class="col-12">
+			<div class="row my-2">
+				<div class="col-12 col-md-4">
+					{{ form_label (
+                        form.country,
+                        'País',
+                        {'label_attr': {'class': 'form-label','id':'label-country','data-country-id':customer_addresses.country ? customer_addresses.country.id:'0'}}
+					)}}
+					{{ form_widget(form.country) }}
+				</div>
+				<div class="col-12 col-md-4">
+					{{ form_label (
+                        form.state,
+                        'Estado/Provincia',
+                        {'label_attr': {'class': 'form-label','id':'label-state','data-state-id':customer_addresses.state ? customer_addresses.state.id:'0'}}
+					)}}
+					{{ form_widget(form.state) }}
+				</div>
+				<div class="col-12 col-md-4">
+					{{ form_label(
+                        form.city,
+                        'Ciudad',
+                        {'label_attr': {'class': 'form-label','id':'label-city','data-city-id':customer_addresses.city ? customer_addresses.city.id:'0'}}
+					)}}
+					{{ form_widget(form.city) }}
+				</div>
+			</div>
+			<div class="row my-2">
+				<div class="col-12">
+					{{ form_row(form.street) }}
+				</div>
+			</div>
+
+			<div class="row my-2">
+				<div class="col-12 col-md-3">
+					{{ form_row(form.number_street) }}
+				</div>
+				<div class="col-12 col-md-3">
+					{{ form_row(form.floor) }}
+				</div>
+				<div class="col-12 col-md-3">
+					{{ form_row(form.department) }}
+				</div>
+				<div class="col-12 col-md-3">
+					{{ form_row(form.postal_code) }}
+				</div>
+			</div>
+			<div class="row my-2">
+				<div class="col-12">
+					{{ form_row(form.additional_info) }}
+				</div>
+			</div>
+
+			<div class="row my-2">
+				<div class="col-12">
+					{{ form_row(form.home_address) }}
+				</div>
+			</div>
+
+			<div class="row my-2">
+				<div class="col-12">
+					{{ form_row(form.billing_address) }}
+				</div>
+			</div>
+
+		</div>
+	</div>
+	<div class="row mt-2 mb-5">
+
+		<div class="col-12 text-end">
+			<a class="btn btn-secondary" href="{{ path('secure_customer_addresses',{'customer_id':customer.id}) }}">Regresar</a>
+
+			<button class="btn btn-primary">Guardar</button>
+		</div>
+	</div>
+	{{form_end(form)}}
+
+{% endblock %}

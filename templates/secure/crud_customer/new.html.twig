@@ -1,0 +1,18 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}{{ title }}
+{% endblock %}
+
+{% block content %}
+	<div class="row">
+		<div class="col-12">
+			<h1 class="mr-auto mb-0 title-table">{{ title }}</h1>
+		</div>
+		<div class="row">
+			<div class="col-12 mt-3">
+				{{ include('secure/crud_customer/_form.html.twig') }}
+			</div>
+		</div>
+	</div>
+
+{% endblock %}

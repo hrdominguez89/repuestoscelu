@@ -1,0 +1,58 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}
+	{{ title }}
+{% endblock %}
+
+{% block content %}
+	{{parent()}}
+	<div class="row">
+		<div class="col-12">
+			<h1 class="mr-auto mb-0 title-table">{{ title }}</h1>
+		</div>
+	</div>
+
+	{{ form_start (form) }}
+	{% if form_errors (form) %}
+		<div class="row">
+			<div class="col-12">
+				<div class="alert alert-danger">
+					{{ form_errors (form) }}
+				</div>
+			</div>
+		</div>
+	{% endif %}
+
+	<div class="row my-4">
+		<div class="col-6">
+			{{ form_label (form.name, specification_type.name ~ ':') }}
+			{{ form_widget (form.name) }}
+			{{ form_errors (form.name) }}
+		</div>
+
+		{% if (specification_type.name == 'Color') %}
+			<div class="col-6">
+				<label for="specification_color" class="form-label required">
+					Color hexadecimal
+				</label>
+				<input type="color" id="specification_color" name="specification[color]" required class="form-control" value="{{specification.colorHexadecimal ? specification.colorHexadecimal : ''}}">
+			</div>
+		{% endif %}
+
+	</div>
+
+	<div>
+		<div class="row my-2">
+
+			<div class="col-12 text-end">
+				<a class="btn btn-secondary" href="{{ path('secure_crud_specification_index', {'specification_type_id': specification_type.id}) }}">Regresar</a>
+
+				<button class="btn btn-primary">Guardar</button>
+			</div>
+		</div>
+	</div>
+
+
+	{{ form_end(form) }}
+
+{% endblock %}

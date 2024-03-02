@@ -1,0 +1,72 @@
+security:
+    enable_authenticator_manager: true
+
+    password_hashers:
+        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: "auto"
+        App\Entity\User: "auto"
+        App\Entity\ApiClients: "auto"
+    providers:
+        backend_users:
+            entity:
+                class: 'App\Entity\User'
+                property: "email"
+        api_users:
+            entity:
+                class: 'App\Entity\ApiClients'
+                property: "api_client_id"
+        api_customer:
+            entity:
+                class: 'App\Entity\Customer'
+                property: "email"
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        api_customer:
+            pattern: ^/api/customer/*
+            lazy: false
+            provider: api_customer
+            custom_authenticator: App\Security\CustomerApiAuthenticator
+        api:
+            pattern: ^/api/*
+            lazy: false
+            provider: api_users
+            custom_authenticator: App\Security\ApiAuthenticator
+        main:
+            pattern: ^/*
+            lazy: true
+            provider: backend_users
+            form_login:
+                check_path: app_security_login
+                login_path: app_security_login
+                default_target_path: app_homepage
+                use_referer: true
+            logout:
+                path: app_security_logout
+                target: app_security_login
+
+    access_control:
+        - { path: ^/api/customer/*, roles: ROLE_CUSTOMER }
+        - { path: ^/api/crm/*, roles: ROLE_CLIENT_CRM }
+        - { path: ^/api/3pl/*, roles: ROLE_CLIENT_3PL }
+        - { path: ^/api/front/*, roles: ROLE_CLIENT_FRONT }
+        - { path: ^/security/*, roles: PUBLIC_ACCESS }
+        - { path: ^/reset-password/*, roles: PUBLIC_ACCESS }
+        - {
+              path: ^/secure/*,
+              roles:
+                  [
+                      ROLE_SUPER_ADMIN,
+                      ROLE_TEAM_GERENCIA,
+                      ROLE_TEAM_CATALOGO,
+                      ROLE_TEAM_OPERACIONES,
+                      ROLE_TEAM_FACTURACION_Y_COBRANZA,
+                      ROLE_TEAM_LOGISTICA,
+                      ROLE_TEAM_ATENCION_AL_CLIENTE_POSTVENTA,
+                      ROLE_TEAM_MARKETING,
+                      ROLE_TEAM_DISENO,
+                      ROLE_TEAM_SOCIAL_MEDIA,
+                      ROLE_TEAM_DESARROLLO,
+                      ROLE_TEAM_ANALYTICS_SEO_SEM,
+                  ],
+          }

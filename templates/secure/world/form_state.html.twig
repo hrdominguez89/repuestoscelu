@@ -1,0 +1,58 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}
+	{{ title }}
+{% endblock %}
+
+{% block content %}
+	{{ parent() }}
+	<div class="row">
+		<div class="col-12">
+			<h1 class="mr-auto mb-0 title-table">{{ title }}</h1>
+		</div>
+	</div>
+
+    <div class="row mt-2">
+		<div class="col-12">
+			<h4>Pais:{{country.name}}</h4>
+		</div>
+	</div>
+
+	{{ form_start(form) }}
+	{% if form_errors(form) %}
+		<div class="row">
+			<div class="col-12">
+				<div class="alert alert-danger">
+					{{ form_errors(form) }}
+				</div>
+			</div>
+		</div>
+	{% endif %}
+    <div class="row my-2">
+		<div class="col-12">
+			{{ form_row(form.name) }}
+		</div>
+	</div>
+	<div class="row my-2">
+		<div class="col-6">
+			{{ form_row(form.latitude) }}
+		</div>
+		<div class="col-6">
+			{{ form_row(form.longitude) }}
+		</div>
+	</div>
+	<div>
+		<div class="row my-2">
+
+			<div class="col-12 text-end">
+				<a class="btn btn-secondary" href="{{ path('secure_crud_states_index',{'country_id':country.id}) }}">Regresar</a>
+
+				<button class="btn btn-primary">Guardar</button>
+			</div>
+		</div>
+	</div>
+
+
+	{{ form_end(form) }}
+
+{% endblock %}

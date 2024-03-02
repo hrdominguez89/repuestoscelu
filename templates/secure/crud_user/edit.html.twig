@@ -1,0 +1,10 @@
+{% extends 'home/index.html.twig' %}
+{% block title %}
+	{{title}}
+{% endblock %}
+
+{% block content %}
+	{{parent()}}
+	<h1>{{title}}</h1>
+	{{ include('secure/crud_user/_form.html.twig', {'button_label': 'Guardar'}) }}
+{% endblock %}

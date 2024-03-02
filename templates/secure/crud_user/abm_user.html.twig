@@ -1,0 +1,65 @@
+{% extends 'home/index.html.twig' %}
+{% block title %}
+	{{title}}
+{% endblock %}
+
+{% block content %}
+	{{parent()}}
+	<div class="d-flex justify-content-between">
+		<div class="col-6">
+			<h1 class="mr-auto mb-0 title-table">{{title}}</h1>
+		</div>
+
+		<div class="col-6 text-end">
+			<a class="btn btn-success" href="{{ path('secure_crud_user_new') }}">Nuevo operador</a>
+		</div>
+	</div>
+	<div class="row mt-5">
+		<div class="col-12">
+			<div class="table-responsive">
+
+				<table id="table_full_buttons" class="table table-sm" data-order="[[ 2, &quot;asc&quot; ],[ 3, &quot;asc&quot; ]]">
+					<thead>
+						<tr>
+							<th data-orderable="false" style="width:60px;">Imagen</th>
+							<th>Correo</th>
+							<th>Nombre</th>
+							<th>Apellido</th>
+							<th>Rol</th>
+							<th data-orderable="false">Acciones</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for user in users %}
+							<tr>
+								{% if user.image %}
+									<td><img class="img-fluid" alt="Imagen" src="{{ asset(user.image) }}"/></td>
+								{% else %}
+									<td><img class="img-fluid" alt="Imagen" src="{{ asset('uploads/images/default.png') }}"/></td>
+								{% endif %}
+								<td>{{ user.email }}</td>
+								<td>{{ user.name }}</td>
+								<td>{{ user.lastname }}</td>
+								<td>{{ user.role.name }}</td>
+								<td class="text-center">
+									<a class="btn" href="{{ path('secure_crud_user_edit', {'id': user.id}) }}" title="Editar operador">
+										<i class="fas fa-edit text-warning"></i>
+									</a>
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+
+			</div>
+		</div>
+	</div>
+
+	<div class="row mt-5 mb-5">
+		<div class="col-12 text-end">
+
+			<a class="btn btn-secondary" href="{{ path('app_homepage') }}">Regresar</a>
+
+		</div>
+	</div>
+{% endblock %}
