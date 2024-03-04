@@ -1,26 +1,11 @@
 <IfModule mod_rewrite.c>
-  
-DirectoryIndex index.php
+    RewriteEngine On
+    RewriteBase /
 
-RewriteEngine on
+    # Si el archivo o directorio solicitado no existe físicamente
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
 
-RewriteCond $1 !^(index\.php|assets|images|css|js|robots\.txt|favicon\.ico)
-
-RewriteCond %{REQUEST_FILENAME} !-f
-
-RewriteCond %{REQUEST_FILENAME} !-d
-
-RewriteRule ^(.*)$ public/index.php?/$1 [L,QSA]
-
-</IfModule>
-
-
-<IfModule !mod_rewrite.c>
-
-    # If we don't have mod_rewrite installed, all 404's
-
-    # can be sent to index.php, and everything works as normal.
-
-ErrorDocument 404 /cic/index.php
-
+    # Redirige todas las solicitudes a index.php
+    RewriteRule ^(.*)$ index.php/$1 [L]
 </IfModule>
