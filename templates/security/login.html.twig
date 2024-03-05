@@ -12,17 +12,17 @@
 	<div class="auth-page">
 		<div class="container-fluid p-0">
 			<div class="row g-0">
-				<div class="bg-dark-bymia col-xxl-3 col-lg-4 col-md-5" style="background-color:#080814;">
-					<div class="auth-full-page-content d-flex p-sm-5 p-4">
+				<div class="bg-grey-repuestos-celu col-xxl-3 col-lg-4 col-md-5">
+					<div class="bg-grey-repuestos-celu auth-full-page-content d-flex p-sm-5 p-4">
 						<div class="w-100">
 							<div class="d-flex flex-column h-100">
-								<div class="mb-4 mb-md-5 text-center">
-									<img src="/assets/images/BymiaBrand/FullCianWhiteBymia.png" style="width: 200px;border-radius: 15px;" alt="">
+								<div class="text-center">
+									<img src="/assets/images/logo_verde_vertical.png" style="width: 350px;border-radius: 15px;" alt="">
 								</div>
 								<div class="auth-content my-auto">
 									<div class="text-center">
-										<h5 class="mb-0">{{ 'Welcome' | trans }}</h5>
-										<p class="text-white mt-2">{{ 'Sign' | trans }}</p>
+										<h3 class="mb-0 text-green text-bold" style="font-size:36px">{{ 'Welcome' | trans }}</h3>
+										<p class="text-green mt-2 text-bold" style="font-size:20px">{{ 'Sign' | trans }}</p>
 									</div>
 									<form class="custom-form mt-4 pt-2" method="post">
 										{% if error %}
@@ -38,11 +38,11 @@
 												<div class="flex-grow-1">
 													<label class="form-label">{{ 'Password' | trans }}</label>
 												</div>
-												<div class="flex-shrink-0">
+												{# <div class="flex-shrink-0">
 													<div class="">
 														<a href="#" class="text-white">{{ 'ForgotPassword' | trans }}</a>
 													</div>
-												</div>
+												</div> #}
 											</div>
 
 											<div class="input-group auth-pass-inputgroup">
