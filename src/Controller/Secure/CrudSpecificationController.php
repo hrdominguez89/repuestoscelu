@@ -13,15 +13,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/specifications")
- */
+#[Route("/specifications")]
 class CrudSpecificationController extends AbstractController
 {
 
-    /**
-     * @Route("/", name="secure_crud_specification_type_index", methods={"GET"})
-     */
+    #[Route("/", name: "secure_crud_specification_type_index", methods: ["GET"])]
     public function index(SpecificationTypesRepository $specificationTypesRepository): Response
     {
         $data['title'] = 'Tipos de especificaciones';
@@ -34,9 +30,7 @@ class CrudSpecificationController extends AbstractController
         return $this->render('secure/crud_specification/abm_specifications_types.html.twig', $data);
     }
 
-    /**
-     * @Route("/{specification_type_id}/new", name="secure_crud_specification_new", methods={"GET","POST"})
-     */
+    #[Route("/{specification_type_id}/new", name: "secure_crud_specification_new", methods: ["GET", "POST"])]
     public function new($specification_type_id, SpecificationTypesRepository $specificationTypesRepository, Request $request, EntityManagerInterface $em): Response
     {
 
@@ -69,10 +63,8 @@ class CrudSpecificationController extends AbstractController
         return $this->renderForm('secure/crud_specification/form_specifications.html.twig', $data);
     }
 
-    /**
-     * @Route("/{specification_id}/edit", name="secure_crud_specification_edit", methods={"GET","POST"})
-     */
-    public function edit(EntityManagerInterface $em,Request $request, SpecificationRepository $specificationRepository, $specification_id): Response
+    #[Route("/{specification_id}/edit", name: "secure_crud_specification_edit", methods: ["GET", "POST"])]
+    public function edit(EntityManagerInterface $em, Request $request, SpecificationRepository $specificationRepository, $specification_id): Response
     {
         $data['specification'] = $specificationRepository->findOneBy(['id' => $specification_id]);
 
@@ -101,9 +93,7 @@ class CrudSpecificationController extends AbstractController
         return $this->renderForm('secure/crud_specification/form_specifications.html.twig', $data);
     }
 
-    /**
-     * @Route("/{specification_type_id}", name="secure_crud_specification_index", methods={"GET"})
-     */
+    #[Route("/{specification_type_id}", name: "secure_crud_specification_index", methods: ["GET"])]
     public function specifications(SpecificationRepository $specificationRepository, SpecificationTypesRepository $specificationTypesRepository, $specification_type_id): Response
     {
         $data['specification_type'] = $specificationTypesRepository->findOneBy(["id" => $specification_type_id]);

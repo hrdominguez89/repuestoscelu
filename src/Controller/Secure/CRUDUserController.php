@@ -18,19 +18,15 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 
-/**
- * @Route("/crud-user")
- */
+#[Route("/crud-user")]
 class CRUDUserController extends AbstractController
 {
 
 
-    /**
-     * @Route("/", name="secure_crud_user_index", methods={"GET"})
-     */
+    #[Route("/", name: "secure_crud_user_index", methods: ["GET"])]
     public function index(UserRepository $userRepository): Response
     {
-        $data['users'] =  $userRepository->findBy(['role'=>2]);
+        $data['users'] =  $userRepository->findBy(['role' => 2]);
         // $data['files_css'] = array('hola.css?v='.rand());
         $data['files_js'] = array('table_full_buttons.js?v=' . rand());
 
@@ -43,9 +39,7 @@ class CRUDUserController extends AbstractController
         return $this->render('secure/crud_user/abm_user.html.twig', $data);
     }
 
-    /**
-     * @Route("/new", name="secure_crud_user_new", methods={"GET","POST"})
-     */
+    #[Route("/new", name: "secure_crud_user_new", methods: ["GET", "POST"])]
     public function new(
         Request $request,
         FileUploader $fileUploader,
@@ -94,9 +88,7 @@ class CRUDUserController extends AbstractController
         return $this->renderForm('secure/crud_user/new.html.twig', $data);
     }
 
-    /**
-     * @Route("/{id}", name="secure_crud_user_show", methods={"GET"})
-     */
+    #[Route("/{id}", name: "secure_crud_user_show", methods: ["GET"])]
     public function show($id, UserRepository $userRepository): Response
     {
         $user = $userRepository->find($id);
@@ -106,9 +98,7 @@ class CRUDUserController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/{id}/edit", name="secure_crud_user_edit", methods={"GET","POST"})
-     */
+    #[Route("/{id}/edit", name: "secure_crud_user_edit", methods: ["GET", "POST"])]
     public function edit(EntityManagerInterface $em, Request $request, FileUploader $fileUploader, $id, UserRepository $userRepository): Response
     {
         $user = $userRepository->find($id);
@@ -139,9 +129,7 @@ class CRUDUserController extends AbstractController
         return $this->renderForm('secure/crud_user/edit.html.twig', $data);
     }
 
-    /**
-     * @Route("/{id}", name="secure_crud_user_delete", methods={"POST"})
-     */
+    #[Route("/{id}", name: "secure_crud_user_delete", methods: ["POST"])]
     public function delete(EntityManagerInterface $em, Request $request, $id, UserRepository $userRepository): Response
     {
         $user = $userRepository->find($id);

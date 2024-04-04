@@ -17,15 +17,11 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-/**
- * @Route("/faqs")
- */
+#[Route("/faqs")]
 class FaqsController extends AbstractController
 {
 
-    /**
-     * @Route("/topics", name="abm_topics_faqs")
-     */
+    #[Route("/topics", name: "abm_topics_faqs")]
     public function index(TopicsRepository $topicsRepository): Response
     {
         $data['title'] = 'Temas';
@@ -38,9 +34,7 @@ class FaqsController extends AbstractController
         return $this->render('secure/faqs/abm_topics_faqs.html.twig', $data);
     }
 
-    /**
-     * @Route("/topics/new", name="new_topic")
-     */
+    #[Route("/topics/new", name: "new_topic")]
     public function new_topic(EntityManagerInterface $em, Request $request, FileUploader $fileUploader): Response
     {
         $data['title'] = 'Nuevo tema';
@@ -70,9 +64,7 @@ class FaqsController extends AbstractController
         return $this->renderForm('secure/faqs/form_topic_faq.html.twig', $data);
     }
 
-    /**
-     * @Route("/topics/{topic_id}/edit", name="edit_topic")
-     */
+    #[Route("/topics/{topic_id}/edit", name: "edit_topic")]
     public function edit_topic(EntityManagerInterface $em, $topic_id, TopicsRepository $topicsRepository, Request $request, FileUploader $fileUploader): Response
     {
         $data['title'] = 'Editar tema';
@@ -106,9 +98,7 @@ class FaqsController extends AbstractController
         $data['form'] = $form;
         return $this->renderForm('secure/faqs/form_topic_faq.html.twig', $data);
     }
-    /**
-     * @Route("/topics/{topic_id}/faq", name="abm_faqs")
-     */
+    #[Route("/topics/{topic_id}/faq", name: "abm_faqs")]
     public function index_faq($topic_id, TopicsRepository $topicsRepository, FaqsRepository $faqsRepository): Response
     {
         $data['topic'] = $topicsRepository->findOneBy(array('id' => $topic_id), ['visible' => 'DESC', 'number_order' => 'ASC']);
@@ -123,9 +113,7 @@ class FaqsController extends AbstractController
         return $this->render('secure/faqs/abm_faqs.html.twig', $data);
     }
 
-    /**
-     * @Route("/topics/{topic_id}/faq/new", name="new_faq")
-     */
+    #[Route("/topics/{topic_id}/faq/new", name: "new_faq")]
     public function new_faq(EntityManagerInterface $em, $topic_id, Request $request, FileUploader $fileUploader, TopicsRepository $topicsRepository): Response
     {
         $data['topic'] = $topicsRepository->findOneBy(array('id' => $topic_id));
@@ -165,9 +153,7 @@ class FaqsController extends AbstractController
         return $this->renderForm('secure/faqs/form_faq.html.twig', $data);
     }
 
-    /**
-     * @Route("/topics/{topic_id}/faq/edit/{faq_id}", name="edit_faq")
-     */
+    #[Route("/topics/{topic_id}/faq/edit/{faq_id}", name: "edit_faq")]
     public function edit_faq(EntityManagerInterface $em, $topic_id, $faq_id, TopicsRepository $topicsRepository, FaqsRepository $faqsRepository, Request $request, FileUploader $fileUploader): Response
     {
         $data['topic'] = $topicsRepository->find($topic_id);
@@ -207,9 +193,7 @@ class FaqsController extends AbstractController
         return $this->renderForm('secure/faqs/form_faq.html.twig', $data);
     }
 
-    /**
-     * @Route("/updateVisible/{entity_name}", name="secure_faqs_update_visible", methods={"POST"})
-     */
+    #[Route("/updateVisible/{entity_name}", name: "secure_faqs_update_visible", methods: ["POST"])]
     public function updateVisible(EntityManagerInterface $em, $entity_name, Request $request, TopicsRepository $topicsRepository, FaqsRepository $faqsRepository): Response
     {
         $id = (int)$request->get('id');
@@ -241,9 +225,7 @@ class FaqsController extends AbstractController
         return new JsonResponse($data);
     }
 
-    /**
-     * @Route("/updateOrder/{entity_name}", name="secure_faqs_update_order", methods={"POST"})
-     */
+    #[Route("/updateOrder/{entity_name}", name: "secure_faqs_update_order", methods: ["POST"])]
     public function updateOrder(EntityManagerInterface $em, $entity_name, Request $request, TopicsRepository $topicsRepository, FaqsRepository $faqsRepository): Response
     {
         $ids = $request->get('orderData')['ids'];

@@ -35,9 +35,7 @@ use Aws\S3\S3Client;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
-/**
- * @Route("/product")
- */
+#[Route("/product")]
 class ProductsController extends AbstractController
 {
 
@@ -71,9 +69,7 @@ class ProductsController extends AbstractController
         $this->imageManager = $imageManager;
     }
 
-    /**
-     * @Route("/", name="secure_product_index", methods={"GET"})
-     */
+    #[Route("/", name: "secure_product_index", methods: ["GET"])]
     public function index(ProductRepository $productRepository, Request $request, PaginatorInterface $pagination): Response
     {
         $data['products'] = $productRepository->findAll();
@@ -86,9 +82,7 @@ class ProductsController extends AbstractController
         return $this->render('secure/products/abm_products.html.twig', $data);
     }
 
-    /**
-     * @Route("/new", name="secure_product_new", methods={"GET","POST"})
-     */
+    #[Route("/new", name: "secure_product_new", methods: ["GET", "POST"])]
     public function new(EntityManagerInterface $em, Request $request, SluggerInterface $slugger, SubcategoryRepository $subcategoryRepository, CommunicationStatesBetweenPlatformsRepository $communicationStatesBetweenPlatformsRepository, SendProductTo3pl $sendProductTo3pl): Response
     {
         $data['title'] = 'Nuevo producto';
@@ -118,7 +112,7 @@ class ProductsController extends AbstractController
             $historicalPriceCost->setProduct($data['product']);
             $historicalPriceCost->setPrice($form->get('price')->getData());
             $historicalPriceCost->setCost($form->get('cost')->getData());
-            $historicalPriceCost->setCreatedByUser($this->getUser());
+            // $historicalPriceCost->setCreatedByUser($this->getUser());
             $entityManager->persist($historicalPriceCost);
 
             if ($imagesFiles[0]) {
@@ -193,9 +187,7 @@ class ProductsController extends AbstractController
         return $this->renderForm('secure/products/form_products.html.twig', $data);
     }
 
-    /**
-     * @Route("/{id}/edit", name="secure_product_edit", methods={"GET","POST"})
-     */
+    #[Route("/{id}/edit", name: "secure_product_edit", methods: ["GET", "POST"])]
     public function edit(EntityManagerInterface $em, $id, Request $request, SluggerInterface $slugger, ProductRepository $productRepository, SubcategoryRepository $subcategoryRepository, CommunicationStatesBetweenPlatformsRepository $communicationStatesBetweenPlatformsRepository, SendProductTo3pl $sendProductTo3pl): Response
     {
         $data['title'] = 'Editar producto';
@@ -225,7 +217,7 @@ class ProductsController extends AbstractController
                 $historicalPriceCost->setProduct($data['product']);
                 $historicalPriceCost->setPrice($form->get('price')->getData());
                 $historicalPriceCost->setCost($form->get('cost')->getData());
-                $historicalPriceCost->setCreatedByUser($this->getUser());
+                // $historicalPriceCost->setCreatedByUser($this->getUser());
                 $entityManager->persist($historicalPriceCost);
             }
 
@@ -308,9 +300,7 @@ class ProductsController extends AbstractController
         return $this->renderForm('secure/products/form_products.html.twig', $data);
     }
 
-    /**
-     * @Route("/{product_id}/discount", name="secure_product_discount", methods={"GET","POST"})
-     */
+    #[Route("/{product_id}/discount", name: "secure_product_discount", methods: ["GET", "POST"])]
     public function discount(EntityManagerInterface $em, $product_id, Request $request, ProductRepository $productRepository, ProductDiscountRepository $productDiscountRepository): Response
     {
         $data['title'] = 'Descuento de producto';
@@ -355,9 +345,7 @@ class ProductsController extends AbstractController
         return $this->renderForm('secure/products/form_discount.html.twig', $data);
     }
 
-    /**
-     * @Route("/discount/{discount_id}/disable", name="secure_product_discount_disable", methods={"GET"})
-     */
+    #[Route("/discount/{discount_id}/disable", name: "secure_product_discount_disable", methods: ["GET"])]
     public function disableDiscount(EntityManagerInterface $em, $discount_id, ProductDiscountRepository $productDiscountRepository): Response
     {
         $data['products_discount'] = $productDiscountRepository->find($discount_id);
@@ -376,9 +364,7 @@ class ProductsController extends AbstractController
         return $this->redirectToRoute('secure_product_discount', ['product_id' => $data['products_discount']->getProduct()->getId()]);
     }
 
-    /**
-     * @Route("/{product_id}/tag", name="secure_product_tag", methods={"GET","POST"})
-     */
+    #[Route("/{product_id}/tag", name: "secure_product_tag", methods: ["GET", "POST"])]
     public function tag(EntityManagerInterface $em, $product_id, Request $request, ProductRepository $productRepository): Response
     {
         $data['title'] = 'Etiqueta';
@@ -411,9 +397,7 @@ class ProductsController extends AbstractController
         return $this->renderForm('secure/products/form_tag.html.twig', $data);
     }
 
-    /**
-     * @Route("/consultFreeSku/{sku}", name="secure_consult_free_sku", methods={"GET"})
-     */
+    #[Route("/consultFreeSku/{sku}", name: "secure_consult_free_sku", methods: ["GET"])]
     public function consultFreeSku($sku, ProductRepository $productRepository, Request $request): Response
     {
         $data['data'] = $productRepository->findFreeSku($sku, $request->get('product_id'));
@@ -426,9 +410,7 @@ class ProductsController extends AbstractController
         return new JsonResponse($data);
     }
 
-    /**
-     * @Route("/deleteImageProduct", name="secure_delete_image_product", methods={"POST"})
-     */
+    #[Route("/deleteImageProduct", name: "secure_delete_image_product", methods: ["POST"])]
     public function deleteImageProduct(EntityManagerInterface $em, ProductImagesRepository $productImagesRepository, Request $request): Response
     {
         $em = $em;
@@ -481,9 +463,7 @@ class ProductsController extends AbstractController
         return new JsonResponse($data);
     }
 
-    /**
-     * @Route("/newPrincipalImage", name="secure_new_principal_image_product", methods={"POST"})
-     */
+    #[Route("/newPrincipalImage", name: "secure_new_principal_image_product", methods: ["POST"])]
     public function newPrincipalImage(EntityManagerInterface $em, ProductImagesRepository $productImagesRepository, Request $request): Response
     {
 
@@ -511,9 +491,7 @@ class ProductsController extends AbstractController
     }
 
 
-    /**
-     * @Route("/updateVisible/product", name="secure_product_update_visible", methods={"post"})
-     */
+    #[Route("/updateVisible/product", name: "secure_product_update_visible", methods: ["post"])]
     public function updateVisible(EntityManagerInterface $em, Request $request, ProductRepository $ProductRepository): Response
     {
         $id = (int)$request->get('id');

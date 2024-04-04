@@ -20,15 +20,11 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 
-/**
- * @Route("/customeraddresses")
- */
+#[Route("/customeraddresses")]
 class CustomerAddressesController extends AbstractController
 {
 
-    /**
-     * @Route("/{customer_id}/addresses", name="secure_customer_addresses", methods={"GET"})
-     */
+    #[Route("/{customer_id}/addresses", name: "secure_customer_addresses", methods: ["GET"])]
     public function index($customer_id, CustomerAddressesRepository $customerAddressesRepository, CustomerRepository $customerRepository): Response
     {
         $data['title'] = 'Direcciones del cliente';
@@ -42,9 +38,7 @@ class CustomerAddressesController extends AbstractController
         return $this->render('secure/customer_addresses/index.html.twig', $data);
     }
 
-    /**
-     * @Route("/{customer_id}/new", name="secure_customer_address_new", methods={"GET","POST"})
-     */
+    #[Route("/{customer_id}/new", name: "secure_customer_address_new", methods: ["GET", "POST"])]
     public function new(EntityManagerInterface $em, $customer_id, Request $request, CustomerAddressesRepository $customerAddressesRepository, CustomerRepository $customerRepository, StatesRepository $statesRepository, CitiesRepository $citiesRepository, HttpClientInterface $client): Response
     {
         $data['customer'] = $customerRepository->find($customer_id);
@@ -122,9 +116,7 @@ class CustomerAddressesController extends AbstractController
     }
 
 
-    /**
-     * @Route("/{customer_id}/edit/{customer_address_id}", name="secure_customer_address_edit", methods={"GET","POST"})
-     */
+    #[Route("/{customer_id}/edit/{customer_address_id}", name: "secure_customer_address_edit", methods: ["GET", "POST"])]
     public function edit(EntityManagerInterface $em, $customer_id, Request $request, $customer_address_id, StatesRepository $statesRepository, CitiesRepository $citiesRepository, CustomerAddressesRepository $customerAddressesRepository, CustomerRepository $customerRepository, HttpClientInterface $client)
     {
         $data['customer'] = $customerRepository->find($customer_id);
@@ -203,9 +195,7 @@ class CustomerAddressesController extends AbstractController
         return $this->renderForm('secure/customer_addresses/customer_address_form.html.twig', $data);
     }
 
-    /**
-     * @Route("/getStates/{country_id}", name="secure_customer_address_get_states", methods={"GET"})
-     */
+    #[Route("/getStates/{country_id}", name: "secure_customer_address_get_states", methods: ["GET"])]
     public function getStates($country_id, StatesRepository $statesRepository): Response
     {
         $data['data'] = $statesRepository->findStatesByCountryId($country_id);
@@ -218,9 +208,7 @@ class CustomerAddressesController extends AbstractController
         return new JsonResponse($data);
     }
 
-    /**
-     * @Route("/getCities/{state_id}", name="secure_customer_address_get_cities", methods={"GET"})
-     */
+    #[Route("/getCities/{state_id}", name: "secure_customer_address_get_cities", methods: ["GET"])]
     public function getCities($state_id, CitiesRepository $citiesRepository): Response
     {
         $data['data'] = $citiesRepository->findCitiesByStateId($state_id);

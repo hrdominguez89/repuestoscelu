@@ -6,16 +6,11 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * Class PaymentMethodController
- * @package App\Controller\Secure
- * @Route("/payment-method")
- */
+
+#[Route("/payment-method")]
 class PaymentMethodController extends AbstractController
 {
-    /**
-     * @Route("/", name="secure_payment_method")
-     */
+    #[Route("/", name: "secure_payment_method")]
     public function index(): Response
     {
 

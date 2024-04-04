@@ -12,15 +12,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/tag")
- */
+#[Route("/tag")]
 class CrudTagController extends AbstractController
 {
 
-    /**
-     * @Route("/", name="secure_crud_tag_index", methods={"GET"})
-     */
+    #[Route("/", name: "secure_crud_tag_index", methods: ["GET"])]
     public function index(TagRepository $tagRepository): Response
     {
         $data['title'] = 'Etiquetas';
@@ -32,9 +28,7 @@ class CrudTagController extends AbstractController
         return $this->render('secure/crud_tag/abm_tags.html.twig', $data);
     }
 
-    /**
-     * @Route("/new", name="secure_crud_tag_new", methods={"GET","POST"})
-     */
+    #[Route("/new", name: "secure_crud_tag_new", methods: ["GET", "POST"])]
     public function new(EntityManagerInterface $em, Request $request): Response
     {
         $data['title'] = 'Nueva etiqueta';
@@ -58,9 +52,7 @@ class CrudTagController extends AbstractController
         return $this->renderForm('secure/crud_tag/form_tag.html.twig', $data);
     }
 
-    /**
-     * @Route("/{id}/edit", name="secure_crud_tag_edit", methods={"GET","POST"})
-     */
+    #[Route("/{id}/edit", name: "secure_crud_tag_edit", methods: ["GET", "POST"])]
     public function edit(EntityManagerInterface $em, $id, Request $request, TagRepository $tagRepository): Response
     {
         $data['title'] = 'Editar etiqueta';
@@ -84,9 +76,7 @@ class CrudTagController extends AbstractController
         return $this->renderForm('secure/crud_tag/form_tag.html.twig', $data);
     }
 
-    /**
-     * @Route("/updateVisible/tag", name="secure_tag_update_visible", methods={"post"})
-     */
+    #[Route("/updateVisible/tag", name: "secure_tag_update_visible", methods: ["post"])]
     public function updateVisible(EntityManagerInterface $em, Request $request, TagRepository $TagRepository): Response
     {
         $id = (int)$request->get('id');

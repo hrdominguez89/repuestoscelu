@@ -19,9 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 
-/**
- * @Route("/api/customer/favorite")
- */
+#[Route("/api/customer/favorite")]
 class CustomerFavoriteApiController extends AbstractController
 {
 
@@ -37,9 +35,7 @@ class CustomerFavoriteApiController extends AbstractController
         $this->customer = $customerRepository->findOneBy(['email' => $username]);
     }
 
-    /**
-     * @Route("/list", name="api_favorite_list",methods={"GET"})
-     */
+    #[Route("/list", name: "api_favorite_list", methods: ["GET"])]
     public function favoriteList(FavoriteProductRepository $favoriteProductRepository): Response
     {
 
@@ -72,9 +68,7 @@ class CustomerFavoriteApiController extends AbstractController
         );
     }
 
-    /**
-     * @Route("/add", name="api_favorite_add",methods={"POST"})
-     */
+    #[Route("/add", name: "api_favorite_add", methods: ["POST"])]
     public function favoriteAdd(Request $request, StatusTypeFavoriteRepository $statusTypeFavoriteRepository, ProductRepository $productRepository, ShoppingCartRepository $shoppingCartRepository, FavoriteProductRepository $favoriteProductRepository, EntityManagerInterface $em): Response
     {
 
@@ -135,9 +129,7 @@ class CustomerFavoriteApiController extends AbstractController
         );
     }
 
-    /**
-     * @Route("/remove", name="api_favorite_remove",methods={"POST"})
-     */
+    #[Route("/remove", name: "api_favorite_remove", methods: ["POST"])]
     public function favoriteRemove(Request $request, StatusTypeFavoriteRepository $statusTypeFavoriteRepository, ProductRepository $productRepository, FavoriteProductRepository $favoriteProductRepository, EntityManagerInterface $em): Response
     {
 
@@ -183,9 +175,7 @@ class CustomerFavoriteApiController extends AbstractController
         );
     }
 
-    /**
-     * @Route("/removeAll", name="api_favorite_remove_all",methods={"POST"})
-     */
+    #[Route("/removeAll", name: "api_favorite_remove_all", methods: ["POST"])]
     public function favoriteRemoveAll(StatusTypeFavoriteRepository $statusTypeFavoriteRepository, FavoriteProductRepository $favoriteProductRepository, EntityManagerInterface $em): Response
     {
 

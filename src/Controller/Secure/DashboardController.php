@@ -13,11 +13,7 @@ use App\Service\slugify;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-/**
- * Class DashboardController
- * @package App\Controller
- * @Route("/dashboard")
- */
+#[Route("/dashboard")]
 class DashboardController extends AbstractController
 {
 
@@ -35,18 +31,14 @@ class DashboardController extends AbstractController
         $this->baseUrl =  $requestStack->getCurrentRequest()->getSchemeAndHttpHost();
     }
 
-    /**
-     * @Route("/", name="dashboard_app", methods={"GET"})
-     */
+    #[Route("/", name: "dashboard_app", methods: ["GET"])]
     public function main()
     {
         return $this->render('home/dashboard.html.twig', [
             'controller_name' => 'DefaultController',
         ]);
     }
-    /**
-     * @Route("/order/sumary", name="order_sumary", methods={"GET"})
-     */
+    #[Route("/order/sumary", name: "order_sumary", methods: ["GET"])]
     public function orderSummaryAction(ShoppingRepository $shoppingCartRepository)
     {
         $year = date('Y');
@@ -105,9 +97,7 @@ class DashboardController extends AbstractController
         return 30;
     }
 
-    /**
-     * @Route("/summary/by-month", name="order_sumary_by_month", methods={"GET"})
-     */
+    #[Route("/summary/by-month", name: "order_sumary_by_month", methods: ["GET"])]
     public function summaryByMonthAction(ShoppingRepository $shoppingCartRepository)
     {
         $year = date('Y');
@@ -135,9 +125,7 @@ class DashboardController extends AbstractController
         return new JsonResponse($result);
     }
 
-    /**
-     * @Route("/products/best-seller", name="products_best_seller", methods={"GET"})
-     */
+    #[Route("/products/best-seller", name: "products_best_seller", methods: ["GET"])]
     public function productBestSellerAction(ShoppingRepository $shoppingCartRepository)
     {
         $month = date('m');
@@ -172,9 +160,7 @@ class DashboardController extends AbstractController
         return new JsonResponse($result);
     }
 
-    /**
-     * @Route("/products/best-category", name="products_best_category", methods={"GET"})
-     */
+    #[Route("/products/best-category", name: "products_best_category", methods: ["GET"])]
     public function bestCategoryAction(ShoppingRepository $shoppingCartRepository, Request $request)
     {
         $limit = $request->get('limit') ? $request->get('limit') : 4;
@@ -210,9 +196,7 @@ class DashboardController extends AbstractController
         return new JsonResponse($result);
     }
 
-    /**
-     * @Route("/products/best-categories", name="products_best_categories", methods={"GET"})
-     */
+    #[Route("/products/best-categories", name: "products_best_categories", methods: ["GET"])]
     public function bestCategoriesAction(ShoppingRepository $shoppingCartRepository, Request $request)
     {
         $limit = $request->get('limit') ? $request->get('limit') : 4;
@@ -253,9 +237,7 @@ class DashboardController extends AbstractController
         return new JsonResponse($result);
     }
 
-    /**
-     * @Route("/better-customer", name="better_customer", methods={"GET"})
-     */
+    #[Route("/better-customer", name: "better_customer", methods: ["GET"])]
     public function betterCustomerAction(ShoppingRepository $shoppingCartRepository, UrlHelper $urlHelper)
     {
         $month = date('m');
@@ -279,9 +261,7 @@ class DashboardController extends AbstractController
         return new JsonResponse($result);
     }
 
-    /**
-     * @Route("/last-orders", name="last_orders", methods={"GET"})
-     */
+    #[Route("/last-orders", name: "last_orders", methods: ["GET"])]
     public function lastOrderAction(OrderRepository $shoppingOrderRepository, UrlHelper $urlHelper)
     {
         $products = $shoppingOrderRepository->lastOrders();
@@ -302,9 +282,7 @@ class DashboardController extends AbstractController
         return new JsonResponse($result);
     }
 
-    /**
-     * @Route("/best-brand", name="best_brand", methods={"GET"})
-     */
+    #[Route("/best-brand", name: "best_brand", methods: ["GET"])]
     public function bestBrandAction(ShoppingRepository $shoppingCartRepository, UrlHelper $urlHelper)
     {
         $month = date('m');

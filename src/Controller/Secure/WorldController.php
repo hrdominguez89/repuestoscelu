@@ -19,14 +19,10 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @Route("/world")
- */
+#[Route("/world")]
 class WorldController extends AbstractController
 {
-    /**
-     * @Route("/", name="secure_crud_world_index")
-     */
+    #[Route("/", name: "secure_crud_world_index")]
     public function index(CountriesRepository $countriesRepository): Response
     {
         $data['title'] = 'Paises';
@@ -38,9 +34,7 @@ class WorldController extends AbstractController
         return $this->render('secure/world/abm_countries.html.twig', $data);
     }
 
-    /**
-     * @Route("/new", name="secure_crud_world_new_country")
-     */
+    #[Route("/new", name: "secure_crud_world_new_country")]
     public function newCountry(EntityManagerInterface $em, Request $request, SubregionTypeRepository $subregionTypeRepository): Response
     {
         $data['title'] = 'Nuevo país';
@@ -68,9 +62,7 @@ class WorldController extends AbstractController
     }
 
 
-    /**
-     * @Route("/{country_id}/edit", name="secure_crud_world_edit_country")
-     */
+    #[Route("/{country_id}/edit", name: "secure_crud_world_edit_country")]
     public function editCountry(EntityManagerInterface $em, $country_id, Request $request, CountriesRepository $countriesRepository, SubregionTypeRepository $subregionTypeRepository): Response
     {
         $data['title'] = 'Editar País';
@@ -98,9 +90,7 @@ class WorldController extends AbstractController
     }
 
 
-    /**
-     * @Route("/{country_id}/states", name="secure_crud_states_index")
-     */
+    #[Route("/{country_id}/states", name: "secure_crud_states_index")]
     public function indexStates($country_id, CountriesRepository $countriesRepository, StatesRepository $statesRepository): Response
     {
         $data['title'] = 'Estados/Provincias';
@@ -114,9 +104,7 @@ class WorldController extends AbstractController
         return $this->render('secure/world/abm_states.html.twig', $data);
     }
 
-    /**
-     * @Route("/{country_id}/state/new", name="secure_crud_state_new")
-     */
+    #[Route("/{country_id}/state/new", name: "secure_crud_state_new")]
     public function newState(EntityManagerInterface $em, $country_id, CountriesRepository $countriesRepository, Request $request): Response
     {
         $data['title'] = 'Nuevo Estado/Provincia';
@@ -143,9 +131,7 @@ class WorldController extends AbstractController
         return $this->renderForm('secure/world/form_state.html.twig', $data);
     }
 
-    /**
-     * @Route("/{country_id}/state/{state_id}/edit", name="secure_crud_state_edit")
-     */
+    #[Route("/{country_id}/state/{state_id}/edit", name: "secure_crud_state_edit")]
     public function editState(EntityManagerInterface $em, $country_id, $state_id, Request $request, CountriesRepository $countriesRepository, StatesRepository $statesRepository): Response
     {
         $data['title'] = 'Editar Estado/Provincia';
@@ -170,9 +156,7 @@ class WorldController extends AbstractController
         return $this->renderForm('secure/world/form_state.html.twig', $data);
     }
 
-    /**
-     * @Route("/{country_id}/state/{state_id}/cities", name="secure_crud_cities_index")
-     */
+    #[Route("/{country_id}/state/{state_id}/cities", name: "secure_crud_cities_index")]
     public function indexCities($country_id, $state_id, CountriesRepository $countriesRepository, StatesRepository $statesRepository, CitiesRepository $citiesRepository): Response
     {
         $data['title'] = 'Ciudades';
@@ -188,9 +172,7 @@ class WorldController extends AbstractController
         return $this->render('secure/world/abm_cities.html.twig', $data);
     }
 
-    /**
-     * @Route("/{country_id}/state/{state_id}/city/new", name="secure_crud_city_new")
-     */
+    #[Route("/{country_id}/state/{state_id}/city/new", name: "secure_crud_city_new")]
     public function newCity(EntityManagerInterface $em, $country_id, $state_id, Request $request, CountriesRepository $countriesRepository, StatesRepository $statesRepository): Response
     {
         $data['title'] = 'Nueva Ciudad';
@@ -221,9 +203,7 @@ class WorldController extends AbstractController
         return $this->renderForm('secure/world/form_city.html.twig', $data);
     }
 
-    /**
-     * @Route("/{country_id}/state/{state_id}/city/{city_id}/edit", name="secure_crud_city_edit")
-     */
+    #[Route("/{country_id}/state/{state_id}/city/{city_id}/edit", name: "secure_crud_city_edit")]
     public function editCity(EntityManagerInterface $em, $country_id, $state_id, $city_id, Request $request, CountriesRepository $countriesRepository, StatesRepository $statesRepository, CitiesRepository $citiesRepository): Response
     {
         $data['title'] = 'Editar Ciudad';
@@ -251,9 +231,7 @@ class WorldController extends AbstractController
     }
 
 
-    /**
-     * @Route("/getSubregiones/{region_id}", name="secure_world_get_subregion", methods={"GET"})
-     */
+    #[Route("/getSubregiones/{region_id}", name: "secure_world_get_subregion", methods: ["GET"])]
     public function getSubregiones($region_id, SubregionTypeRepository $subregionTypeRepository): Response
     {
         $data['data'] = $subregionTypeRepository->findSubregiones($region_id);
@@ -266,9 +244,7 @@ class WorldController extends AbstractController
         return new JsonResponse($data);
     }
 
-    /**
-     * @Route("/updateVisible/{entity_name}", name="secure_world_update_visible", methods={"POST"})
-     */
+    #[Route("/updateVisible/{entity_name}", name: "secure_world_update_visible", methods: ["POST"])]
     public function updateVisible(EntityManagerInterface $em, $entity_name, Request $request, CountriesRepository $countriesRepository, StatesRepository $statesRepository, CitiesRepository $citiesRepository): Response
     {
         $id = (int)$request->get('id');

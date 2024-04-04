@@ -18,14 +18,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/subcategory")
- */
+#[Route("/subcategory")]
 class CrudSubcategoryController extends AbstractController
 {
-    /**
-     * @Route("/", name="secure_crud_subcategory_index", methods={"GET"})
-     */
+    #[Route("/", name: "secure_crud_subcategory_index", methods: ["GET"])]
     public function index(SubcategoryRepository $subcategoryRepository): Response
     {
         $data['subcategories'] = $subcategoryRepository->listSubcategories();
@@ -37,9 +33,7 @@ class CrudSubcategoryController extends AbstractController
         return $this->render('secure/crud_subcategory/abm_subcategory.html.twig', $data);
     }
 
-    /**
-     * @Route("/new", name="secure_crud_subcategory_new", methods={"GET","POST"})
-     */
+    #[Route("/new", name: "secure_crud_subcategory_new", methods: ["GET", "POST"])]
     public function new(EntityManagerInterface $em, Request $request, CommunicationStatesBetweenPlatformsRepository $communicationStatesBetweenPlatformsRepository, SendSubcategoryTo3pl $sendSubCategoryTo3pl): Response
     {
         $data['title'] = 'Nueva subcategoría';
@@ -67,9 +61,7 @@ class CrudSubcategoryController extends AbstractController
     }
 
 
-    /**
-     * @Route("/{subcategory_id}/edit", name="secure_crud_subcategory_edit", methods={"GET","POST"})
-     */
+    #[Route("/{subcategory_id}/edit", name: "secure_crud_subcategory_edit", methods: ["GET", "POST"])]
     public function edit(EntityManagerInterface $em, $subcategory_id, Request $request, SubcategoryRepository $subcategoryRepository, CommunicationStatesBetweenPlatformsRepository $communicationStatesBetweenPlatformsRepository, SendSubcategoryTo3pl $sendSubCategoryTo3pl): Response
     {
         $data['title'] = 'Editar subcategoría';
@@ -99,9 +91,7 @@ class CrudSubcategoryController extends AbstractController
         return $this->renderForm('secure/crud_subcategory/form_subcategory.html.twig', $data);
     }
 
-    /**
-     * @Route("/getSubcategories/{category_id}", name="secure_get_categories", methods={"GET"})
-     */
+    #[Route("/getSubcategories/{category_id}", name: "secure_get_categories", methods: ["GET"])]
     public function getSubcategories($category_id, SubcategoryRepository $subcategoryRepository): Response
     {
         $data['data'] = $subcategoryRepository->findSubcategoriesWithId3plByCategoryId($category_id);
@@ -114,9 +104,7 @@ class CrudSubcategoryController extends AbstractController
         return new JsonResponse($data);
     }
 
-    /**
-     * @Route("/updateVisible/subcategory", name="secure_subcategory_update_visible", methods={"post"})
-     */
+    #[Route("/updateVisible/subcategory", name: "secure_subcategory_update_visible", methods: ["post"])]
     public function updateVisible(EntityManagerInterface $em, Request $request, SubcategoryRepository $subcategoryRepository): Response
     {
         $id = (int)$request->get('id');

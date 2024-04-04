@@ -10,14 +10,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-/**
- * @Route("/privacy-policy")
- */
+#[Route("/privacy-policy")]
 class PrivacyPolicyController extends AbstractController
 {
-    /**
-     * @Route("/", name="privacy_policy")
-     */
+    #[Route("/", name: "privacy_policy")]
     public function index(EntityManagerInterface $em, Request $request): Response
     {
         $arr_privacy_policy = $em->getRepository(PrivacyPolicy::class)->findAll();

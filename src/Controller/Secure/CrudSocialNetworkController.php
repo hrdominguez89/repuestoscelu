@@ -11,14 +11,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/social-network")
- */
+#[Route("/social-network")]
 class CrudSocialNetworkController extends AbstractController
 {
-    /**
-     * @Route("/", name="secure_crud_social_network_index", methods={"GET"})
-     */
+    #[Route("/", name: "secure_crud_social_network_index", methods: ["GET"])]
     public function index(SocialNetworkRepository $socialNetworkRepository): Response
     {
         $data['title'] = 'Redes sociales';
@@ -30,9 +26,7 @@ class CrudSocialNetworkController extends AbstractController
         return $this->render('secure/crud_social_network/abm_redes.html.twig', $data);
     }
 
-    /**
-     * @Route("/new", name="secure_crud_social_network_new", methods={"GET","POST"})
-     */
+    #[Route("/new", name: "secure_crud_social_network_new", methods: ["GET", "POST"])]
     public function new(Request $request, EntityManagerInterface $em): Response
     {
         $socialNetwork = new SocialNetwork();
@@ -57,9 +51,7 @@ class CrudSocialNetworkController extends AbstractController
         return $this->renderForm('secure/crud_social_network/form_redes.html.twig', $data);
     }
 
-    /**
-     * @Route("/{id}", name="secure_crud_social_network_show", methods={"GET"})
-     */
+    #[Route("/{id}", name: "secure_crud_social_network_show", methods: ["GET"])]
     public function show($id, SocialNetworkRepository $socialNetworkRepository): Response
     {
         $socialNetwork = $socialNetworkRepository->find($id);
@@ -72,9 +64,7 @@ class CrudSocialNetworkController extends AbstractController
         return $this->render('secure/crud_social_network/show.html.twig', $data);
     }
 
-    /**
-     * @Route("/{id}/edit", name="secure_crud_social_network_edit", methods={"GET","POST"})
-     */
+    #[Route("/{id}/edit", name: "secure_crud_social_network_edit", methods: ["GET", "POST"])]
     public function edit($id, EntityManagerInterface $em, SocialNetworkRepository $socialNetworkRepository, Request $request): Response
     {
         $socialNetwork = $socialNetworkRepository->find($id);
@@ -96,9 +86,7 @@ class CrudSocialNetworkController extends AbstractController
         return $this->renderForm('secure/crud_social_network/form_redes.html.twig', $data);
     }
 
-    /**
-     * @Route("/{id}", name="secure_crud_social_network_delete", methods={"POST"})
-     */
+    #[Route("/{id}", name: "secure_crud_social_network_delete", methods: ["POST"])]
     public function delete(EntityManagerInterface $em, Request $request, $id, SocialNetworkRepository $socialNetworkRepository): Response
     {
         $socialNetwork = $socialNetworkRepository->find($id);

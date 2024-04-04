@@ -10,15 +10,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-/**
- * @Route("/shipments")
- */
+#[Route("/shipments")]
 
 class ShipmentsController extends AbstractController
 {
-    /**
-     * @Route("/", name="shipments")
-     */
+    #[Route("/", name: "shipments")]
     public function index(EntityManagerInterface $em, Request $request): Response
     {
         $arr_shipments = $em->getRepository(Shipments::class)->findAll();

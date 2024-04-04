@@ -16,9 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-/**
- * @Route("/warehouse")
- */
+#[Route("/warehouse")]
 class WarehouseController extends AbstractController
 {
 
@@ -48,9 +46,7 @@ class WarehouseController extends AbstractController
         $this->requestStack = $requestStack;
     }
 
-    /**
-     * @Route("/", name="secure_crud_warehouse_index")
-     */
+    #[Route("/", name: "secure_crud_warehouse_index")]
     public function index(
         Request $request,
         EntityManagerInterface $em

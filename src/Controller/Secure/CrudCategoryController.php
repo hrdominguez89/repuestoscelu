@@ -18,16 +18,12 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 
 
 
-/**
- * @Route("/category")
- */
+#[Route("/category")]
 class CrudCategoryController extends AbstractController
 {
 
     private $pathImg = 'categories';
-    /**
-     * @Route("/", name="secure_crud_category_index", methods={"GET"})
-     */
+    #[Route("/", name: "secure_crud_category_index", methods: ["GET"])]
     public function index(CategoryRepository $categoryRepository): Response
     {
         $data['title'] = 'Categorías';
@@ -40,9 +36,7 @@ class CrudCategoryController extends AbstractController
         return $this->render('secure/crud_category/abm_categories.html.twig', $data);
     }
 
-    /**
-     * @Route("/new", name="secure_crud_category_new", methods={"GET","POST"})
-     */
+    #[Route("/new", name: "secure_crud_category_new", methods: ["GET", "POST"])]
     public function new(EntityManagerInterface $em, Request $request, FileUploader $fileUploader, CommunicationStatesBetweenPlatformsRepository $communicationStatesBetweenPlatformsRepository, SendCategoryTo3pl $sendCategoryTo3pl): Response
     {
         $data['title'] = 'Nueva categoría';
@@ -74,9 +68,7 @@ class CrudCategoryController extends AbstractController
         return $this->renderForm('secure/crud_category/form_categories.html.twig', $data);
     }
 
-    /**
-     * @Route("/{id}/edit", name="secure_crud_category_edit", methods={"GET","POST"})
-     */
+    #[Route("/{id}/edit", name: "secure_crud_category_edit", methods: ["GET", "POST"])]
     public function edit($id, EntityManagerInterface $em, Request $request, CategoryRepository $categoryRepository, FileUploader $fileUploader, CommunicationStatesBetweenPlatformsRepository $communicationStatesBetweenPlatformsRepository, SendCategoryTo3pl $sendCategoryTo3pl): Response
     {
         $data['title'] = 'Editar categoría';
@@ -111,9 +103,7 @@ class CrudCategoryController extends AbstractController
         return $this->renderForm('secure/crud_category/form_categories.html.twig', $data);
     }
 
-    /**
-     * @Route("/updateVisible/category", name="secure_category_update_visible", methods={"post"})
-     */
+    #[Route("/updateVisible/category", name: "secure_category_update_visible", methods: ["post"])]
     public function updateVisible(EntityManagerInterface $em, Request $request, CategoryRepository $categoryRepository): Response
     {
         $id = (int)$request->get('id');

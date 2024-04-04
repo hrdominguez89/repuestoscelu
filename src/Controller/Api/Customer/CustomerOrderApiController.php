@@ -24,9 +24,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 
-/**
- * @Route("/api/customer")
- */
+#[Route("/api/customer")]
 class CustomerOrderApiController extends AbstractController
 {
 
@@ -42,9 +40,7 @@ class CustomerOrderApiController extends AbstractController
         $this->customer = $customerRepository->findOneBy(['email' => $username]);
     }
 
-    /**
-     * @Route("/pre-order", name="api_customer_pre_order",methods={"POST"})
-     */
+    #[Route("/pre-order", name: "api_customer_pre_order", methods: ["POST"])]
     public function preOrder(
         Request $request,
         StatusOrderTypeRepository $statusOrderTypeRepository,
@@ -162,9 +158,7 @@ class CustomerOrderApiController extends AbstractController
         }
     }
 
-    /**
-     * @Route("/order/{order_id}", name="api_customer_order",methods={"GET","POST"})
-     */
+    #[Route("/order/{order_id}", name: "api_customer_order", methods: ["GET", "POST"])]
     public function order(
         $order_id,
         Request $request,
@@ -323,9 +317,7 @@ class CustomerOrderApiController extends AbstractController
         }
     }
 
-    /**
-     * @Route("/orders", name="api_customer_orders",methods={"GET"})
-     */
+    #[Route("/orders", name: "api_customer_orders", methods: ["GET"])]
     public function orders(
         $id,
         Request $request,

@@ -10,14 +10,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-/**
- * @Route("/customer-support")
- */
+#[Route("/customer-support")]
 class CustomerSupportController extends AbstractController
 {
-    /**
-     * @Route("/", name="customer_support")
-     */
+    #[Route("/", name: "customer_support")]
     public function index(EntityManagerInterface $em, Request $request): Response
     {
         $arr_customer_support = $em->getRepository(CustomerSupport::class)->findAll();

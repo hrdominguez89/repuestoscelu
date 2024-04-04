@@ -24,9 +24,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 
-/**
- * @Route("/api/customer")
- */
+#[Route("/api/customer")]
 class CustomerAddressApiController extends AbstractController
 {
 
@@ -42,9 +40,7 @@ class CustomerAddressApiController extends AbstractController
         $this->customer = $customerRepository->findOneBy(['email' => $username]);
     }
 
-    /**
-     * @Route("/pre-ordera", name="api_customer_pre_ordera",methods={"POST"})
-     */
+    #[Route("/pre-ordera", name: "api_customer_pre_ordera", methods: ["POST"])]
     public function preOrder(
         Request $request,
         StatusOrderTypeRepository $statusOrderTypeRepository,
@@ -84,7 +80,7 @@ class CustomerAddressApiController extends AbstractController
             if ($product_on_cart->getAvailable() < $quantity) {
                 $product_on_cart->setQuantity($quantity);
                 $errors['product_quantity_not_available'][] = $product_on_cart->getBasicDataProduct();
-                
+
                 continue;
             }
 
@@ -128,11 +124,10 @@ class CustomerAddressApiController extends AbstractController
                 ->setProduct($shopping_cart_product->getProduct())
                 ->setName($shopping_cart_product->getProduct()->getName())
                 ->setSku($shopping_cart_product->getProduct()->getSku())
-                ->setPartNumber($shopping_cart_product->getProduct()->getPartNumber()?:null)
-                ->setCod($shopping_cart_product->getProduct()->getCod()?:null)
-                ->setWeight($shopping_cart_product->getProduct()->getWeight()?:null)
-                ->setQuantity($shopping_cart_product->getQuantity())
-            ;
+                ->setPartNumber($shopping_cart_product->getProduct()->getPartNumber() ?: null)
+                ->setCod($shopping_cart_product->getProduct()->getCod() ?: null)
+                ->setWeight($shopping_cart_product->getProduct()->getWeight() ?: null)
+                ->setQuantity($shopping_cart_product->getQuantity());
             $em->persist($order_product);
             $em->persist($shopping_cart_product);
 
@@ -163,9 +158,7 @@ class CustomerAddressApiController extends AbstractController
         }
     }
 
-    /**
-     * @Route("/ordera/{id}", name="api_customer_ordera",methods={"GET","POST"})
-     */
+    #[Route("/ordera/{id}", name: "api_customer_ordera", methods: ["GET", "POST"])]
     public function order(
         $id,
         Request $request,
@@ -209,9 +202,7 @@ class CustomerAddressApiController extends AbstractController
         }
     }
 
-    /**
-     * @Route("/ordersa", name="api_customer_ordersa",methods={"GET"})
-     */
+    #[Route("/ordersa", name: "api_customer_ordersa", methods: ["GET"])]
     public function orders(
         $id,
         Request $request,
@@ -254,6 +245,4 @@ class CustomerAddressApiController extends AbstractController
             );
         }
     }
-
-    
 }

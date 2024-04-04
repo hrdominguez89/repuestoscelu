@@ -11,16 +11,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/sections_home")
- */
+#[Route("/sections_home")]
 class SectionsHomeController extends AbstractController
 {
 
-    /**
-     * @Route("/", name="secure_sections_home_index", methods={"GET","POST"})
-     */
-    public function index(EntityManagerInterface $em,SectionsHomeRepository $sectionsHomeRepository, Request $request): Response
+    #[Route("/", name: "secure_sections_home_index", methods: ["GET", "POST"])]
+    public function index(EntityManagerInterface $em, SectionsHomeRepository $sectionsHomeRepository, Request $request): Response
     {
         $data['title'] = 'Secciones de la home';
         $data['breadcrumbs'] = array(
@@ -40,7 +36,7 @@ class SectionsHomeController extends AbstractController
             $entityManager = $em;
             $entityManager->persist($data['sections_home']);
             $entityManager->flush();
-            
+
             $message['type'] = 'modal';
             $message['alert'] = 'success';
             $message['title'] = 'Éxito';

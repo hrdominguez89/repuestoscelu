@@ -11,17 +11,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/advertisements")
- */
+#[Route("/advertisements")]
 class CrudAdvertisementsController extends AbstractController
 {
 
     private $pathImg = 'banners';
 
-    /**
-     * @Route("/", name="secure_crud_advertisements_new", methods={"GET","POST"})
-     */
+    #[Route("/", name: "secure_crud_advertisements_new", methods: ["GET", "POST"])]
     public function new(EntityManagerInterface $em, Request $request, FileUploader $fileUploader): Response
     {
         $arr_advertisement = $em->getRepository(Advertisements::class)->findAll();

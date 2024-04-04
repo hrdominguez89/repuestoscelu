@@ -21,9 +21,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 
-/**
- * @Route("/api/customer/cart")
- */
+#[Route("/api/customer/cart")]
 class CustomerCartApiController extends AbstractController
 {
 
@@ -39,9 +37,7 @@ class CustomerCartApiController extends AbstractController
         $this->customer = $customerRepository->findOneBy(['email' => $username]);
     }
 
-    /**
-     * @Route("/list", name="api_cart_list",methods={"GET"})
-     */
+    #[Route("/list", name: "api_cart_list", methods: ["GET"])]
     public function cartList(ShoppingCartRepository $shoppingCartRepository): Response
     {
 
@@ -72,9 +68,7 @@ class CustomerCartApiController extends AbstractController
         );
     }
 
-    /**
-     * @Route("/addAllFavorites", name="api_cart_add_all_favorites",methods={"POST"})
-     */
+    #[Route("/addAllFavorites", name: "api_cart_add_all_favorites", methods: ["POST"])]
     public function addAllFavorites(ShoppingCartRepository $shoppingCartRepository,  FavoriteProductRepository $favoriteProductRepository, StatusTypeFavoriteRepository $statusTypeFavoriteRepository, StatusTypeShoppingCartRepository $statusTypeShoppingCartRepository, EntityManagerInterface $em): Response
     {
 
@@ -144,9 +138,7 @@ class CustomerCartApiController extends AbstractController
         );
     }
 
-    /**
-     * @Route("/add", name="api_cart_add",methods={"POST"})
-     */
+    #[Route("/add", name: "api_cart_add", methods: ["POST"])]
     public function cartAdd(Request $request, FavoriteProductRepository $favoriteProductRepository, StatusTypeFavoriteRepository $statusTypeFavoriteRepository, StatusTypeShoppingCartRepository $statusTypeShoppingCartRepository, ProductRepository $productRepository, ShoppingCartRepository $shoppingCartRepository, EntityManagerInterface $em): Response
     {
 
@@ -229,9 +221,7 @@ class CustomerCartApiController extends AbstractController
         }
     }
 
-    /**
-     * @Route("/remove", name="api_cart_remove",methods={"POST"})
-     */
+    #[Route("/remove", name: "api_cart_remove", methods: ["POST"])]
     public function cartRemove(Request $request, StatusTypeShoppingCartRepository $statusTypeShoppingCartRepository, ProductRepository $productRepository, ShoppingCartRepository $shoppingCartRepository, EntityManagerInterface $em): Response
     {
 
@@ -289,9 +279,7 @@ class CustomerCartApiController extends AbstractController
         }
     }
 
-    /**
-     * @Route("/removeAll", name="api_cart_remove_all",methods={"POST"})
-     */
+    #[Route("/removeAll", name: "api_cart_remove_all", methods: ["POST"])]
     public function cartRemoveAll(StatusTypeShoppingCartRepository $statusTypeShoppingCartRepository, ShoppingCartRepository $shoppingCartRepository, EntityManagerInterface $em): Response
     {
 

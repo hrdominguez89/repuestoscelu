@@ -15,15 +15,11 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-/**
- * @Route("/cover-image")
- */
+#[Route("/cover-image")]
 class CoverImageController extends AbstractController
 {
 
-    /**
-     * @Route("/", name="secure_cover_image_index", methods={"GET"})
-     */
+    #[Route("/", name: "secure_cover_image_index", methods: ["GET"])]
     public function index(CoverImageRepository $coverImageRepository): Response
     {
         $data['sliders'] = $coverImageRepository->findBy(array(), array('visible' => 'DESC', 'numberOrder' => 'ASC'));
@@ -35,10 +31,8 @@ class CoverImageController extends AbstractController
         return $this->render('secure/cover_image/abm_sliders.html.twig', $data);
     }
 
-    /**
-     * @Route("/new", name="secure_cover_image_new", methods={"GET","POST"})
-     */
-    public function new(Request $request,EntityManagerInterface $em): Response
+    #[Route("/new", name: "secure_cover_image_new", methods: ["GET", "POST"])]
+    public function new(Request $request, EntityManagerInterface $em): Response
     {
         $data['slider'] = new CoverImage();
         $form = $this->createForm(CoverImageType::class, $data['slider']);
@@ -63,9 +57,7 @@ class CoverImageController extends AbstractController
         return $this->renderForm('secure/cover_image/form_cover_image.html.twig', $data);
     }
 
-    /**
-     * @Route("/{id}/show", name="secure_cover_image_show", methods={"GET"})
-     */
+    #[Route("/{id}/show", name: "secure_cover_image_show", methods: ["GET"])]
     public function show(): Response
     {
         $coverImage = new CoverImage();
@@ -74,10 +66,8 @@ class CoverImageController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/{id}/edit", name="secure_cover_image_edit", methods={"GET","POST"})
-     */
-    public function edit($id, CoverImageRepository $coverImageRepository, Request $request,EntityManagerInterface $em): Response
+    #[Route("/{id}/edit", name: "secure_cover_image_edit", methods: ["GET", "POST"])]
+    public function edit($id, CoverImageRepository $coverImageRepository, Request $request, EntityManagerInterface $em): Response
     {
         $data['slider'] = $coverImageRepository->find($id);
         $form = $this->createForm(CoverImageType::class, $data['slider']);
@@ -101,10 +91,8 @@ class CoverImageController extends AbstractController
         return $this->renderForm('secure/cover_image/form_cover_image.html.twig', $data);
     }
 
-    /**
-     * @Route("/{id}/delete", name="secure_cover_image_delete", methods={"POST"})
-     */
-    public function delete(Request $request, $id, CoverImageRepository $coverImageRepository,EntityManagerInterface $em): Response
+    #[Route("/{id}/delete", name: "secure_cover_image_delete", methods: ["POST"])]
+    public function delete(Request $request, $id, CoverImageRepository $coverImageRepository, EntityManagerInterface $em): Response
     {
         $coverImage = new CoverImage();
         if ($this->isCsrfTokenValid('delete' . $coverImageRepository->find($id), $request->request->get('_token'))) {
@@ -117,10 +105,8 @@ class CoverImageController extends AbstractController
     }
 
 
-    /**
-     * @Route("/updateVisible", name="secure_cover_image_update_visible", methods={"POST"})
-     */
-    public function updateVisible(Request $request, CoverImageRepository $coverImageRepository,EntityManagerInterface $em): Response
+    #[Route("/updateVisible", name: "secure_cover_image_update_visible", methods: ["POST"])]
+    public function updateVisible(Request $request, CoverImageRepository $coverImageRepository, EntityManagerInterface $em): Response
     {
         $id = (int)$request->get('id');
         $visible = $request->get('visible');
@@ -144,10 +130,8 @@ class CoverImageController extends AbstractController
         return new JsonResponse($data);
     }
 
-    /**
-     * @Route("/updateOrder", name="secure_cover_image_update_order", methods={"POST"})
-     */
-    public function updateOrder(Request $request, CoverImageRepository $coverImageRepository,EntityManagerInterface $em): Response
+    #[Route("/updateOrder", name: "secure_cover_image_update_order", methods: ["POST"])]
+    public function updateOrder(Request $request, CoverImageRepository $coverImageRepository, EntityManagerInterface $em): Response
     {
         $ids = $request->get('orderData')['ids'];
         $orders = $request->get('orderData')['orders'];

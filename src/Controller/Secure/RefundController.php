@@ -10,14 +10,10 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-/**
- * @Route("/refund")
- */
+#[Route("/refund")]
 class RefundController extends AbstractController
 {
-    /**
-     * @Route("/", name="refund")
-     */
+    #[Route("/", name: "refund")]
     public function index(EntityManagerInterface $em, Request $request): Response
     {
         $arr_refund = $em->getRepository(Refund::class)->findAll();

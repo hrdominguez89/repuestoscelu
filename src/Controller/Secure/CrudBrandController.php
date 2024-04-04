@@ -16,18 +16,14 @@ use App\Constants\Constants;
 use App\Helpers\SendBrandTo3pl;
 use Doctrine\ORM\EntityManagerInterface;
 
-/**
- * @Route("/brand")
- */
+#[Route("/brand")]
 class CrudBrandController extends AbstractController
 {
 
     private $pathImg = 'brands';
 
 
-    /**
-     * @Route("/", name="secure_crud_brand_index", methods={"GET"})
-     */
+    #[Route("/", name: "secure_crud_brand_index", methods: ["GET"])]
     public function index(BrandRepository $brandRepository): Response
     {
         $data['title'] = 'Marcas';
@@ -39,9 +35,7 @@ class CrudBrandController extends AbstractController
         return $this->render('secure/crud_brand/abm_brand.html.twig', $data);
     }
 
-    /**
-     * @Route("/new", name="secure_crud_brand_new", methods={"GET","POST"})
-     */
+    #[Route("/new", name: "secure_crud_brand_new", methods: ["GET", "POST"])]
     public function new(EntityManagerInterface $em, Request $request, FileUploader $fileUploader, CommunicationStatesBetweenPlatformsRepository $communicationStatesBetweenPlatformsRepository, SendBrandTo3pl $sendBrandTo3pl): Response
     {
         $data['title'] = 'Nueva marca';
@@ -72,10 +66,8 @@ class CrudBrandController extends AbstractController
         return $this->renderForm('secure/crud_brand/form_brand.html.twig', $data);
     }
 
-    /**
-     * @Route("/{id}/edit", name="secure_crud_brand_edit", methods={"GET","POST"})
-     */
-    public function edit(EntityManagerInterface $em,$id, Request $request, BrandRepository $brandRepository, FileUploader $fileUploader, CommunicationStatesBetweenPlatformsRepository $communicationStatesBetweenPlatformsRepository, SendBrandTo3pl $sendBrandTo3pl): Response
+    #[Route("/{id}/edit", name: "secure_crud_brand_edit", methods: ["GET", "POST"])]
+    public function edit(EntityManagerInterface $em, $id, Request $request, BrandRepository $brandRepository, FileUploader $fileUploader, CommunicationStatesBetweenPlatformsRepository $communicationStatesBetweenPlatformsRepository, SendBrandTo3pl $sendBrandTo3pl): Response
     {
         $data['title'] = 'Editar marca';
         $data['breadcrumbs'] = array(
@@ -106,10 +98,8 @@ class CrudBrandController extends AbstractController
         return $this->renderForm('secure/crud_brand/form_brand.html.twig', $data);
     }
 
-    /**
-     * @Route("/{id}", name="secure_crud_brand_delete", methods={"POST"})
-     */
-    public function delete(Request $request, $id, BrandRepository $brandRepository,EntityManagerInterface $em): Response
+    #[Route("/{id}", name: "secure_crud_brand_delete", methods: ["POST"])]
+    public function delete(Request $request, $id, BrandRepository $brandRepository, EntityManagerInterface $em): Response
     {
         $brand = $brandRepository->find($id);
         if ($this->isCsrfTokenValid('delete' . $brand->getId(), $request->request->get('_token'))) {
@@ -121,10 +111,8 @@ class CrudBrandController extends AbstractController
         return $this->redirectToRoute('secure_crud_brand_index', [], Response::HTTP_SEE_OTHER);
     }
 
-    /**
-     * @Route("/updateVisible/brand", name="secure_brand_update_visible", methods={"post"})
-     */
-    public function updateVisible(Request $request, BrandRepository $brandRepository,EntityManagerInterface $em): Response
+    #[Route("/updateVisible/brand", name: "secure_brand_update_visible", methods: ["post"])]
+    public function updateVisible(Request $request, BrandRepository $brandRepository, EntityManagerInterface $em): Response
     {
         $id = (int)$request->get('id');
         $visible = $request->get('visible');

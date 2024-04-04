@@ -41,16 +41,12 @@ use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 use Symfony\Component\Uid\Uuid;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 
-/**
- * @Route("/api/front")
- */
+#[Route("/api/front")]
 class FrontApiController extends AbstractController
 {
 
 
-    /**
-     * @Route("/searchTypeList", name="api_search_type_list",methods={"GET"})
-     */
+    #[Route("/searchTypeList", name: "api_search_type_list", methods: ["GET"])]
     public function searchTypeList(CategoryRepository $categoryRepository, TagRepository $tagRepository, BrandRepository $brandRepository): Response
     {
 
@@ -89,9 +85,7 @@ class FrontApiController extends AbstractController
     }
 
 
-    /**
-     * @Route("/login", name="api_login",methods={"POST"})
-     */
+    #[Route("/login", name: "api_login", methods: ["POST"])]
     public function login(Request $request, FavoriteProductRepository $favoriteProductRepository, ShoppingCartRepository $shoppingCartRepository, CustomerRepository $customerRepository, PasswordHasherFactoryInterface $passwordHasherFactoryInterface, JWTTokenManagerInterface $jwtManager): Response
     {
         $body = $request->getContent();
@@ -191,9 +185,7 @@ class FrontApiController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/contact", name="api_contanct",methods={"POST"})
-     */
+    #[Route("/contact", name: "api_contanct", methods: ["POST"])]
     public function contact(EnqueueEmail $queue, Request $request, CountriesRepository $countriesRepository): Response
     {
         $body = $request->getContent();
@@ -252,9 +244,7 @@ class FrontApiController extends AbstractController
         );
     }
 
-    /**
-     * @Route("/listPrice", name="api_list_price",methods={"POST"})
-     */
+    #[Route("/listPrice", name: "api_list_price", methods: ["POST"])]
     public function listPrice(EnqueueEmail $queue, Request $request): Response
     {
         $body = $request->getContent();
@@ -295,9 +285,7 @@ class FrontApiController extends AbstractController
         );
     }
 
-    /**
-     * @Route("/products/searchaaaa", name="api_products_searchaaaa",methods={"GET"})
-     */
+    #[Route("/products/searchaaaa", name: "api_products_searchaaaa", methods: ["GET"])]
     public function search(Request $request, CategoryRepository $categoryRepository, TagRepository $tagRepository, ProductRepository $productRepository): Response
     {
 
@@ -369,9 +357,7 @@ class FrontApiController extends AbstractController
         }
     }
 
-    /**
-     * @Route("/products/search", name="api_products_search",methods={"GET"})
-     */
+    #[Route("/products/search", name: "api_products_search", methods: ["GET"])]
     public function productsSearch(
         CategoryRepository $categoryRepository,
         TagRepository $tagRepository,
@@ -478,9 +464,7 @@ class FrontApiController extends AbstractController
         );
     }
 
-    /**
-     * @Route("/products/tag/{slug_tag}", name="api_products_tag",methods={"GET"})
-     */
+    #[Route("/products/tag/{slug_tag}", name: "api_products_tag", methods: ["GET"])]
     public function productsTag($slug_tag, Request $request, CategoryRepository $categoryRepository, TagRepository $tagRepository, ProductRepository $productRepository): Response
     {
 
@@ -521,9 +505,7 @@ class FrontApiController extends AbstractController
     }
 
 
-    /**
-     * @Route("/products/sections", name="api_products_sections",methods={"GET"})
-     */
+    #[Route("/products/sections", name: "api_products_sections", methods: ["GET"])]
     public function sections(Request $request, ProductRepository $productRepository, SectionsHomeRepository $sectionsHomeRepository): Response
     {
         //traigo la linea 1 de secciones.
@@ -583,9 +565,7 @@ class FrontApiController extends AbstractController
         }
     }
 
-    /**
-     * @Route("/product/{product_id}", name="api_product_detail",methods={"GET"})
-     */
+    #[Route("/product/{product_id}", name: "api_product_detail", methods: ["GET"])]
     public function productDetail(Request $request, ProductRepository $productRepository, $product_id): Response
     {
         //traigo el producto 1
@@ -691,9 +671,7 @@ class FrontApiController extends AbstractController
         );
     }
 
-    /**
-     * @Route("/sliders", name="api_sliders",methods={"GET"})
-     */
+    #[Route("/sliders", name: "api_sliders", methods: ["GET"])]
     public function sliders(CoverImageRepository $coverImageRepository): Response
     {
 
@@ -706,9 +684,7 @@ class FrontApiController extends AbstractController
         );
     }
 
-    /**
-     * @Route("/banners", name="api_banners",methods={"GET"})
-     */
+    #[Route("/banners", name: "api_banners", methods: ["GET"])]
     public function banners(AdvertisementsRepository $advertisementsRepository): Response
     {
 
@@ -721,9 +697,7 @@ class FrontApiController extends AbstractController
         );
     }
 
-    /**
-     * @Route("/brands", name="api_brands",methods={"GET"})
-     */
+    #[Route("/brands", name: "api_brands", methods: ["GET"])]
     public function brands(BrandsSectionsRepository $brandsSectionsRepository): Response
     {
 
@@ -736,9 +710,7 @@ class FrontApiController extends AbstractController
         );
     }
 
-    /**
-     * @Route("/about-us", name="api_about_us",methods={"GET"})
-     */
+    #[Route("/about-us", name: "api_about_us", methods: ["GET"])]
     public function aboutUs(AboutUsRepository $aboutUsRepository): Response
     {
 
@@ -750,9 +722,7 @@ class FrontApiController extends AbstractController
         );
     }
 
-    /**
-     * @Route("/faqs", name="api_faqs",methods={"GET"})
-     */
+    #[Route("/faqs", name: "api_faqs", methods: ["GET"])]
     public function faqs(FaqsRepository $faqsRepository, TopicsRepository $topicsRepository): Response
     {
         $topics = $topicsRepository->getTopics();
@@ -766,9 +736,7 @@ class FrontApiController extends AbstractController
         );
     }
 
-    /**
-     * @Route("/customer-type", name="api_customer_type",methods={"GET"})
-     */
+    #[Route("/customer-type", name: "api_customer_type", methods: ["GET"])]
     public function customerType(CustomersTypesRolesRepository $customersTypesRolesRepository): Response
     {
 
@@ -780,9 +748,7 @@ class FrontApiController extends AbstractController
         );
     }
 
-    /**
-     * @Route("/country-code", name="api_country_code",methods={"GET"})
-     */
+    #[Route("/country-code", name: "api_country_code", methods: ["GET"])]
     public function countryCode(CountriesRepository $countriesRepository): Response
     {
 
@@ -794,9 +760,7 @@ class FrontApiController extends AbstractController
         );
     }
 
-    /**
-     * @Route("/categoriesList", name="api_categories_list",methods={"GET"})
-     */
+    #[Route("/categoriesList", name: "api_categories_list", methods: ["GET"])]
     public function categoriesList(CategoryRepository $categoryRepository): Response
     {
 
@@ -825,9 +789,7 @@ class FrontApiController extends AbstractController
         );
     }
 
-    /**
-     * @Route("/register", name="api_register_customer", methods={"POST"})
-     */
+    #[Route("/register", name: "api_register_customer", methods: ["POST"])]
     public function register(
 
         EntityManagerInterface $em,
@@ -907,9 +869,7 @@ class FrontApiController extends AbstractController
         );
     }
 
-    /**
-     * @Route("/validate", name="api_validate_customer", methods={"POST"})
-     */
+    #[Route("/validate", name: "api_validate_customer", methods: ["POST"])]
     public function validate(
 
         EntityManagerInterface $em,
@@ -972,7 +932,7 @@ class FrontApiController extends AbstractController
 
         //Intento enviar el correo encolado
         $queue->sendEnqueue($id_email);
-        
+
         //envio por helper los datos del cliente al crm
         $sendCustomerToCrm->SendCustomerToCrm($customer);
 

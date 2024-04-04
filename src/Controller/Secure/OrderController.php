@@ -19,14 +19,10 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 
-/**
- * @Route("/order")
- */
+#[Route("/order")]
 class OrderController extends AbstractController
 {
-    /**
-     * @Route("/index", name="order")
-     */
+    #[Route("/index", name: "order")]
     public function index(OrderRepository $orderRepository, Request $request): Response
     {
         $orderSearch = new OrderSearchDto();
@@ -44,9 +40,7 @@ class OrderController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/{id}/show", name="secure_order_show", methods={"GET"})
-     */
+    #[Route("/{id}/show", name: "secure_order_show", methods: ["GET"])]
     public function show(Order $order): Response
     {
         return $this->render('secure/order/show.html.twig', [
@@ -54,9 +48,7 @@ class OrderController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/{id}/{status}/change-status", name="secure_order_change_status", methods={"GET"})
-     */
+    #[Route("/{id}/{status}/change-status", name: "secure_order_change_status", methods: ["GET"])]
     public function updateOrder(EntityManagerInterface $em, Order $order, $status, MailerInterface $mailer)
     {
         if ($order) {

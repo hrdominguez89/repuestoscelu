@@ -18,15 +18,11 @@ use App\Form\Model\CustomerSearchDto;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 
-/**
- * @Route("/customer")
- */
+#[Route("/customer")]
 class CrudCustomerController extends AbstractController
 {
 
-    /**
-     * @Route("/", name="secure_crud_customer_index")
-     */
+    #[Route("/", name: "secure_crud_customer_index")]
     public function index(CustomerRepository $customerRepository): Response
     {
 
@@ -40,9 +36,7 @@ class CrudCustomerController extends AbstractController
         return $this->render('secure/crud_customer/abm_customer.html.twig', $data);
     }
 
-    /**
-     * @Route("/new", name="secure_crud_customer_new", methods={"GET","POST"})
-     */
+    #[Route("/new", name: "secure_crud_customer_new", methods: ["GET", "POST"])]
     public function new(EntityManagerInterface $em, Request $request, CustomerStatusTypeRepository $customerStatusTypeRepository, SendCustomerToCrm $sendCustomerToCrm, CommunicationStatesBetweenPlatformsRepository $communicationStatesBetweenPlatformsRepository): Response
     {
 
@@ -84,9 +78,7 @@ class CrudCustomerController extends AbstractController
         return $this->renderForm('secure/crud_customer/customer_form.html.twig', $data);
     }
 
-    /**
-     * @Route("/{id}/edit", name="secure_crud_customer_edit", methods={"GET","POST"})
-     */
+    #[Route("/{id}/edit", name: "secure_crud_customer_edit", methods: ["GET", "POST"])]
     public function edit(EntityManagerInterface $em, $id, Request $request, CustomerRepository $customerRepository, CommunicationStatesBetweenPlatformsRepository $communicationStatesBetweenPlatformsRepository, SendCustomerToCrm $sendCustomerToCrm): Response
     {
         $data['title'] = "Editar cliente";

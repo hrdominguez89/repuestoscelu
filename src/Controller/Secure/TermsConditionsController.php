@@ -10,14 +10,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/terms-conditions")
- */
+#[Route("/terms-conditions")]
 class TermsConditionsController extends AbstractController
 {
-    /**
-     * @Route("/", name="terms_conditions")
-     */
+    #[Route("/", name: "terms_conditions")]
     public function index(EntityManagerInterface $em, Request $request): Response
     {
         $arr_terms_conditions = $em->getRepository(TermsConditions::class)->findAll();
