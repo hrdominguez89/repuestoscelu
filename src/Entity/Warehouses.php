@@ -9,36 +9,24 @@ use Doctrine\ORM\Mapping as ORM;
 use DateTime;
 
 
-/**
- * @ORM\Entity(repositoryClass=WarehousesRepository::class)
- */
+#[ORM\Entity(repositoryClass: WarehousesRepository::class)]
 class Warehouses
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "integer")]
     private $id;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: "integer")]
     private $id3pl;
 
-    /**
-     * @ORM\Column(type="datetime",nullable=false,options={"default":"CURRENT_TIMESTAMP"})
-     */
+    #[ORM\Column(type: "datetime", nullable: false)]
     private $created_at;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Inventory::class, mappedBy="warehouse")
-     */
+    #[ORM\OneToMany(targetEntity: Inventory::class, mappedBy: "warehouse")]
     private $inventories;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Orders::class, mappedBy="warehouse")
-     */
+    #[ORM\OneToMany(targetEntity: Orders::class, mappedBy: "warehouse")]
     private $orders;
 
     public function __construct()

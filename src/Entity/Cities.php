@@ -7,98 +7,61 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=CitiesRepository::class)
- * 
- */
+ #[ORM\Entity(repositoryClass:CitiesRepository::class)]
 
 class Cities
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+     #[ORM\Id]
+     #[ORM\GeneratedValue]
+     #[ORM\Column(type:"integer")]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+     #[ORM\Column(type:"string", length:255)]
     private $name;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=States::class, inversedBy="cities")
-     */
+     #[ORM\ManyToOne(targetEntity:States::class, inversedBy:"cities")]
     private $state;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+     #[ORM\Column(type:"string", length:255, nullable:true)]
     private $state_code;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Countries::class, inversedBy="cities")
-     */
+     #[ORM\ManyToOne(targetEntity:Countries::class, inversedBy:"cities")]
     private $country;
 
-    /**
-     * @ORM\Column(type="string", length=2,nullable=true)
-     */
+     #[ORM\Column(type:"string", length:2,nullable:true)]
     private $country_code;
 
-    /**
-     * @ORM\Column(type="decimal", precision=10, scale=8, nullable=true)
-     */
+     #[ORM\Column(type:"decimal", precision:10, scale:8, nullable:true)]
     private $latitude;
 
-    /**
-     * @ORM\Column(type="decimal", precision=11, scale=8, nullable=true)
-     */
+     #[ORM\Column(type:"decimal", precision:11, scale:8, nullable:true)]
     private $longitude;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=false, options={"default":"CURRENT_TIMESTAMP"})
-     */
+     #[ORM\Column(type:"datetime", nullable:false)]
     private $created_at;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+     #[ORM\Column(type:"datetime", nullable:true)]
     private $updated_at;
 
-    /**
-     * @ORM\Column(type="smallint", nullable=true)
-     */
+     #[ORM\Column(type:"smallint", nullable:true)]
     private $flag;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+     #[ORM\Column(type:"string", length:255, nullable:true)]
     private $wikiDataId;
 
-    /**
-     * @ORM\OneToMany(targetEntity=CustomerAddresses::class, mappedBy="city")
-     */
+     #[ORM\OneToMany(targetEntity:CustomerAddresses::class, mappedBy:"city")]
     private $customerAddresses;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=true)
-     */
+     #[ORM\Column(type:"boolean", nullable:true)]
     private $visible;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Orders::class, mappedBy="bill_city")
-     */
+     #[ORM\OneToMany(targetEntity:Orders::class, mappedBy:"bill_city")]
     private $orders;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Orders::class, mappedBy="receiver_city")
-     */
+     #[ORM\OneToMany(targetEntity:Orders::class, mappedBy:"receiver_city")]
     private $receiver_orders;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Recipients::class, mappedBy="city")
-     */
+     #[ORM\OneToMany(targetEntity:Recipients::class, mappedBy:"city")]
     private $recipients;
 
     public function __construct()
@@ -107,6 +70,7 @@ class Cities
         $this->orders = new ArrayCollection();
         $this->receiver_orders = new ArrayCollection();
         $this->recipients = new ArrayCollection();
+        $this->created_at = new \DateTime();
     }
 
     public function __toString()
@@ -251,9 +215,6 @@ class Cities
         return $this;
     }
 
-    /**
-     * @return Collection|CustomerAddresses[]
-     */
     public function getCustomerAddresses(): Collection
     {
         return $this->customerAddresses;

@@ -7,31 +7,21 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=RegionTypeRepository::class)
- */
+#[ORM\Entity(repositoryClass: RegionTypeRepository::class)]
 class RegionType
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "integer")]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private $name;
 
-    /**
-     * @ORM\OneToMany(targetEntity=SubregionType::class, mappedBy="region_type")
-     */
+    #[ORM\OneToMany(targetEntity: SubregionType::class, mappedBy: "region_type")]
     private $subregionTypes;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Countries::class, mappedBy="region_type")
-     */
+    #[ORM\OneToMany(targetEntity: Countries::class, mappedBy: "region_type")]
     private $countries;
 
     public function __construct()
@@ -57,9 +47,6 @@ class RegionType
         return $this;
     }
 
-    /**
-     * @return Collection|SubregionType[]
-     */
     public function getSubregionTypes(): Collection
     {
         return $this->subregionTypes;
@@ -87,9 +74,6 @@ class RegionType
         return $this;
     }
 
-    /**
-     * @return Collection|Countries[]
-     */
     public function getCountries(): Collection
     {
         return $this->countries;

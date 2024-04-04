@@ -5,80 +5,52 @@ namespace App\Entity;
 use App\Repository\OrdersProductsRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=OrdersProductsRepository::class)
- */
+#[ORM\Entity(repositoryClass: OrdersProductsRepository::class)]
 class OrdersProducts
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "integer")]
     private $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Orders::class, inversedBy="ordersProducts")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Orders::class, inversedBy: "ordersProducts")]
+    #[ORM\JoinColumn(nullable: false)]
     private $number_order;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Product::class, inversedBy="ordersProducts")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Product::class, inversedBy: "ordersProducts")]
+    #[ORM\JoinColumn(nullable: false)]
     private $product;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private $name;
 
-    /**
-     * @ORM\Column(type="string", length=40)
-     */
+    #[ORM\Column(type: "string", length: 40)]
     private $sku;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $part_number;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $cod;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private $weight;
 
-    /**
-     * @ORM\Column(type="float",nullable=true)
-     */
+    #[ORM\Column(type: "float", nullable: true)]
     private $price;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: "integer")]
     private $quantity;
 
-    /**
-     * @ORM\Column(type="float",nullable=true)
-     */
+    #[ORM\Column(type: "float", nullable: true)]
     private $discount;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=ProductDiscount::class, inversedBy="ordersProducts")
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\ManyToOne(targetEntity: ProductDiscount::class, inversedBy: "ordersProducts")]
+    #[ORM\JoinColumn(nullable: true)]
     private $product_discount;
 
-    /**
-     * @ORM\OneToOne(targetEntity=ShoppingCart::class, inversedBy="ordersProducts", cascade={"persist", "remove"})
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\OneToOne(targetEntity: ShoppingCart::class, inversedBy: "ordersProducts", cascade: ["persist", "remove"])]
+    #[ORM\JoinColumn(nullable: true)]
     private $shopping_cart;
 
     public function getId(): ?int

@@ -7,36 +7,24 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=ApiClientsTypesRolesRepository::class)
- */
+ #[ORM\Entity(repositoryClass:ApiClientsTypesRolesRepository::class)]
 class ApiClientsTypesRoles
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+     #[ORM\Id]
+     #[ORM\GeneratedValue]
+     #[ORM\Column(type:"integer")]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+     #[ORM\Column(type:"string", length:255)]
     private $role;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+     #[ORM\Column(type:"string", length:255)]
     private $name;
 
-    /**
-     * @ORM\Column(type="text")
-     */
+     #[ORM\Column(type:"text")]
     private $description;
 
-    /**
-     * @ORM\OneToMany(targetEntity=ApiClients::class, mappedBy="api_client_type_role")
-     */
+     #[ORM\OneToMany(targetEntity:ApiClients::class, mappedBy:"api_client_type_role")]
     private $apiClients;
 
     public function __construct()

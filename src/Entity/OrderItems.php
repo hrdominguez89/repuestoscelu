@@ -4,76 +4,38 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\OrderItemsRepository")
- * @ORM\Table("mia_order_items")
- */
+#[ORM\Entity(repositoryClass: "App\Repository\OrderItemsRepository")]
+#[ORM\Table(name: "mia_order_items")]
 class OrderItems
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="bigint")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "bigint")]
     private $id;
 
-    /**
-     * @var Order
-     *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Order", inversedBy="orderItems", cascade={"persist"})
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="order_id", referencedColumnName="id", nullable=false)
-     * })
-     */
+    #[ORM\ManyToOne(targetEntity: Order::class, inversedBy: "orderItems", cascade: ["persist"])]
+    #[ORM\JoinColumn(name: "order_id", referencedColumnName: "id", nullable: false)]
     private $orderId;
 
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="pid", type="bigint")
-     */
+    #[ORM\Column(name: "pid", type: "bigint")]
     private $pId;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="name", type="string", length=100)
-     */
+    #[ORM\Column(name: "name", type: "string", length: 100)]
     private $name;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="slug", type="string", length=100)
-     */
+    #[ORM\Column(name: "slug", type: "string", length: 100)]
     private $slug;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="image", type="string", length=500, nullable=true)
-     */
+    #[ORM\Column(name: "image", type: "string", length: 500, nullable: true)]
     private $image;
 
-    /**
-     * @var float
-     *
-     * @ORM\Column(name="price", type="float")
-     */
+    #[ORM\Column(name: "price", type: "float")]
     private $price;
 
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="quantity", type="integer")
-     */
+    #[ORM\Column(name: "quantity", type: "integer")]
     private $quantity;
 
-    /**
-     * @var float
-     *
-     * @ORM\Column(name="total", type="float")
-     */
+    #[ORM\Column(name: "total", type: "float")]
     private $total;
 
     /**

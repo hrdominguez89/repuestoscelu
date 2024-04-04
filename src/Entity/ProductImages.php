@@ -4,40 +4,26 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\ProductImagesRepository")
- * @ORM\Table("mia_product_image")
- */
+#[ORM\Entity(repositoryClass: "App\Repository\ProductImagesRepository")]
+#[ORM\Table(name: "mia_product_image")]
 class ProductImages
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="bigint")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "bigint")]
     private $id;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="image", type="text", nullable=true)
-     */
+    #[ORM\Column(name: "image", type: "text", nullable: true)]
     private $image;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Product::class, inversedBy="image")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Product::class, inversedBy: "image")]
+    #[ORM\JoinColumn(nullable: false)]
     private $product;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=true, options={"default":false})
-     */
+    #[ORM\Column(type: "boolean", nullable: true, options: ["default" => false])]
     private $principal;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: "text", nullable: true)]
     private $img_thumbnail;
 
     public function __construct()

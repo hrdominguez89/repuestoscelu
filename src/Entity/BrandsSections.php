@@ -5,76 +5,48 @@ namespace App\Entity;
 use App\Repository\BrandsSectionsRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=BrandsSectionsRepository::class)
- */
+ #[ORM\Entity(repositoryClass:BrandsSectionsRepository::class)]
 class BrandsSections
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+     #[ORM\Id]
+     #[ORM\GeneratedValue]
+     #[ORM\Column(type:"integer")]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+     #[ORM\Column(type:"string", length:255)]
     private $brandName1;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+     #[ORM\Column(type:"string", length:255)]
     private $brandImage1;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+     #[ORM\Column(type:"string", length:255)]
     private $brandName2;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+     #[ORM\Column(type:"string", length:255)]
     private $brandImage2;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+     #[ORM\Column(type:"string", length:255)]
     private $brandName3;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+     #[ORM\Column(type:"string", length:255)]
     private $brandImage3;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+     #[ORM\Column(type:"string", length:255)]
     private $brandName4;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+     #[ORM\Column(type:"string", length:255)]
     private $brandImage4;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+     #[ORM\Column(type:"string", length:255)]
     private $brandName5;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+     #[ORM\Column(type:"string", length:255)]
     private $brandImage5;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+     #[ORM\Column(type:"string", length:255)]
     private $brandName6;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+     #[ORM\Column(type:"string", length:255)]
     private $brandImage6;
 
     public function getId(): ?int

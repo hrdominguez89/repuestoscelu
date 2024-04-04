@@ -7,304 +7,190 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=OrdersRepository::class)
- */
+#[ORM\Entity(repositoryClass: OrdersRepository::class)]
 class Orders
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "integer")]
     private $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Customer::class, inversedBy="orders")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: "orders")]
+    #[ORM\JoinColumn(nullable: false)]
     private $customer;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=CustomersTypesRoles::class, inversedBy="orders")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: CustomersTypesRoles::class, inversedBy: "orders")]
+    #[ORM\JoinColumn(nullable: false)]
     private $customer_type;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private $customer_name;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private $customer_email;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Countries::class, inversedBy="orders")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Countries::class, inversedBy: "orders")]
+    #[ORM\JoinColumn(nullable: false)]
     private $customer_phone_code;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private $cel_phone_customer;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $phone_customer;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $customer_identity_type;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $customer_identity_number;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=true)
-     */
+    #[ORM\Column(type: "boolean", nullable: true)]
     private $international_shipping;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=true)
-     */
+    #[ORM\Column(type: "boolean", nullable: true)]
     private $shipping;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $bill_file;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=CustomerAddresses::class, inversedBy="orders")
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\ManyToOne(targetEntity: CustomerAddresses::class, inversedBy: "orders")]
+    #[ORM\JoinColumn(nullable: true)]
     private $bill_address;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Countries::class, inversedBy="orders")
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\ManyToOne(targetEntity: Countries::class, inversedBy: "orders")]
+    #[ORM\JoinColumn(nullable: true)]
     private $biil_country;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=States::class, inversedBy="orders")
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\ManyToOne(targetEntity: States::class, inversedBy: "orders")]
+    #[ORM\JoinColumn(nullable: true)]
     private $bill_state;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Cities::class, inversedBy="orders")
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\ManyToOne(targetEntity: Cities::class, inversedBy: "orders")]
+    #[ORM\JoinColumn(nullable: true)]
     private $bill_city;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: "text", nullable: true)]
     private $bill_address_order;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $bill_postal_code;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: "text", nullable: true)]
     private $bill_additional_info;
 
-    /**
-     * @ORM\Column(type="float", nullable=true)
-     */
+    #[ORM\Column(type: "float", nullable: true)]
     private $subtotal;
 
-    /**
-     * @ORM\Column(type="float", nullable=true)
-     */
+    #[ORM\Column(type: "float", nullable: true)]
     private $total_product_discount;
 
-    /**
-     * @ORM\Column(type="float", nullable=true)
-     */
+    #[ORM\Column(type: "float", nullable: true)]
     private $promotional_code_discount;
 
-    /**
-     * @ORM\Column(type="float", nullable=true)
-     */
+    #[ORM\Column(type: "float", nullable: true)]
     private $tax;
 
-    /**
-     * @ORM\Column(type="float", nullable=true)
-     */
+    #[ORM\Column(type: "float", nullable: true)]
     private $shipping_cost;
 
-    /**
-     * @ORM\Column(type="float", nullable=true)
-     */
+    #[ORM\Column(type: "float", nullable: true)]
     private $shipping_discount;
 
-    /**
-     * @ORM\Column(type="float", nullable=true)
-     */
+    #[ORM\Column(type: "float", nullable: true)]
     private $paypal_service_cost;
 
-    /**
-     * @ORM\Column(type="float", nullable=true)
-     */
+    #[ORM\Column(type: "float", nullable: true)]
     private $total_order;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=StatusOrderType::class, inversedBy="orders")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: StatusOrderType::class, inversedBy: "orders")]
+    #[ORM\JoinColumn(nullable: false)]
     private $status;
 
-    /**
-     * @ORM\OneToMany(targetEntity=GuideNumbers::class, mappedBy="number_order", cascade={"remove"})
-     */
+    #[ORM\OneToMany(targetEntity: GuideNumbers::class, mappedBy: "number_order", cascade: ["remove"])]
     private $guideNumbers;
 
-    /**
-     * @ORM\OneToMany(targetEntity=OrdersProducts::class, mappedBy="number_order", cascade={"remove"})
-     */
+    #[ORM\OneToMany(targetEntity: OrdersProducts::class, mappedBy: "number_order", cascade: ["remove"])]
     private $ordersProducts;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=false, options={"default":"CURRENT_TIMESTAMP"})
-     */
+    #[ORM\Column(type: "datetime", nullable: false)]
     private $created_at;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $receiver_name;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $receiver_document_type;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $receiver_document;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $receiver_phone_cell;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $receiver_phone_home;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $receiver_email;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Countries::class, inversedBy="receiver_orders")
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\ManyToOne(targetEntity: Countries::class, inversedBy: "receiver_orders")]
+    #[ORM\JoinColumn(nullable: true)]
     private $receiver_country;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=States::class, inversedBy="receiver_orders")
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\ManyToOne(targetEntity: States::class, inversedBy: "receiver_orders")]
+    #[ORM\JoinColumn(nullable: true)]
     private $receiver_state;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Cities::class, inversedBy="receiver_orders")
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\ManyToOne(targetEntity: Cities::class, inversedBy: "receiver_orders")]
+    #[ORM\JoinColumn(nullable: true)]
     private $receiver_city;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: "text", nullable: true)]
     private $receiver_address;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $receiver_cod_zip;
 
-    /**
-     * @ORM\Column(type="text", nullable=true, nullable=true)
-     */
+    #[ORM\Column(type: "text", nullable: true)]
     private $receiver_additional_info;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Warehouses::class, inversedBy="orders")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Warehouses::class, inversedBy: "orders")]
+    #[ORM\JoinColumn(nullable: false)]
     private $warehouse;
 
-    /**
-     * @ORM\OneToMany(targetEntity=PaymentsFiles::class, mappedBy="order_number", cascade={"remove"})
-     */
+    #[ORM\OneToMany(targetEntity: PaymentsFiles::class, mappedBy: "order_number", cascade: ["remove"])]
     private $paymentsFiles;
 
-    /**
-     * @ORM\OneToMany(targetEntity=PaymentsReceivedFiles::class, mappedBy="order_number", cascade={"remove"})
-     */
+    #[ORM\OneToMany(targetEntity: PaymentsReceivedFiles::class, mappedBy: "order_number", cascade: ["remove"])]
     private $paymentsReceivedFiles;
 
-    /**
-     * @ORM\OneToMany(targetEntity=DebitCreditNotesFiles::class, mappedBy="number_order", cascade={"remove"})
-     */
+    #[ORM\OneToMany(targetEntity: DebitCreditNotesFiles::class, mappedBy: "number_order", cascade: ["remove"])]
     private $debitCreditNotesFiles;
 
-    /**
-     * @ORM\OneToMany(targetEntity=PaymentsTransactionsCodes::class, mappedBy="order_number", cascade={"remove"})
-     */
+    #[ORM\OneToMany(targetEntity: PaymentsTransactionsCodes::class, mappedBy: "order_number", cascade: ["remove"])]
     private $paymentsTransactionsCodes;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
+    #[ORM\Column(type: "integer", nullable: true)]
     private $inventory_id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=CommunicationStatesBetweenPlatforms::class, inversedBy="orders")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: CommunicationStatesBetweenPlatforms::class, inversedBy: "orders")]
+    #[ORM\JoinColumn(nullable: false)]
     private $status_sent_crm;
 
-    /**
-     * @ORM\Column(type="smallint", options={"default":0})
-     */
+    #[ORM\Column(type: "smallint", options: ["default" => 0])]
     private $attempts_send_crm;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $error_message_crm;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
+    #[ORM\Column(type: "integer", nullable: true)]
     private $sales_id_3pl;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Recipients::class, inversedBy="orders")
-     */
+    #[ORM\ManyToOne(targetEntity: Recipients::class, inversedBy: "orders")]
     private $recipient;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=ShippingTypes::class, inversedBy="orders")
-     */
+    #[ORM\ManyToOne(targetEntity: ShippingTypes::class, inversedBy: "orders")]
     private $shipping_type;
 
     public function __construct()

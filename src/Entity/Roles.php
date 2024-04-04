@@ -7,36 +7,30 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=RolesRepository::class)
- */
+
+ #[ORM\Entity(repositoryClass:RolesRepository::class)]
 class Roles
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    
+     #[ORM\Id]
+     #[ORM\GeneratedValue]
+     #[ORM\Column(type:"integer")]
     private $id;
 
-    /**
-     * @ORM\Column(type="string")
-     */
+    
+     #[ORM\Column(type:"string")]
     private $role;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    
+     #[ORM\Column(type:"string", length:255)]
     private $name;
 
-    /**
-     * @ORM\Column(type="text")
-     */
+    
+     #[ORM\Column(type:"text")]
     private $description;
 
-    /**
-     * @ORM\OneToMany(targetEntity=User::class, mappedBy="role")
-     */
+    
+     #[ORM\OneToMany(targetEntity:User::class, mappedBy:"role")]
     private $users;
 
     public function __construct()
@@ -85,9 +79,7 @@ class Roles
         return $this;
     }
 
-    /**
-     * @return Collection|User[]
-     */
+    
     public function getUsers(): Collection
     {
         return $this->users;

@@ -10,288 +10,174 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\ProductRepository")
- * @ORM\Table("mia_product")
- * 
- * 
- */
+#[ORM\Entity(repositoryClass: "App\Repository\ProductRepository")]
+#[ORM\Table(name: "mia_product")]
 class Product
 {
 
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="bigint")
-     * 
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "bigint")]
     protected $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="sku", type="string", length=255, nullable=false, unique=true)
-     * @Assert\Length(min=28, max=36)
-     * @Assert\Regex(
-     *     pattern="/^[A-Za-z0-9]{3}-[A-Za-z0-9]{3}-[A-Za-z0-9]{12}-[A-Za-z0-9]{3}-[A-Za-z0-9]{3}(?:-[A-Za-z0-9]{3}(?:-[A-Za-z0-9]{3})?)?$/",
-     *     message="El sku no cumple con el formato requerido"
-     * )
-     */
+    #[ORM\Column(name: "sku", type: "string", length: 255, nullable: false, unique: true)]
+    #[Assert\Length(
+        min: 28,
+        max: 36,
+        minMessage: "El valor es demasiado corto. Debe tener 28 caracteres o más.",
+        maxMessage: "El valor es demasiado largo. Debe tener 36 caracteres o menos."
+    )]
+    #[Assert\Regex(
+        pattern: "/^[A-Za-z0-9]{3}-[A-Za-z0-9]{3}-[A-Za-z0-9]{12}-[A-Za-z0-9]{3}-[A-Za-z0-9]{3}(?:-[A-Za-z0-9]{3}(?:-[A-Za-z0-9]{3})?)?$/",
+        message: "El sku no cumple con el formato requerido"
+    )]
     protected $sku;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="name", type="string", nullable=false, length=255)
-     */
+    #[ORM\Column(name: "name", type: "string", nullable: false, length: 255)]
     protected $name;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="slug", type="string", nullable=false, length=255)
-     */
+    #[ORM\Column(name: "slug", type: "string", nullable: false, length: 255)]
     protected $slug;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="description_es", type="text", nullable=true)
-     */
+    #[ORM\Column(name: "description_es", type: "text", nullable: true)]
     protected $descriptionEs;
 
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="created_at", type="datetime", nullable=false, options={"default":"CURRENT_TIMESTAMP"})
-     */
+    #[ORM\Column(name: "created_at", type: "datetime", nullable: false)]
     protected $created_at;
 
-    /**
-     * @ORM\Column(type="string", length=100, nullable="true")
-     * 
-     */
+    #[ORM\Column(type: "string", length: 100, nullable: "true")]
     private $cod;
 
-    /**
-     * @ORM\Column(type="string", length=15, nullable="true")
-     * 
-     */
+    #[ORM\Column(type: "string", length: 15, nullable: "true")]
     private $part_number;
 
-    /**
-     * @ORM\Column(type="integer", nullable=false, options={"default":0})
-     */
+    #[ORM\Column(type: "integer", nullable: false, options: ["default" => 0])]
     private $onhand;
 
-    /**
-     * @ORM\Column(type="integer", nullable=false, options={"default":0})
-     */
+    #[ORM\Column(type: "integer", nullable: false, options: ["default" => 0])]
     private $commited;
 
-    /**
-     * @ORM\Column(type="integer", nullable=false, options={"default":0})
-     * 
-     * 
-     */
+    #[ORM\Column(type: "integer", nullable: false, options: ["default" => 0])]
     private $incomming;
 
-    /**
-     * @ORM\Column(type="integer", nullable=false, options={"default":0})
-     */
+    #[ORM\Column(type: "integer", nullable: false, options: ["default" => 0])]
     private $available;
 
-    /**
-     * @ORM\Column(name="id3pl",type="integer", nullable="true")
-     */
+    #[ORM\Column(name: "id3pl", type: "integer", nullable: "true")]
     private $id3pl;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Category::class, inversedBy="products")
-     */
+    #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: "products")]
     private $category;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Brand::class, inversedBy="products")
-     */
+    #[ORM\ManyToOne(targetEntity: Brand::class, inversedBy: "products")]
     private $brand;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=true, options={"default":False})
-     */
+    #[ORM\Column(type: "boolean", nullable: true, options: ["default" => False])]
     private $visible;
 
-    /**
-     * @ORM\OneToMany(targetEntity=ProductImages::class, mappedBy="product", orphanRemoval=true)
-     */
+    #[ORM\OneToMany(targetEntity: ProductImages::class, mappedBy: "product", orphanRemoval: true)]
     private $image;
 
-    /**
-     * @ORM\Column(name="description_en", nullable=true ,type="text")
-     * 
-     */
+    #[ORM\Column(name: "description_en", nullable: true, type: "text")]
     private $descriptionEn;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Inventory::class, inversedBy="products")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Inventory::class, inversedBy: "products")]
+    #[ORM\JoinColumn(nullable: false)]
     private $inventory;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Subcategory::class, inversedBy="products")
-     * 
-     */
+    #[ORM\ManyToOne(targetEntity: Subcategory::class, inversedBy: "products")]
     private $subcategory;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=CommunicationStatesBetweenPlatforms::class, inversedBy="products")
-     * @ORM\JoinColumn(nullable=false, options={"default":1})
-     */
+    #[ORM\ManyToOne(targetEntity: CommunicationStatesBetweenPlatforms::class, inversedBy: "products")]
+    #[ORM\JoinColumn(nullable: false, options: ["default" => 1])]
     private $status_sent_3pl;
 
-    /**
-     * @ORM\Column(type="smallint", options={"default":0})
-     */
+    #[ORM\Column(type: "smallint", options: ["default" => 0])]
     private $attempts_send_3pl;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: "text", nullable: true)]
     private $error_message_3pl;
 
-    /**
-     * @ORM\OneToMany(targetEntity=HistoryProductStockUpdated::class, mappedBy="product")
-     */
+    #[ORM\OneToMany(targetEntity: HistoryProductStockUpdated::class, mappedBy: "product")]
     private $historyProductStockUpdateds;
 
-    /**
-     * @ORM\OneToMany(targetEntity=ItemsGuideNumber::class, mappedBy="product")
-     */
+    #[ORM\OneToMany(targetEntity: ItemsGuideNumber::class, mappedBy: "product")]
     private $itemsGuideNumbers;
 
-    /**
-     * @ORM\OneToMany(targetEntity=OrdersProducts::class, mappedBy="product")
-     */
+    #[ORM\OneToMany(targetEntity: OrdersProducts::class, mappedBy: "product")]
     private $ordersProducts;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     * 
-     */
+    #[ORM\Column(type: "text", nullable: true)]
     private $long_description_es;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     * 
-     */
+    #[ORM\Column(type: "text", nullable: true)]
     private $long_description_en;
 
-    /**
-     * @ORM\Column(type="float")
-     */
+    #[ORM\Column(type: "float")]
     private $weight;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Specification::class, inversedBy="products_model")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Specification::class, inversedBy: "products_model")]
+    #[ORM\JoinColumn(nullable: false)]
     private $model;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Specification::class, inversedBy="products_color")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Specification::class, inversedBy: "products_color")]
+    #[ORM\JoinColumn(nullable: false)]
     private $color;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Specification::class, inversedBy="products_screen_resolution")
-     */
+    #[ORM\ManyToOne(targetEntity: Specification::class, inversedBy: "products_screen_resolution")]
     private $screen_resolution;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Specification::class, inversedBy="products_screen_size")
-     */
+    #[ORM\ManyToOne(targetEntity: Specification::class, inversedBy: "products_screen_size")]
     private $screen_size;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Specification::class, inversedBy="products_cpu")
-     */
+    #[ORM\ManyToOne(targetEntity: Specification::class, inversedBy: "products_cpu")]
     private $cpu;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Specification::class, inversedBy="products_gpu")
-     */
+    #[ORM\ManyToOne(targetEntity: Specification::class, inversedBy: "products_gpu")]
     private $gpu;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Specification::class, inversedBy="products_memory")
-     */
+    #[ORM\ManyToOne(targetEntity: Specification::class, inversedBy: "products_memory")]
     private $memory;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Specification::class, inversedBy="products_storage")
-     */
+    #[ORM\ManyToOne(targetEntity: Specification::class, inversedBy: "products_storage")]
     private $storage;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Specification::class, inversedBy="products_op_sys")
-     */
+    #[ORM\ManyToOne(targetEntity: Specification::class, inversedBy: "products_op_sys")]
     private $op_sys;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Specification::class, inversedBy="products_conditium")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Specification::class, inversedBy: "products_conditium")]
+    #[ORM\JoinColumn(nullable: false)]
     private $conditium;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=true)
-     */
+    #[ORM\Column(type: "boolean", nullable: true)]
     private $tag_expires;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Tag::class, inversedBy="products")
-     */
+    #[ORM\ManyToOne(targetEntity: Tag::class, inversedBy: "products")]
     private $tag;
 
-    /**
-     * @ORM\Column(type="date", nullable=true)
-     */
+    #[ORM\Column(type: "date", nullable: true)]
     private $tag_expiration_date;
 
-    /**
-     * @ORM\OneToMany(targetEntity=HistoricalPriceCost::class, mappedBy="product", cascade={"persist"})
-     */
+    #[ORM\OneToMany(targetEntity: HistoricalPriceCost::class, mappedBy: "product", cascade: ["persist"])]
     private $historicalPriceCosts;
 
     private $price;
 
     private $cost;
 
-    /**
-     * @ORM\Column(type="smallint", options={"default":5})
-     */
+    #[ORM\Column(type: "smallint", options: ["default" => 5])]
     private $rating;
 
-    /**
-     * @ORM\Column(type="bigint")
-     */
+    #[ORM\Column(type: "bigint")]
     private $reviews;
 
-    /**
-     * @ORM\OneToMany(targetEntity=ProductDiscount::class, mappedBy="product")
-     */
+    #[ORM\OneToMany(targetEntity: ProductDiscount::class, mappedBy: "product")]
     private $productDiscounts;
 
-    /**
-     * @ORM\OneToMany(targetEntity=FavoriteProduct::class, mappedBy="product")
-     */
+    #[ORM\OneToMany(targetEntity: FavoriteProduct::class, mappedBy: "product")]
     private $favoriteProducts;
 
-    /**
-     * @ORM\OneToMany(targetEntity=ShoppingCart::class, mappedBy="product")
-     */
+    #[ORM\OneToMany(targetEntity: ShoppingCart::class, mappedBy: "product")]
     private $shoppingCarts;
 
     public function __construct()

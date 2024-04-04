@@ -4,24 +4,16 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\TermsConditionsRepository")
- * @ORM\Table("mia_terms_coditions")
- */
+#[ORM\Entity(repositoryClass: "App\Repository\TermsConditionsRepository")]
+#[ORM\Table(name: "mia_terms_coditions")]
 class TermsConditions
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="bigint")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "bigint")]
     private $id;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="description", type="text", nullable=true)
-     */
+    #[ORM\Column(name: "description", type: "text", nullable: true)]
     private $description;
 
     /**
@@ -50,6 +42,4 @@ class TermsConditions
 
         return $this;
     }
-
-
 }

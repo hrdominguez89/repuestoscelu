@@ -7,107 +7,67 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=StatesRepository::class)
- */
+#[ORM\Entity(repositoryClass: StatesRepository::class)]
 class States
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "integer")]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private $name;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Countries::class, inversedBy="states")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Countries::class, inversedBy: "states")]
+    #[ORM\JoinColumn(nullable: false)]
     private $country;
 
-    /**
-     * @ORM\Column(type="string", length=2, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 2, nullable: true)]
     private $country_code;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $fips_code;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $iso2;
 
-    /**
-     * @ORM\Column(type="string", length=191, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 191, nullable: true)]
     private $type;
 
-    /**
-     * @ORM\Column(type="decimal", precision=10, scale=8, nullable=true)
-     */
+    #[ORM\Column(type: "decimal", precision: 10, scale: 8, nullable: true)]
     private $latitude;
 
-    /**
-     * @ORM\Column(type="decimal", precision=11, scale=8, nullable=true)
-     */
+    #[ORM\Column(type: "decimal", precision: 11, scale: 8, nullable: true)]
     private $longitude;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+    #[ORM\Column(type: "datetime", nullable: true)]
     private $created_at;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+    #[ORM\Column(type: "datetime", nullable: true)]
     private $updated_at;
 
-    /**
-     * @ORM\Column(type="smallint", nullable=true)
-     */
+    #[ORM\Column(type: "smallint", nullable: true)]
     private $flag;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $wikiDataId;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Cities::class, mappedBy="state")
-     */
+    #[ORM\OneToMany(targetEntity: Cities::class, mappedBy: "state")]
     private $cities;
 
-    /**
-     * @ORM\OneToMany(targetEntity=CustomerAddresses::class, mappedBy="state")
-     */
+    #[ORM\OneToMany(targetEntity: CustomerAddresses::class, mappedBy: "state")]
     private $customerAddresses;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=true)
-     */
+    #[ORM\Column(type: "boolean", nullable: true)]
     private $visible;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Orders::class, mappedBy="bill_state")
-     */
+    #[ORM\OneToMany(targetEntity: Orders::class, mappedBy: "bill_state")]
     private $orders;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Orders::class, mappedBy="receiver_state")
-     */
+    #[ORM\OneToMany(targetEntity: Orders::class, mappedBy: "receiver_state")]
     private $receiver_orders;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Recipients::class, mappedBy="state")
-     */
+    #[ORM\OneToMany(targetEntity: Recipients::class, mappedBy: "state")]
     private $recipients;
 
     public function __construct()
@@ -273,9 +233,6 @@ class States
         return $this;
     }
 
-    /**
-     * @return Collection|Cities[]
-     */
     public function getCities(): Collection
     {
         return $this->cities;
@@ -303,9 +260,6 @@ class States
         return $this;
     }
 
-    /**
-     * @return Collection|CustomerAddresses[]
-     */
     public function getCustomerAddresses(): Collection
     {
         return $this->customerAddresses;

@@ -7,181 +7,111 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=CountriesRepository::class)
- */
+#[ORM\Entity(repositoryClass: CountriesRepository::class)]
 class Countries
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "integer")]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=100)
-     */
+    #[ORM\Column(type: "string", length: 100)]
     private $name;
 
-    /**
-     * @ORM\Column(type="string", length=3, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 3, nullable: true)]
     private $iso3;
 
-    /**
-     * @ORM\Column(type="string", length=3, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 3, nullable: true)]
     private $numeric_code;
 
-    /**
-     * @ORM\Column(type="string", length=2, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 2, nullable: true)]
     private $iso2;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $phonecode;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $capital;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $currency;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $currency_name;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $currency_symbol;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $tld;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $native;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $region;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $subregion;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: "text", nullable: true)]
     private $timezones;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: "text", nullable: true)]
     private $translations;
 
-    /**
-     * @ORM\Column(type="decimal", precision=10, scale=8, nullable=true)
-     */
+    #[ORM\Column(type: "decimal", precision: 10, scale: 8, nullable: true)]
     private $latitude;
 
-    /**
-     * @ORM\Column(type="decimal", precision=11, scale=8, nullable=true)
-     */
+    #[ORM\Column(type: "decimal", precision: 11, scale: 8, nullable: true)]
     private $longitude;
 
-    /**
-     * @ORM\Column(type="string", length=191, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 191, nullable: true)]
     private $emoji;
 
-    /**
-     * @ORM\Column(type="string", length=191, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 191, nullable: true)]
     private $emojiU;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=false, options={"default":"CURRENT_TIMESTAMP"})
-     */
+    #[ORM\Column(type: "datetime", nullable: false)]
     private $created_at;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+    #[ORM\Column(type: "datetime", nullable: true)]
     private $updated_at;
 
-    /**
-     * @ORM\Column(type="smallint", nullable=true)
-     */
+    #[ORM\Column(type: "smallint", nullable: true)]
     private $flag;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $wikiDataId;
 
-    /**
-     * @ORM\OneToMany(targetEntity=States::class, mappedBy="country")
-     */
+    #[ORM\OneToMany(targetEntity: States::class, mappedBy: "country")]
     private $states;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Cities::class, mappedBy="country")
-     */
+    #[ORM\OneToMany(targetEntity: Cities::class, mappedBy: "country")]
     private $cities;
 
-    /**
-     * @ORM\OneToMany(targetEntity=CustomerAddresses::class, mappedBy="country")
-     */
+    #[ORM\OneToMany(targetEntity: CustomerAddresses::class, mappedBy: "country")]
     private $customerAddresses;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=RegionType::class, inversedBy="countries")
-     */
+    #[ORM\ManyToOne(targetEntity: RegionType::class, inversedBy: "countries")]
     private $region_type;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=SubregionType::class, inversedBy="countries")
-     */
+    #[ORM\ManyToOne(targetEntity: SubregionType::class, inversedBy: "countries")]
     private $subregion_type;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=true)
-     */
+    #[ORM\Column(type: "boolean", nullable: true)]
     private $visible;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Customer::class, mappedBy="country_phone_code")
-     */
+    #[ORM\OneToMany(targetEntity: Customer::class, mappedBy: "country_phone_code")]
     private $customers;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Orders::class, mappedBy="customer_phone_code")
-     */
+    #[ORM\OneToMany(targetEntity: Orders::class, mappedBy: "customer_phone_code")]
     private $orders;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Orders::class, mappedBy="receiver_country")
-     */
+    #[ORM\OneToMany(targetEntity: Orders::class, mappedBy: "receiver_country")]
     private $receiver_orders;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Recipients::class, mappedBy="country")
-     */
+    #[ORM\OneToMany(targetEntity: Recipients::class, mappedBy: "country")]
     private $recipients;
 
     public function __construct()
@@ -193,6 +123,7 @@ class Countries
         $this->orders = new ArrayCollection();
         $this->receiver_orders = new ArrayCollection();
         $this->recipients = new ArrayCollection();
+        $this->created_at = new \DateTime();
     }
 
     public function getId(): ?int
@@ -476,9 +407,6 @@ class Countries
         return $this;
     }
 
-    /**
-     * @return Collection|States[]
-     */
     public function getStates(): Collection
     {
         return $this->states;
@@ -506,9 +434,6 @@ class Countries
         return $this;
     }
 
-    /**
-     * @return Collection|Cities[]
-     */
     public function getCities(): Collection
     {
         return $this->cities;
@@ -536,9 +461,6 @@ class Countries
         return $this;
     }
 
-    /**
-     * @return Collection|CustomerAddresses[]
-     */
     public function getCustomerAddresses(): Collection
     {
         return $this->customerAddresses;

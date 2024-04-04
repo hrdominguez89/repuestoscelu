@@ -7,248 +7,143 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints as Assert;
 
+#[ORM\MappedSuperclass]
 abstract class Order
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="bigint")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "bigint")]
     protected $id;
 
     /** BILLING INFO */
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="checkout_b_first_name", type="string", length=100)
-     * @Assert\Length(min=2, max=100)
-     * @Assert\NotBlank()
-     */
+    #[ORM\Column(name: "checkout_b_first_name", type: "string", length: 100)]
+    #[Assert\Length(min: 2, max: 100)]
+    #[Assert\NotBlank()]
     protected $checkoutBillingFirstName;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="checkout_b_last_name", type="string", length=100)
-     * @Assert\Length(min=2, max=100)
-     * @Assert\NotBlank()
-     */
+    #[ORM\Column(name: "checkout_b_last_name", type: "string", length: 100)]
+    #[Assert\Length(min: 2, max: 100)]
+    #[Assert\NotBlank()]
     protected $checkoutBillingLastName;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="checkout_b_company_name", type="string", length=255, nullable=true)
-     * @Assert\Length(max=100)
-     */
+    #[ORM\Column(name: "checkout_b_company_name", type: "string", length: 255, nullable: true)]
+    #[Assert\Length(max: 100)]
     protected $checkoutBillingCompanyName;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="checkout_b_country_iso", type="string", length=10)
-     * @Assert\Length(min=2, max=10)
-     * @Assert\NotBlank()
-     */
+    #[ORM\Column(name: "checkout_b_country_iso", type: "string", length: 10)]
+    #[Assert\Length(min: 2, max: 10)]
+    #[Assert\NotBlank()]
     protected $checkoutBillingCountryIso;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="checkout_b_country", type="string", length=100)
-     * @Assert\Length(min=2, max=100)
-     * @Assert\NotBlank()
-     */
+    #[ORM\Column(name: "checkout_b_country", type: "string", length: 100)]
+    #[Assert\Length(min: 2, max: 100)]
+    #[Assert\NotBlank()]
     protected $checkoutBillingCountry;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="checkout_b_street_address", type="string", length=500)
-     * @Assert\Length(min=2, max=500)
-     * @Assert\NotBlank()
-     */
+    #[ORM\Column(name: "checkout_b_street_address", type: "string", length: 500)]
+    #[Assert\Length(min: 2, max: 500)]
+    #[Assert\NotBlank()]
     protected $checkoutBillingStreetAddress;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="checkout_b_address", type="string", length=255, nullable=true)
-     * @Assert\Length(max=255)
-     */
+    #[ORM\Column(name: "checkout_b_address", type: "string", length: 255, nullable: true)]
+    #[Assert\Length(max: 255)]
     protected $checkoutBillingAddress;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="checkout_b_city", type="string", length=100)
-     * @Assert\Length(min=2, max=100)
-     * @Assert\NotBlank()
-     */
+    #[ORM\Column(name: "checkout_b_city", type: "string", length: 100)]
+    #[Assert\Length(min: 2, max: 100)]
+    #[Assert\NotBlank()]
     protected $checkoutBillingCity;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="checkout_b_state", type="string", length=100)
-     * @Assert\Length(min=2, max=100)
-     * @Assert\NotBlank()
-     */
+    #[ORM\Column(name: "checkout_b_state", type: "string", length: 100)]
+    #[Assert\Length(min: 2, max: 100)]
+    #[Assert\NotBlank()]
     protected $checkoutBillingState;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="checkout_b_postcode", type="string", length=50)
-     * @Assert\Length(min=2, max=50)
-     * @Assert\NotBlank()
-     */
+    #[ORM\Column(name: "checkout_b_postcode", type: "string", length: 50)]
+    #[Assert\Length(min: 2, max: 50)]
+    #[Assert\NotBlank()]
     protected $checkoutBillingPostcode;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="checkout_b_email", type="string", length=100)
-     * @Assert\Length(min=5, max=100)
-     * @Assert\Email(mode="strict")
-     * @Assert\NotBlank()
-     */
+    #[ORM\Column(name: "checkout_b_email", type: "string", length: 100)]
+    #[Assert\Length(min: 5, max: 100)]
+    #[Assert\Email(mode: "strict")]
+    #[Assert\NotBlank()]
     protected $checkoutBillingEmail;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="checkout_b_phone", type="string", length=100)
-     * @Assert\Length(min=2, max=100)
-     * @Assert\NotBlank()
-     */
+    #[ORM\Column(name: "checkout_b_phone", type: "string", length: 100)]
+    #[Assert\Length(min: 2, max: 100)]
+    #[Assert\NotBlank()]
     protected $checkoutBillingPhone;
 
     /** END BILLING INFO */
 
     /** SHIPPING INFO */
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="checkout_s_first_name", type="string", length=100)
-     * @Assert\Length(min=2, max=100)
-     * @Assert\NotBlank()
-     */
+    #[ORM\Column(name: "checkout_s_first_name", type: "string", length: 100)]
+    #[Assert\Length(min: 2, max: 100)]
+    #[Assert\NotBlank()]
     protected $checkoutShippingFirstName;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="checkout_s_last_name", type="string", length=100)
-     * @Assert\Length(min=2, max=100)
-     * @Assert\NotBlank()
-     */
+    #[ORM\Column(name: "checkout_s_last_name", type: "string", length: 100)]
+    #[Assert\Length(min: 2, max: 100)]
+    #[Assert\NotBlank()]
     protected $checkoutShippingLastName;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="checkout_s_company_name", type="string", length=255, nullable=true)
-     * @Assert\Length(max=100)
-     */
+    #[ORM\Column(name: "checkout_s_company_name", type: "string", length: 255, nullable: true)]
+    #[Assert\Length(max: 100)]
     protected $checkoutShippingCompanyName;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="checkout_s_country_iso", type="string", length=10)
-     * @Assert\Length(min=2, max=10)
-     * @Assert\NotBlank()
-     */
+    #[ORM\Column(name: "checkout_s_country_iso", type: "string", length: 10)]
+    #[Assert\Length(min: 2, max: 10)]
+    #[Assert\NotBlank()]
     protected $checkoutShippingCountryIso;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="checkout_s_country", type="string", length=100)
-     * @Assert\Length(min=2, max=100)
-     * @Assert\NotBlank()
-     */
+    #[ORM\Column(name: "checkout_s_country", type: "string", length: 100)]
+    #[Assert\Length(min: 2, max: 100)]
+    #[Assert\NotBlank()]
     protected $checkoutShippingCountry;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="checkout_s_street_address", type="string", length=500)
-     * @Assert\Length(min=2, max=500)
-     * @Assert\NotBlank()
-     */
+    #[ORM\Column(name: "checkout_s_street_address", type: "string", length: 500)]
+    #[Assert\Length(min: 2, max: 500)]
+    #[Assert\NotBlank()]
     protected $checkoutShippingStreetAddress;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="checkout_s_address", type="string", length=255, nullable=true)
-     * @Assert\Length(max=255)
-     */
+    #[ORM\Column(name: "checkout_s_address", type: "string", length: 255, nullable: true)]
+    #[Assert\Length(max: 255)]
     protected $checkoutShippingAddress;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="checkout_s_city", type="string", length=100)
-     * @Assert\Length(min=2, max=100)
-     * @Assert\NotBlank()
-     */
+    #[ORM\Column(name: "checkout_s_city", type: "string", length: 100)]
+    #[Assert\Length(min: 2, max: 100)]
+    #[Assert\NotBlank()]
     protected $checkoutShippingCity;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="checkout_s_state", type="string", length=100)
-     * @Assert\Length(min=2, max=100)
-     * @Assert\NotBlank()
-     */
+    #[ORM\Column(name: "checkout_s_state", type: "string", length: 100)]
+    #[Assert\Length(min: 2, max: 100)]
+    #[Assert\NotBlank()]
     protected $checkoutShippingState;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="checkout_s_postcode", type="string", length=50)
-     * @Assert\Length(min=2, max=50)
-     * @Assert\NotBlank()
-     */
+    #[ORM\Column(name: "checkout_s_postcode", type: "string", length: 50)]
+    #[Assert\Length(min: 2, max: 50)]
+    #[Assert\NotBlank()]
     protected $checkoutShippingPostcode;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="checkout_s_email", type="string", length=100)
-     * @Assert\Length(min=5, max=100)
-     * @Assert\Email(mode="strict")
-     * @Assert\NotBlank()
-     */
+    #[ORM\Column(name: "checkout_s_email", type: "string", length: 100)]
+    #[Assert\Length(min: 5, max: 100)]
+    #[Assert\Email(mode: "strict")]
+    #[Assert\NotBlank()]
     protected $checkoutShippingEmail;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="checkout_s_phone", type="string", length=100)
-     * @Assert\Length(min=2, max=100)
-     * @Assert\NotBlank()
-     */
+    #[ORM\Column(name: "checkout_s_phone", type: "string", length: 100)]
+    #[Assert\Length(min: 2, max: 100)]
+    #[Assert\NotBlank()]
     protected $checkoutShippingPhone;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="checkout_comment", type="string", length=255, nullable=true)
-     * @Assert\Length(max=255)
-     */
+    #[ORM\Column(name: "checkout_comment", type: "string", length: 255, nullable: true)]
+    #[Assert\Length(max: 255)]
     protected $checkoutComment;
 
-    /**
-     * @var bool
-     *
-     * @ORM\Column(name="different_address", type="boolean")
-     */
+    #[ORM\Column(name: "different_address", type: "boolean")]
     protected $differentAddress;
 
     /** END SHIPPING INFO */
@@ -284,9 +179,7 @@ abstract class Order
             $this->setCheckoutShippingPostcode($request->get('checkout_s_postcode', ''));
             $this->setCheckoutShippingEmail($request->get('checkout_s_email', ''));
             $this->setCheckoutShippingPhone($request->get('checkout_s_phone', ''));
-
         }
-
     }
 
 
@@ -839,5 +732,4 @@ abstract class Order
 
         return $this;
     }
-
 }

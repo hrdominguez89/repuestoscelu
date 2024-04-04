@@ -5,132 +5,88 @@ namespace App\Entity;
 use App\Repository\SectionsHomeRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=SectionsHomeRepository::class)
- */
+#[ORM\Entity(repositoryClass: SectionsHomeRepository::class)]
 class SectionsHome
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "integer")]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private $titleSection1;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Category::class, inversedBy="sectionsHomes11")
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: "sectionsHomes11")]
+    #[ORM\JoinColumn(nullable: true)]
     private $category1Section1;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Category::class, inversedBy="sectionsHomes21")
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: "sectionsHomes21")]
+    #[ORM\JoinColumn(nullable: true)]
     private $category2Section1;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Category::class, inversedBy="sectionsHomes31")
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: "sectionsHomes31")]
+    #[ORM\JoinColumn(nullable: true)]
     private $category3Section1;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private $titleSection2;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Category::class, inversedBy="sectionsHomes12")
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: "sectionsHomes12")]
+    #[ORM\JoinColumn(nullable: true)]
     private $category1Section2;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Category::class, inversedBy="sectionsHomes22")
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: "sectionsHomes22")]
+    #[ORM\JoinColumn(nullable: true)]
     private $category2Section2;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Category::class, inversedBy="sectionsHomes32")
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: "sectionsHomes32")]
+    #[ORM\JoinColumn(nullable: true)]
     private $category3Section2;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private $titleSection3;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Category::class, inversedBy="sectionsHomes13")
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: "sectionsHomes13")]
+    #[ORM\JoinColumn(nullable: true)]
     private $category1Section3;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Category::class, inversedBy="sectionsHomes23")
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: "sectionsHomes23")]
+    #[ORM\JoinColumn(nullable: true)]
     private $category2Section3;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Category::class, inversedBy="sectionsHomes33")
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: "sectionsHomes33")]
+    #[ORM\JoinColumn(nullable: true)]
     private $category3Section3;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private $titleSection4;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Category::class, inversedBy="sectionsHomes14")
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: "sectionsHomes14")]
+    #[ORM\JoinColumn(nullable: true)]
     private $category1Section4;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Category::class, inversedBy="sectionsHomes24")
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: "sectionsHomes24")]
+    #[ORM\JoinColumn(nullable: true)]
     private $category2Section4;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Category::class, inversedBy="sectionsHomes34")
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: "sectionsHomes34")]
+    #[ORM\JoinColumn(nullable: true)]
     private $category3Section4;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Tag::class, inversedBy="sectionsHomes1")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Tag::class, inversedBy: "sectionsHomes1")]
+    #[ORM\JoinColumn(nullable: false)]
     private $tagSection1;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Tag::class, inversedBy="sectionsHomes2")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Tag::class, inversedBy: "sectionsHomes2")]
+    #[ORM\JoinColumn(nullable: false)]
     private $tagSection2;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Tag::class, inversedBy="sectionsHomes3")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Tag::class, inversedBy: "sectionsHomes3")]
+    #[ORM\JoinColumn(nullable: false)]
     private $tagSection3;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Tag::class, inversedBy="sectionsHomes4")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Tag::class, inversedBy: "sectionsHomes4")]
+    #[ORM\JoinColumn(nullable: false)]
     private $tagSection4;
 
     public function getId(): ?int

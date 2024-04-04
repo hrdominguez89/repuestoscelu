@@ -5,39 +5,24 @@ namespace App\Entity\Model;
 use Cocur\Slugify\Slugify;
 use Doctrine\ORM\Mapping as ORM;
 
+#[ORM\MappedSuperclass]
 abstract class PaymentMethod
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="bigint")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "bigint")]
     protected $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="name", type="string", length=100)
-     */
+    #[ORM\Column(name: "name", type: "string", length: 100)]
     protected $name;
 
-    /**
-     * @ORM\Column(name="slug", type="string", length=100)
-     */
+    #[ORM\Column(name: "slug", type: "string", length: 100)]
     protected $slug;
 
-    /**
-     * @var bool
-     *
-     * @ORM\Column(name="active", type="boolean")
-     */
+    #[ORM\Column(name: "active", type: "boolean")]
     protected $active;
 
-    /**
-     * @var bool
-     *
-     * @ORM\Column(name="sand_box", type="boolean")
-     */
+    #[ORM\Column(name: "sand_box", type: "boolean")]
     protected $sandBox;
 
     public function __construct()
@@ -132,6 +117,4 @@ abstract class PaymentMethod
 
         return $this;
     }
-
-
 }

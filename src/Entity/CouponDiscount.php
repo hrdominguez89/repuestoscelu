@@ -4,45 +4,25 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\CouponDiscountRepository")
- * @ORM\Table("mia_coupon_discount")
- */
+#[ORM\Entity(repositoryClass: "App\Repository\CouponDiscountRepository")]
+#[ORM\Table(name: "mia_coupon_discount")]
 class CouponDiscount
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="bigint")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "bigint")]
     private $id;
 
-    /**
-     * @var bool
-     *
-     * @ORM\Column(name="percent", type="boolean")
-     */
+    #[ORM\Column(name: "percent", type: "boolean")]
     private $percent;
 
-    /**
-     * @var float
-     *
-     * @ORM\Column(name="value", type="float")
-     */
+    #[ORM\Column(name: "value", type: "float")]
     private $value;
 
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="number_of_uses", type="integer")
-     */
+    #[ORM\Column(name: "number_of_uses", type: "integer")]
     private $numberOfUses;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="nro", type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(name: "nro", type: "string", length: 255, nullable: true)]
     private $nro;
 
     /**
@@ -133,6 +113,4 @@ class CouponDiscount
     {
         return $this->percent;
     }
-
-
 }

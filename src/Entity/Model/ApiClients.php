@@ -7,46 +7,30 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
+#[ORM\MappedSuperclass]
 abstract class ApiClients implements UserInterface, \Serializable, PasswordAuthenticatedUserInterface
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "integer")]
+
     protected $id;
 
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="name", type="string", length=255)
-     * 
-     */
+    #[ORM\Column(name: "name", type: "string", length: 255)]
     protected $name;
 
-    /**
-     * @var string|array
-     *
-     * @ORM\Column(name="roles", type="string", length=255)
-     */
+    #[ORM\Column(type: "uuid")]
 
-    /**
-     * @ORM\Column(type="uuid")
-     */
     protected $api_client_id;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
+
     protected $api_key;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=ApiClientsTypesRoles::class, inversedBy="apiClients")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: ApiClientsTypesRoles::class, inversedBy: "apiClients")]
+    #[ORM\JoinColumn(nullable: false)]
+
     protected $api_client_type_role;
 
 
@@ -72,7 +56,7 @@ abstract class ApiClients implements UserInterface, \Serializable, PasswordAuthe
         return $this;
     }
 
-    
+
     public function getUserIdentifier()
     {
         return $this->api_client_id;

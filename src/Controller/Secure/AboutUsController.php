@@ -10,14 +10,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/about-us")
- */
+#[Route("/about-us")]
 class AboutUsController extends AbstractController
 {
-    /**
-     * @Route("/", name="about_us")
-     */
+    #[Route("/", name: "about_us")]
     public function index(EntityManagerInterface $em, Request $request): Response
     {
         $arr_about_us = $em->getRepository(AboutUs::class)->findAll();

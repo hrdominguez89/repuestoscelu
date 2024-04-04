@@ -6,35 +6,23 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\NewsletterRepository")
- * @ORM\Table("mia_newsletter")
- * @UniqueEntity("email")
- */
+#[ORM\Entity(repositoryClass: "App\Repository\NewsletterRepository")]
+#[ORM\Table(name: "mia_newsletter")]
+#[UniqueEntity("email")]
 class Newsletter
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="bigint")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "bigint")]
     private $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="email", type="string", length="100", unique=true)
-     * @Assert\Length(min=5, max=100)
-     * @Assert\Email(mode="strict")
-     * @Assert\NotBlank()
-     */
+    #[ORM\Column(name: "email", type: "string", length: "100", unique: true)]
+    #[Assert\Length(min: 5, max: 100)]
+    #[Assert\Email(mode: "strict")]
+    #[Assert\NotBlank()]
     private $email;
 
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="date", type="datetime")
-     */
+    #[ORM\Column(name: "date", type: "datetime")]
     private $date;
 
     public function __construct()
@@ -88,5 +76,4 @@ class Newsletter
 
         return $this;
     }
-
 }

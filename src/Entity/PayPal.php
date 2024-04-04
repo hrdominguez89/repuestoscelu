@@ -5,10 +5,8 @@ namespace App\Entity;
 use App\Entity\Model\PaymentMethod;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\PayPalRepository")
- * @ORM\Table("mia_paypal")
- */
+#[ORM\Entity(repositoryClass: "App\Repository\PayPalRepository")]
+#[ORM\Table(name: "mia_paypal")]
 class PayPal extends PaymentMethod
 {
     const NAME = 'PAYPAL';
@@ -18,32 +16,16 @@ class PayPal extends PaymentMethod
     const VOIDED = 'VOIDED';
     const COMPLETED = 'COMPLETED';
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="client_id", type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(name: "client_id", type: "string", length: 255, nullable: true)]
     private $clientId;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="client_secret", type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(name: "client_secret", type: "string", length: 255, nullable: true)]
     private $clientSecret;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="client_id_sand_box", type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(name: "client_id_sand_box", type: "string", length: 255, nullable: true)]
     private $clientIdSandBox;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="client_secret_sand_box", type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(name: "client_secret_sand_box", type: "string", length: 255, nullable: true)]
     private $clientSecretSandBox;
 
     public function __construct()

@@ -7,36 +7,24 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=RegistrationTypeRepository::class)
- */
+#[ORM\Entity(repositoryClass: RegistrationTypeRepository::class)]
 class RegistrationType
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "integer")]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private $name;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private $description;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Customer::class, mappedBy="registration_type")
-     */
+    #[ORM\OneToMany(targetEntity: Customer::class, mappedBy: "registration_type")]
     private $customers;
 
-    /**
-     * @ORM\OneToMany(targetEntity=CustomerAddresses::class, mappedBy="registration_type")
-     */
+    #[ORM\OneToMany(targetEntity: CustomerAddresses::class, mappedBy: "registration_type")]
     private $customerAddresses;
 
     public function __construct()
@@ -74,9 +62,6 @@ class RegistrationType
         return $this;
     }
 
-    /**
-     * @return Collection|Customer[]
-     */
     public function getCustomers(): Collection
     {
         return $this->customers;
@@ -104,9 +89,6 @@ class RegistrationType
         return $this;
     }
 
-    /**
-     * @return Collection|CustomerAddresses[]
-     */
     public function getCustomerAddresses(): Collection
     {
         return $this->customerAddresses;

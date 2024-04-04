@@ -10,96 +10,56 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\SpecificationRepository")
- * @ORM\Table("mia_specification")
- * @UniqueEntity(
- *      fields={"name","specification_type"},
- *      errorPath="name",
- *      message="La especificación indicada ya existe."
- * )
- */
+#[ORM\Entity(repositoryClass: "App\Repository\SpecificationRepository")]
+#[ORM\Table(name: "mia_specification")]
+#[UniqueEntity(
+    fields: ["name", "specification_type"],
+    errorPath: "name",
+    message: "La especificación indicada ya existe."
+)]
 class Specification
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="bigint")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "bigint")]
     private $id;
 
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="name",nullable=false, type="string", length=255)
-     */
+    #[ORM\Column(name: "name", nullable: false, type: "string", length: 255)]
     private $name;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="slug", type="string", length=255)
-     */
+    #[ORM\Column(name: "slug", type: "string", length: 255)]
     private $slug;
 
-    /**
-     * @var bool
-     *
-     * @ORM\Column(name="active", type="boolean")
-     */
+    #[ORM\Column(name: "active", type: "boolean")]
     private $active;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=SpecificationTypes::class, inversedBy="specifications")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: SpecificationTypes::class, inversedBy: "specifications")]
+    #[ORM\JoinColumn(nullable: false)]
     private $specification_type;
 
-    /**
-     * @ORM\Column(type="string", length=7, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 7, nullable: true)]
     private $colorHexadecimal;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Product::class, mappedBy="model")
-     */
+    #[ORM\OneToMany(targetEntity: Product::class, mappedBy: "model")]
     private $products_model;
-    /**
-     * @ORM\OneToMany(targetEntity=Product::class, mappedBy="color")
-     */
+    #[ORM\OneToMany(targetEntity: Product::class, mappedBy: "color")]
     private $products_color;
-    /**
-     * @ORM\OneToMany(targetEntity=Product::class, mappedBy="screen_resolution")
-     */
+    #[ORM\OneToMany(targetEntity: Product::class, mappedBy: "screen_resolution")]
     private $products_screen_resolution;
-    /**
-     * @ORM\OneToMany(targetEntity=Product::class, mappedBy="screen_size")
-     */
+    #[ORM\OneToMany(targetEntity: Product::class, mappedBy: "screen_size")]
     private $products_screen_size;
-    /**
-     * @ORM\OneToMany(targetEntity=Product::class, mappedBy="cpu")
-     */
+    #[ORM\OneToMany(targetEntity: Product::class, mappedBy: "cpu")]
     private $products_cpu;
-    /**
-     * @ORM\OneToMany(targetEntity=Product::class, mappedBy="gpu")
-     */
+    #[ORM\OneToMany(targetEntity: Product::class, mappedBy: "gpu")]
     private $products_gpu;
-    /**
-     * @ORM\OneToMany(targetEntity=Product::class, mappedBy="memory")
-     */
+    #[ORM\OneToMany(targetEntity: Product::class, mappedBy: "memory")]
     private $products_memory;
-    /**
-     * @ORM\OneToMany(targetEntity=Product::class, mappedBy="storage")
-     */
+    #[ORM\OneToMany(targetEntity: Product::class, mappedBy: "storage")]
     private $products_storage;
-    /**
-     * @ORM\OneToMany(targetEntity=Product::class, mappedBy="op_sys")
-     */
+    #[ORM\OneToMany(targetEntity: Product::class, mappedBy: "op_sys")]
     private $products_op_sys;
-    /**
-     * @ORM\OneToMany(targetEntity=Product::class, mappedBy="conditium")
-     */
+    #[ORM\OneToMany(targetEntity: Product::class, mappedBy: "conditium")]
     private $products_conditium;
 
 

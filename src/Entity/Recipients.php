@@ -7,85 +7,55 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=RecipientsRepository::class)
- */
+#[ORM\Entity(repositoryClass: RecipientsRepository::class)]
 class Recipients
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "integer")]
     private $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Customer::class, inversedBy="recipients")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: "recipients")]
+    #[ORM\JoinColumn(nullable: false)]
     private $customer;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Countries::class, inversedBy="recipients")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Countries::class, inversedBy: "recipients")]
+    #[ORM\JoinColumn(nullable: false)]
     private $country;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=States::class, inversedBy="recipients")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: States::class, inversedBy: "recipients")]
+    #[ORM\JoinColumn(nullable: false)]
     private $state;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Cities::class, inversedBy="recipients")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Cities::class, inversedBy: "recipients")]
+    #[ORM\JoinColumn(nullable: false)]
     private $city;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private $name;
 
-    /**
-     * @ORM\Column(type="string", length=50)
-     */
+    #[ORM\Column(type: "string", length: 50)]
     private $identity_type;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private $identity_number;
 
-    /**
-     * @ORM\Column(type="text")
-     */
+    #[ORM\Column(type: "text")]
     private $address;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private $zip_code;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private $phone;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private $email;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: "text", nullable: true)]
     private $additional_info;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Orders::class, mappedBy="recipient")
-     */
+    #[ORM\OneToMany(targetEntity: Orders::class, mappedBy: "recipient")]
     private $orders;
 
     public function __construct()

@@ -7,51 +7,33 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=CommunicationStatesBetweenPlatformsRepository::class)
- */
+#[ORM\Entity(repositoryClass: CommunicationStatesBetweenPlatformsRepository::class)]
 class CommunicationStatesBetweenPlatforms
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "integer")]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: "string", length: 20)]
     private $name;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Customer::class, mappedBy="status_sent_crm")
-     */
+    #[ORM\OneToMany(targetEntity: Customer::class, mappedBy: "status_sent_crm")]
     private $customers;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Brand::class, mappedBy="status_sent_3pl")
-     */
+    #[ORM\OneToMany(targetEntity: Brand::class, mappedBy: "status_sent_3pl")]
     private $brands;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Category::class, mappedBy="status_sent_3pl")
-     */
+    #[ORM\OneToMany(targetEntity: Category::class, mappedBy: "status_sent_3pl")]
     private $categories;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Subcategory::class, mappedBy="status_sent_3pl")
-     */
+    #[ORM\OneToMany(targetEntity: Subcategory::class, mappedBy: "status_sent_3pl")]
     private $subcategories;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Product::class, mappedBy="status_sent_3pl")
-     */
+    #[ORM\OneToMany(targetEntity: Product::class, mappedBy: "status_sent_3pl")]
     private $products;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Orders::class, mappedBy="status_sent_crm")
-     */
+    #[ORM\OneToMany(targetEntity: Orders::class, mappedBy: "status_sent_crm")]
     private $orders;
 
     public function __construct()

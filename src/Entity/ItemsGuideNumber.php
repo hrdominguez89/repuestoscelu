@@ -5,33 +5,23 @@ namespace App\Entity;
 use App\Repository\ItemsGuideNumberRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=ItemsGuideNumberRepository::class)
- */
+#[ORM\Entity(repositoryClass: ItemsGuideNumberRepository::class)]
 class ItemsGuideNumber
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "integer")]
     private $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Product::class, inversedBy="itemsGuideNumbers")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Product::class, inversedBy: "itemsGuideNumbers")]
+    #[ORM\JoinColumn(nullable: false)]
     private $product;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: "integer")]
     private $quantity;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=GuideNumbers::class, inversedBy="itemsGuideNumbers")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: GuideNumbers::class, inversedBy: "itemsGuideNumbers")]
+    #[ORM\JoinColumn(nullable: false)]
     private $guide_number;
 
     public function getId(): ?int

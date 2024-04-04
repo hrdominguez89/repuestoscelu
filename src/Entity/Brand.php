@@ -11,115 +11,59 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\BrandRepository")
- * @ORM\Table("mia_brand")
- * 
- * @UniqueEntity(fields="name", message="El nombre indicado ya se encuentra registrado.")
- * @UniqueEntity(fields="nomenclature", message="La nomenclatura indicada ya se encuentra registrada, por favor intente con otra.")
- * 
- */
+#[ORM\Entity(repositoryClass: "App\Repository\BrandRepository")]
+#[ORM\Table(name: "mia_brand")]
+#[UniqueEntity(fields: "name", message: "El nombre indicado ya se encuentra registrado.")]
+#[UniqueEntity(fields: "nomenclature", message: "La nomenclatura indicada ya se encuentra registrada, por favor intente con otra.")]
 class Brand
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="bigint")
-     * 
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "bigint")]
     private $id;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="id3pl", type="bigint", nullable=true)
-     * 
-     */
+    #[ORM\Column(name: "id3pl", type: "bigint", nullable: true)]
     private $id3pl;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="name", type="string", length=255, unique=true)
-     * 
-     * 
-     */
+    #[ORM\Column(name: "name", type: "string", length: 255, unique: true)]
     private $name;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="slug", type="string", length=255, nullable=false)
-     * 
-     * 
-     * 
-     */
+    #[ORM\Column(name: "slug", type: "string", length: 255, nullable: false)]
     private $slug;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="image", type="text", nullable=true)
-     * 
-     * 
-     * 
-     */
+    #[ORM\Column(name: "image", type: "text", nullable: true)]
     private $image;
 
-    /**
-     * @ORM\Column(name="description_es",type="text", nullable=true)
-     * 
-     * 
-     */
+    #[ORM\Column(name: "description_es", type: "text", nullable: true)]
+
     private $descriptionEs;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Product::class, mappedBy="brand")
-     * 
-     */
+    #[ORM\OneToMany(targetEntity: Product::class, mappedBy: "brand")]
     private $products;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=false, options={"default":false})
-     */
+    #[ORM\Column(type: "boolean", nullable: false, options: ["default" => false])]
     private $visible = false;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=false, options={"default":"CURRENT_TIMESTAMP"})
-     * 
-     */
+    #[ORM\Column(type: "datetime", nullable: false)]
     private $created_at;
 
-    /**
-     * @ORM\Column(type="string", length=3, nullable=false, unique=true)
-     */
+    #[ORM\Column(type: "string", length: 3, nullable: false, unique: true)]
     private $nomenclature;
 
-    /**
-     * @ORM\Column(name="description_en",type="text", nullable=true)
-     */
+    #[ORM\Column(name: "description_en", type: "text", nullable: true)]
     private $descriptionEn;
 
-    /**
-     * @ORM\Column(type="boolean",nullable=false, options={"default":false})
-     */
+    #[ORM\Column(type: "boolean", nullable: false, options: ["default" => false])]
     private $principal = false;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=CommunicationStatesBetweenPlatforms::class, inversedBy="brands")
-     * @ORM\JoinColumn(nullable=false, options={"default":1})
-     * 
-     */
+    #[ORM\ManyToOne(targetEntity: CommunicationStatesBetweenPlatforms::class, inversedBy: "brands")]
+    #[ORM\JoinColumn(nullable: false, options: ["default" => 1])]
     private $status_sent_3pl;
 
-    /**
-     * @ORM\Column(type="smallint", options={"default":0})
-     */
+    #[ORM\Column(type: "smallint", options: ["default" => 0])]
     private $attempts_send_3pl;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: "text", nullable: true)]
     private $error_message_3pl;
 
     public function __construct()
@@ -240,9 +184,6 @@ class Brand
         return $this;
     }
 
-    /**
-     * @return Collection|Product[]
-     */
     public function getProducts(): Collection
     {
         return $this->products;

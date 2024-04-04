@@ -9,73 +9,46 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\TagRepository")
- * @ORM\Table("mia_tag")
- * @UniqueEntity(fields="name", message="La etiqueta indicada ya se encuentra registrada.")
- * 
- */
+#[ORM\Entity(repositoryClass: "App\Repository\TagRepository")]
+#[ORM\Table(name: "mia_tag")]
+#[UniqueEntity(fields: "name", message: "La etiqueta indicada ya se encuentra registrada.")]
 class Tag
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="bigint")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "bigint")]
     private $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="name", type="string", length=255)
-     */
+
+    #[ORM\Column(name: "name", type: "string", length: 255)]
     private $name;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="slug", type="string", length=255)
-     */
+
+    #[ORM\Column(name: "slug", type: "string", length: 255)]
     private $slug;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=true)
-     */
+    #[ORM\Column(type: "boolean", nullable: true)]
     private $visible;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=false, options={"default":"CURRENT_TIMESTAMP"})
-     */
+    #[ORM\Column(type: "datetime", nullable: false)]
     private $created_at;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Product::class, mappedBy="tag")
-     */
+    #[ORM\OneToMany(targetEntity: Product::class, mappedBy: "tag")]
     private $products;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=false, options={"default":false})
-     */
+    #[ORM\Column(type: "boolean", nullable: false, options: ["default" => false])]
     private $principal;
 
-    /**
-     * @ORM\OneToMany(targetEntity=SectionsHome::class, mappedBy="tagSection1")
-     */
+    #[ORM\OneToMany(targetEntity: SectionsHome::class, mappedBy: "tagSection1")]
     private $sectionsHomes1;
 
-    /**
-     * @ORM\OneToMany(targetEntity=SectionsHome::class, mappedBy="tagSection2")
-     */
+    #[ORM\OneToMany(targetEntity: SectionsHome::class, mappedBy: "tagSection2")]
     private $sectionsHomes2;
 
-    /**
-     * @ORM\OneToMany(targetEntity=SectionsHome::class, mappedBy="tagSection3")
-     */
+    #[ORM\OneToMany(targetEntity: SectionsHome::class, mappedBy: "tagSection3")]
     private $sectionsHomes3;
 
-    /**
-     * @ORM\OneToMany(targetEntity=SectionsHome::class, mappedBy="tagSection4")
-     */
+    #[ORM\OneToMany(targetEntity: SectionsHome::class, mappedBy: "tagSection4")]
     private $sectionsHomes4;
 
     public function __construct()

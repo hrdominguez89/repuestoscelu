@@ -5,45 +5,25 @@ namespace App\Entity;
 use Cocur\Slugify\Slugify;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\ConfigurationRepository")
- * @ORM\Table("mia_configuration")
- */
+#[ORM\Entity(repositoryClass: "App\Repository\ConfigurationRepository")]
+#[ORM\Table(name: "mia_configuration")]
 class Configuration
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="bigint")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "bigint")]
     private $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="title", type="string", length=50)
-     */
+    #[ORM\Column(name: "title", type: "string", length: 50)]
     private $title;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="slug", type="string", length=50)
-     */
+    #[ORM\Column(name: "slug", type: "string", length: 50)]
     private $slug;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="image", type="text", nullable=true)
-     */
+    #[ORM\Column(name: "image", type: "text", nullable: true)]
     private $image;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="description", type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(name: "description", type: "string", length: 255, nullable: true)]
     private $description;
 
     /**

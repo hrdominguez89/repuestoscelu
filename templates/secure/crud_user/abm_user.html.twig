@@ -24,7 +24,6 @@
 							<th data-orderable="false" style="width:60px;">Imagen</th>
 							<th>Correo</th>
 							<th>Nombre</th>
-							<th>Apellido</th>
 							<th>Rol</th>
 							<th data-orderable="false">Acciones</th>
 						</tr>
@@ -39,7 +38,6 @@
 								{% endif %}
 								<td>{{ user.email }}</td>
 								<td>{{ user.name }}</td>
-								<td>{{ user.lastname }}</td>
 								<td>{{ user.role.name }}</td>
 								<td class="text-center">
 									<a class="btn" href="{{ path('secure_crud_user_edit', {'id': user.id}) }}" title="Editar operador">

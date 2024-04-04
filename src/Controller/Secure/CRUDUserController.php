@@ -30,7 +30,7 @@ class CRUDUserController extends AbstractController
      */
     public function index(UserRepository $userRepository): Response
     {
-        $data['users'] =  $userRepository->findAll();
+        $data['users'] =  $userRepository->findBy(['role'=>2]);
         // $data['files_css'] = array('hola.css?v='.rand());
         $data['files_js'] = array('table_full_buttons.js?v=' . rand());
 

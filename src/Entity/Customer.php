@@ -11,203 +11,115 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\CustomerRepository")
- * @ORM\Table("mia_customer")
- * @UniqueEntity("email")
- */
+#[ORM\Entity(repositoryClass: "App\Repository\CustomerRepository")]
+#[ORM\Table("mia_customer")]
+#[UniqueEntity("email")]
 class Customer extends BaseUser
 {
     const ROLE_DEFAULT = 'ROLE_CUSTOMER';
 
-    /**
-     * @var CustomerCouponDiscount[]|ArrayCollection
-     *
-     * @ORM\OneToMany(targetEntity="App\Entity\CustomerCouponDiscount", mappedBy="customerId", cascade={"remove"})
-     */
+    #[ORM\OneToMany(targetEntity: CustomerCouponDiscount::class, mappedBy: "customer", cascade: ["remove"])]
     private $couponDiscounts;
 
-    /**
-     * @var Order[]|ArrayCollection
-     *
-     * @ORM\OneToMany(targetEntity="Order", mappedBy="customerId")
-     */
+    #[ORM\OneToMany(targetEntity: Order::class, mappedBy: "customer")]
     private $shoppingOrders;
 
 
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="state_code_cel_phone", type="string", length=100, nullable=true)
-     * @Assert\Length(min=2, max=100)
-     */
+    #[ORM\Column(name: "state_code_cel_phone", type: "string", length: 100, nullable: true)]
+    #[Assert\Length(min: 2, max: 100)]
     public $state_code_cel_phone;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="cel_phone", type="string", length=100, nullable=true)
-     * @Assert\Length(min=2, max=100)
-     */
+    #[ORM\Column(name: "cel_phone", type: "string", length: 100, nullable: true)]
+    #[Assert\Length(min: 2, max: 100)]
     public $cel_phone;
 
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="state_code_phone", type="string", length=100, nullable=true)
-     * @Assert\Length(min=2, max=100)
-     */
+    #[ORM\Column(name: "state_code_phone", type: "string", length: 100, nullable: true)]
+    #[Assert\Length(min: 2, max: 100)]
     public $state_code_phone;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="phone", type="string", length=100, nullable=true)
-     * @Assert\Length(min=2, max=100)
-     */
+    #[ORM\Column(name: "phone", type: "string", length: 100, nullable: true)]
+    #[Assert\Length(min: 2, max: 100)]
     public $phone;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=CustomersTypesRoles::class, inversedBy="customers")
-     */
+    #[ORM\ManyToOne(targetEntity: CustomersTypesRoles::class, inversedBy: "customers")]
     public $customer_type_role;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=RegistrationType::class, inversedBy="customers")
-     */
+    #[ORM\ManyToOne(targetEntity: RegistrationType::class, inversedBy: "customers")]
     public $registration_type;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="customers")
-     */
-    public $registration_user;
-
-
-    /**
-     * @var \DateTime
-     * @ORM\Column(type="datetime", nullable=false, options={"default":"CURRENT_TIMESTAMP"})
-     */
+    #[ORM\Column(type: "datetime", nullable: false)]
 
     public $registration_date;
 
-    /**
-     * @ORM\OneToMany(targetEntity=CustomerAddresses::class, mappedBy="customer")
-     */
+    #[ORM\OneToMany(targetEntity: CustomerAddresses::class, mappedBy: "customer")]
     public $customerAddresses;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=GenderType::class, inversedBy="customers")
-     */
+    #[ORM\ManyToOne(targetEntity: GenderType::class, inversedBy: "customers")]
     private $gender_type;
 
-    /**
-     * @ORM\Column(type="date", nullable=true)
-     */
+    #[ORM\Column(type: "date", nullable: true)]
     private $date_of_birth;
 
-    /**
-     * @ORM\Column(type="bigint", nullable=true)
-     */
+    #[ORM\Column(type: "bigint", nullable: true)]
     private $google_oauth_uid;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $url_facebook;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $url_instagram;
 
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="password", type="string", length=512, nullable=false)
-     */
+    #[ORM\Column(name: "password", type: "string", length: 512, nullable: false)]
     protected $password;
 
-    /**
-     * @var string|array
-     *
-     * @ORM\Column(name="roles", type="string", length=255, nullable=false)
-     */
+    #[ORM\Column(name: "roles", type: "string", length: 255, nullable: false)]
     protected $roles;
 
-    /**
-     * @ORM\Column(type="integer", options={"default":0})
-     */
+    #[ORM\Column(type: "integer", options: ["default" => 0])]
     private $attempts_send_crm;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $error_message_crm;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=CommunicationStatesBetweenPlatforms::class, inversedBy="customers")
-     * @ORM\JoinColumn(nullable=false,options={"default":0})
-     */
+    #[ORM\ManyToOne(targetEntity: CommunicationStatesBetweenPlatforms::class, inversedBy: "customers")]
+    #[ORM\JoinColumn(nullable: false, options: ["default" => 0])]
     private $status_sent_crm;
 
-    /**
-     * @ORM\Column(type="uuid", nullable=true)
-     */
+    #[ORM\Column(type: "uuid", nullable: true)]
     private $verification_code;
-
-    /**
-     * @ORM\Column(type="boolean", options={"default":0})
-     */
+    #[ORM\Column(type: "boolean", options: ["default" => 0])]
     private $change_password;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+    #[ORM\Column(type: "datetime", nullable: true)]
     private $change_password_date;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=CustomerStatusType::class, inversedBy="customers")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: CustomerStatusType::class, inversedBy: "customers")]
+    #[ORM\JoinColumn(nullable: false)]
     private $status;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Countries::class, inversedBy="customers")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Countries::class, inversedBy: "customers")]
+    #[ORM\JoinColumn(nullable: false)]
     private $country_phone_code;
 
-    /**
-     * @ORM\Column(type="string", length=20, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 20, nullable: true)]
     private $identity_type;
 
-    /**
-     * @ORM\Column(type="string", length=50, nullable=true)
-     */
+    #[ORM\Column(type: "string", length: 50, nullable: true)]
     private $identity_number;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Orders::class, mappedBy="customer")
-     */
+    #[ORM\OneToMany(targetEntity: Orders::class, mappedBy: "customer")]
     private $orders;
 
-    /**
-     * @ORM\OneToMany(targetEntity=FavoriteProduct::class, mappedBy="customer")
-     */
+    #[ORM\OneToMany(targetEntity: FavoriteProduct::class, mappedBy: "customer")]
     private $favoriteProducts;
 
-    /**
-     * @ORM\OneToMany(targetEntity=ShoppingCart::class, mappedBy="customer")
-     */
+    #[ORM\OneToMany(targetEntity: ShoppingCart::class, mappedBy: "customer")]
     private $shoppingCarts;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Recipients::class, mappedBy="customer", orphanRemoval=true)
-     */
+    #[ORM\OneToMany(targetEntity: Recipients::class, mappedBy: "customer", orphanRemoval: true)]
     private $recipients;
 
 
@@ -229,10 +141,6 @@ class Customer extends BaseUser
     }
 
 
-    /**
-     * @param string|null $password
-     * @return $this
-     */
     public function setPassword(?string $password): self
     {
         $this->password = password_hash($password, PASSWORD_BCRYPT);
@@ -245,18 +153,11 @@ class Customer extends BaseUser
         return $this->password;
     }
 
-    /**
-     * @return CustomerCouponDiscount[]|ArrayCollection
-     */
     public function getCouponDiscounts()
     {
         return $this->couponDiscounts;
     }
 
-    /**
-     * @param CustomerCouponDiscount $customerCouponDiscount
-     * @return $this
-     */
     public function addCustomerCouponDiscount(CustomerCouponDiscount $customerCouponDiscount): Customer
     {
         if (!$this->couponDiscounts->contains($customerCouponDiscount)) {
@@ -266,10 +167,6 @@ class Customer extends BaseUser
         return $this;
     }
 
-    /**
-     * @param CustomerCouponDiscount $customerCouponDiscount
-     * @return $this
-     */
     public function removeCustomerCouponDiscount(CustomerCouponDiscount $customerCouponDiscount): Customer
     {
         if ($this->couponDiscounts->contains($customerCouponDiscount)) {
@@ -279,10 +176,6 @@ class Customer extends BaseUser
         return $this;
     }
 
-    /**
-     * @param $subTotal
-     * @return float
-     */
     public function getDiscount($subTotal): float
     {
         foreach ($this->getCouponDiscounts() as $couponDiscount) {
@@ -296,10 +189,6 @@ class Customer extends BaseUser
         return 0.00;
     }
 
-    /**
-     * @param $nro
-     * @return bool
-     */
     public function existCouponDiscount($nro): bool
     {
         foreach ($this->getCouponDiscounts() as $couponDiscount) {
@@ -311,18 +200,11 @@ class Customer extends BaseUser
         return false;
     }
 
-    /**
-     * @return Order[]|ArrayCollection
-     */
     public function getShoppingOrders()
     {
         return $this->shoppingOrders;
     }
 
-    /**
-     * @param Order $shoppingOrder
-     * @return $this
-     */
     public function addShoppingOrder(Order $shoppingOrder): Customer
     {
         if (!$this->shoppingOrders->contains($shoppingOrder)) {
@@ -332,10 +214,6 @@ class Customer extends BaseUser
         return $this;
     }
 
-    /**
-     * @param Order $shoppingOrder
-     * @return $this
-     */
     public function removeShoppingOrder(Order $shoppingOrder): Customer
     {
         if ($this->shoppingOrders->contains($shoppingOrder)) {
@@ -345,17 +223,11 @@ class Customer extends BaseUser
         return $this;
     }
 
-    /**
-     * @return array
-     */
     public function getRoles(): array
     {
         return array_unique(['ROLE_CUSTOMER']);
     }
 
-    /**
-     * @return array
-     */
     public function getCustomerTotalInfo(): array
     {
         $addresses = $this->getCustomerAddresses();
@@ -414,7 +286,7 @@ class Customer extends BaseUser
     {
         if (!$this->couponDiscounts->contains($couponDiscount)) {
             $this->couponDiscounts[] = $couponDiscount;
-            $couponDiscount->setCustomerId($this);
+            $couponDiscount->setCustomer($this);
         }
 
         return $this;
@@ -424,7 +296,7 @@ class Customer extends BaseUser
     {
         if ($this->couponDiscounts->removeElement($couponDiscount)) {
             // set the owning side to null (unless already changed)
-            if ($couponDiscount->getCustomerId() === $this) {
+            if ($couponDiscount->getCustomer() === $this) {
             }
         }
 
@@ -503,18 +375,6 @@ class Customer extends BaseUser
         return $this;
     }
 
-    public function getRegistrationUser(): ?User
-    {
-        return $this->registration_user;
-    }
-
-    public function setRegistrationUser(?User $registration_user): self
-    {
-        $this->registration_user = $registration_user;
-
-        return $this;
-    }
-
     public function getRegistrationDate(): ?\DateTimeInterface
     {
         return $this->registration_date;
@@ -527,9 +387,6 @@ class Customer extends BaseUser
         return $this;
     }
 
-    /**
-     * @return Collection|CustomerAddresses[]
-     */
     public function getCustomerAddresses(): Collection
     {
         return $this->customerAddresses;
@@ -749,9 +606,6 @@ class Customer extends BaseUser
         return $this;
     }
 
-    /**
-     * @return Collection<int, Orders>
-     */
     public function getOrders(): Collection
     {
         return $this->orders;
@@ -779,9 +633,6 @@ class Customer extends BaseUser
         return $this;
     }
 
-    /**
-     * @return Collection<int, FavoriteProduct>
-     */
     public function getFavoriteProducts(): Collection
     {
         return $this->favoriteProducts;
@@ -809,9 +660,6 @@ class Customer extends BaseUser
         return $this;
     }
 
-    /**
-     * @return Collection<int, ShoppingCart>
-     */
     public function getShoppingCarts(): Collection
     {
         return $this->shoppingCarts;
@@ -839,9 +687,6 @@ class Customer extends BaseUser
         return $this;
     }
 
-    /**
-     * @return Collection<int, Recipients>
-     */
     public function getRecipients(): Collection
     {
         return $this->recipients;

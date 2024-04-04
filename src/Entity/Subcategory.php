@@ -9,83 +9,52 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\SubcategoryRepository")
- * @ORM\Table("mia_sub_category")
- * @UniqueEntity(
- *      fields={"name","category"},
- *      errorPath="name",
- *      message="La subcategoría indicada ya se encuentra registrada para este tipo de categoría."
- * )
- */
+#[ORM\Entity(repositoryClass: "App\Repository\SubcategoryRepository")]
+#[ORM\Table(name: "mia_sub_category")]
+#[UniqueEntity(
+    fields: ["name", "category"],
+    errorPath: "name",
+    message: "La subcategoría indicada ya se encuentra registrada para este tipo de categoría."
+)]
 class Subcategory
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="bigint")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "bigint")]
     protected $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="name",nullable=false, type="string", length=255)
-     */
+    #[ORM\Column(name: "name", nullable: false, type: "string", length: 255)]
     protected $name;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="slug", type="string", length=255,nullable=false)
-     */
+    #[ORM\Column(name: "slug", type: "string", length: 255, nullable: false)]
     protected $slug;
 
 
-    /**
-     *
-     * @ORM\Column(name="id3pl", type="bigint", nullable=true)
-     */
+    #[ORM\Column(name: "id3pl", type: "bigint", nullable: true)]
     protected $id3pl;
 
 
-    /**
-     * @ORM\Column(type="boolean", nullable=true, options={"default":False})
-     */
+    #[ORM\Column(type: "boolean", nullable: true, options: ["default" => false])]
     private $visible;
 
-    /**
-     * @ORM\Column(type="datetime",nullable=false, options={"default":"CURRENT_TIMESTAMP"})
-     */
+    #[ORM\Column(type: "datetime", nullable: false)]
     private $created_at;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Category::class, inversedBy="subcategories")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: "subcategories")]
+    #[ORM\JoinColumn(nullable: false)]
     private $category;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=CommunicationStatesBetweenPlatforms::class, inversedBy="subcategories")
-     * @ORM\JoinColumn(nullable=false, options={"default":1})
-     * 
-     */
+    #[ORM\ManyToOne(targetEntity: CommunicationStatesBetweenPlatforms::class, inversedBy: "subcategories")]
+    #[ORM\JoinColumn(nullable: false, options: ["default" => 1])]
     private $status_sent_3pl;
 
-    /**
-     * @ORM\Column(type="smallint", options={"default":0})
-     * 
-     */
+    #[ORM\Column(type: "smallint", options: ["default" => 0])]
     private $attempts_send_3pl;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: "text", nullable: true)]
     private $error_message_3pl;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Product::class, mappedBy="subcategory")
-     */
+    #[ORM\OneToMany(targetEntity: Product::class, mappedBy: "subcategory")]
     private $products;
 
 
@@ -181,9 +150,6 @@ class Subcategory
         ];
     }
 
-    /**
-     * @return string[]
-     */
     public function asMenu(): array
     {
         return [
@@ -232,9 +198,9 @@ class Subcategory
     public function setCategory(?Category $category): self
     {
         $this->category = $category;
-        
+
         $slugify = new Slugify();
-        $this->slug = $slugify->slugify($category->getName().' '.$this->slug);
+        $this->slug = $slugify->slugify($category->getName() . ' ' . $this->slug);
 
         return $this;
     }

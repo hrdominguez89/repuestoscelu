@@ -1,4 +1,6 @@
-<?php /** @noinspection SpellCheckingInspection */
+<?php
+
+/** @noinspection SpellCheckingInspection */
 
 namespace App\Entity;
 
@@ -8,121 +10,53 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\OrderRepository")
- * @ORM\Table("mia_order")
- */
+#[ORM\Entity(repositoryClass: "App\Repository\OrderRepository")]
+#[ORM\Table(name: "mia_order")]
 class Order extends BaseOrder
 {
-    /**
-     * @var ArrayCollection|OrderItems[]
-     *
-     * @ORM\OneToMany(targetEntity="App\Entity\OrderItems", mappedBy="orderId", cascade={"remove"})
-     */
+    #[ORM\OneToMany(targetEntity: OrderItems::class, mappedBy: "orderId", cascade: ["remove"])]
     private $orderItems;
 
-    /**
-     * @var Customer
-     *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Customer", inversedBy="shoppingOrders")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="customer_id", referencedColumnName="id", nullable=false)
-     * })
-     */
+    #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: "shoppingOrders")]
+    #[ORM\JoinColumn(name: "customer_id", referencedColumnName: "id", nullable: false)]
     private $customerId;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="checkout_id", type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(name: "checkout_id", type: "string", length: 255, nullable: true)]
     private $checkoutId;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="checkout_status", type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(name: "checkout_status", type: "string", length: 255, nullable: true)]
     private $checkoutStatus;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="status", type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(name: "status", type: "string", length: 255, nullable: true)]
     private $status;
 
-    /**
-     * @var float|null
-     *
-     * @ORM\Column(name="sub_total", type="float", nullable=true)
-     */
+    #[ORM\Column(name: "sub_total", type: "float", nullable: true)]
     private $subTotal;
 
-    /**
-     * @var float|null
-     *
-     * @ORM\Column(name="total", type="float", nullable=true)
-     */
+    #[ORM\Column(name: "total", type: "float", nullable: true)]
     private $total;
 
-    /**
-     * @var float|null
-     *
-     * @ORM\Column(name="shipping", type="float", nullable=true)
-     */
+    #[ORM\Column(name: "shipping", type: "float", nullable: true)]
     private $shipping;
-    /**
-     * @var float|null
-     *
-     * @ORM\Column(name="handling", type="float", nullable=true)
-     */
+    #[ORM\Column(name: "handling", type: "float", nullable: true)]
     private $handling;
 
-    /**
-     * @var float|null
-     *
-     * @ORM\Column(name="insurance", type="float", nullable=true)
-     */
+    #[ORM\Column(name: "insurance", type: "float", nullable: true)]
     private $insurance;
-    /**
-     * @var float|null
-     *
-     * @ORM\Column(name="tax_total", type="float", nullable=true)
-     */
+    #[ORM\Column(name: "tax_total", type: "float", nullable: true)]
     private $taxTotal;
-    /**
-     * @var float|null
-     *
-     * @ORM\Column(name="shipping_discount", type="float", nullable=true)
-     */
+    #[ORM\Column(name: "shipping_discount", type: "float", nullable: true)]
     private $shippingDiscount;
-    /**
-     * @var float|null
-     *
-     * @ORM\Column(name="discount", type="float", nullable=true)
-     */
+    #[ORM\Column(name: "discount", type: "float", nullable: true)]
     private $discount;
 
-    /**
-     * @var integer|null
-     *
-     * @ORM\Column(name="quantity", type="integer", nullable=true)
-     */
+    #[ORM\Column(name: "quantity", type: "integer", nullable: true)]
     private $quantity;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="payment_method", type="string", length=100, nullable=true)
-     */
+    #[ORM\Column(name: "payment_method", type: "string", length: 100, nullable: true)]
     private $paymentMethod;
 
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="date", type="datetime")
-     */
+    #[ORM\Column(name: "date", type: "datetime")]
     private $date;
 
     /**
@@ -153,7 +87,6 @@ class Order extends BaseOrder
         $this->date = new \DateTime();
 
         $this->setCustomerId($customer);
-
     }
 
     /**
@@ -568,9 +501,6 @@ class Order extends BaseOrder
     {
         if ($this->orderItems->removeElement($orderItem)) {
             // set the owning side to null (unless already changed)
-            if ($orderItem->getOrderId() === $this) {
-                $orderItem->setOrderId(null);
-            }
         }
 
         return $this;

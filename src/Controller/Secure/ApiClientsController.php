@@ -13,16 +13,12 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-/**
- * @Route("/api_clients")
- */
+#[Route("/api_clients")]
 class ApiClientsController extends AbstractController
 {
 
 
-    /**
-     * @Route("/", name="api_clients")
-     */
+    #[Route("/", name: "api_clients")]
     public function index(ApiClientsRepository $apiClientsRepository): Response
     {
         $data['title'] = 'Usuarios API';
@@ -34,10 +30,8 @@ class ApiClientsController extends AbstractController
         return $this->render('secure/api_clients/abm_api_clients.html.twig', $data);
     }
 
-    /**
-     * @Route("/new", name="new_api_clients")
-     */
-    public function new(Request $request,EntityManagerInterface $em): Response
+    #[Route("/new", name: "new_api_clients")]
+    public function new(Request $request, EntityManagerInterface $em): Response
     {
         $data['title'] = "Nuevo usuario API";
         $data['api_client'] = new ApiClients();
@@ -90,10 +84,8 @@ class ApiClientsController extends AbstractController
         return $this->renderForm('secure/api_clients/form_api_clients.html.twig', $data);
     }
 
-    /**
-     * @Route("/{id}/edit", name="edit_api_clients")
-     */
-    public function edit($id, Request $request, ApiClientsRepository $apiClientsRepository,EntityManagerInterface $em): Response
+    #[Route("/{id}/edit", name: "edit_api_clients")]
+    public function edit($id, Request $request, ApiClientsRepository $apiClientsRepository, EntityManagerInterface $em): Response
     {
         $data['reset_api_key'] = true;
         $data['title'] = "Editar usuario API";

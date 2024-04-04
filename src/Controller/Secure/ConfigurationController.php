@@ -14,15 +14,11 @@ use App\Helpers\FileUploader;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-/**
- * @Route("/configuration")
- */
+#[Route("/configuration")]
 class ConfigurationController extends AbstractController
 {
 
-    /**
-     * @Route("/", name="secure_configuration_index", methods={"GET"})
-     */
+    #[Route("/", name: "secure_configuration_index", methods: ["GET"])]
     public function index(ConfigurationRepository $configurationRepository): Response
     {
         $data['configurations'] = $configurationRepository->findAll();
@@ -34,9 +30,7 @@ class ConfigurationController extends AbstractController
         return $this->render('secure/configuration/abm_home_icons.html.twig', $data);
     }
 
-    /**
-     * @Route("/new", name="secure_configuration_new", methods={"GET","POST"})
-     */
+    #[Route("/new", name: "secure_configuration_new", methods: ["GET", "POST"])]
     public function new(Request $request, FileUploader $fileUploader, EntityManagerInterface $em): Response
     {
         $configuration = new Configuration();
@@ -67,9 +61,7 @@ class ConfigurationController extends AbstractController
         return $this->renderForm('secure/configuration/form_home_icons.html.twig', $data);
     }
 
-    /**
-     * @Route("/{id}/show", name="secure_configuration_show", methods={"GET"})
-     */
+    #[Route("/{id}/show", name: "secure_configuration_show", methods: ["GET"])]
     public function show(): Response
     {
         $configuration = new Configuration();
@@ -82,9 +74,7 @@ class ConfigurationController extends AbstractController
         return $this->render('secure/configuration/show.html.twig', $data);
     }
 
-    /**
-     * @Route("/{id}/edit", name="secure_configuration_edit", methods={"GET","POST"})
-     */
+    #[Route("/{id}/edit", name: "secure_configuration_edit", methods: ["GET", "POST"])]
     public function edit(Request $request, FileUploader $fileUploader, $id, ConfigurationRepository $configurationRepository, EntityManagerInterface $em): Response
     {
         $configuration = $configurationRepository->find($id);
@@ -114,9 +104,7 @@ class ConfigurationController extends AbstractController
         return $this->renderForm('secure/configuration/form_home_icons.html.twig', $data);
     }
 
-    /**
-     * @Route("/{id}", name="secure_configuration_delete", methods={"POST"})
-     */
+    #[Route("/{id}", name: "secure_configuration_delete", methods: ["POST"])]
     public function delete(Request $request, EntityManagerInterface $em, $id, ConfigurationRepository $configurationRepository): Response
     {
         $configuration = $configurationRepository->find($id);

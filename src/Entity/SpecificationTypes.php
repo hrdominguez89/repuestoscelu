@@ -9,27 +9,19 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 
-/**
- * @ORM\Entity(repositoryClass=SpecificationTypesRepository::class)
- * @UniqueEntity(fields="name", message="El tipo de especificación indicado ya se encuentra registrado.")
- */
+#[ORM\Entity(repositoryClass: SpecificationTypesRepository::class)]
+#[UniqueEntity(fields: "name", message: "El tipo de especificación indicado ya se encuentra registrado.")]
 class SpecificationTypes
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "integer")]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=50, unique=true)
-     */
+    #[ORM\Column(type: "string", length: 50, unique: true)]
     private $name;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Specification::class, mappedBy="specification_type")
-     */
+    #[ORM\OneToMany(targetEntity: Specification::class, mappedBy: "specification_type")]
     private $specifications;
 
     public function __construct()

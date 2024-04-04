@@ -7,103 +7,65 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=CustomerAddressesRepository::class)
- */
+ #[ORM\Entity(repositoryClass:CustomerAddressesRepository::class)]
 class CustomerAddresses
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+     #[ORM\Id]
+     #[ORM\GeneratedValue]
+     #[ORM\Column(type:"integer")]
     private $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Customer::class, inversedBy="customerAddresses")
-     * @ORM\JoinColumn(nullable=false)
-     */
+     #[ORM\ManyToOne(targetEntity:Customer::class, inversedBy:"customerAddresses")]
+     #[ORM\JoinColumn(nullable:false)]
     private $customer;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Countries::class, inversedBy="customerAddresses")
-     * @ORM\JoinColumn(nullable=false)
-     */
+     #[ORM\ManyToOne(targetEntity:Countries::class, inversedBy:"customerAddresses")]
+     #[ORM\JoinColumn(nullable:false)]
     private $country;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=States::class, inversedBy="customerAddresses")
-     */
+     #[ORM\ManyToOne(targetEntity:States::class, inversedBy:"customerAddresses")]
     private $state;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Cities::class, inversedBy="customerAddresses")
-     */
+     #[ORM\ManyToOne(targetEntity:Cities::class, inversedBy:"customerAddresses")]
     private $city;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+     #[ORM\Column(type:"string", length:255)]
     private $street;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+     #[ORM\Column(type:"string", length:255)]
     public $number_street;
 
-    /**
-     * @ORM\Column(type="string", length=10)
-     */
+     #[ORM\Column(type:"string", length:10)]
     private $floor;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+     #[ORM\Column(type:"string", length:255)]
     private $department;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+     #[ORM\Column(type:"string", length:255)]
     public $postal_code;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+     #[ORM\Column(type:"string", length:255, nullable:true)]
     private $additional_info;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+     #[ORM\Column(type:"boolean")]
     private $home_address;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+     #[ORM\Column(type:"boolean")]
     private $billing_address;
 
-    /**
-     * @ORM\Column(type="datetime", options={"default":"CURRENT_TIMESTAMP"})
-     */
+     #[ORM\Column(type:"datetime")]
     private $registration_date;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=RegistrationType::class, inversedBy="customerAddresses")
-     */
+     #[ORM\ManyToOne(targetEntity:RegistrationType::class, inversedBy:"customerAddresses")]
     private $registration_type;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="customerAddresses")
-     */
+     #[ORM\ManyToOne(targetEntity:User::class, inversedBy:"customerAddresses")]
     private $registration_user;
 
-    /**
-     * @ORM\Column(type="boolean", options={"default":true})
-     */
+     #[ORM\Column(type:"boolean", options:["default"=>true])]
     private $active;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Orders::class, mappedBy="bill_address")
-     */
+     #[ORM\OneToMany(targetEntity:Orders::class, mappedBy:"bill_address")]
     private $orders;
 
     public function __construct()

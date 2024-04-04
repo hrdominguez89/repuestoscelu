@@ -10,170 +10,103 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\CategoryRepository")
- * @ORM\Table("mia_category")
- * 
- * @UniqueEntity(fields="name", message="La categoría indicada ya se encuentra registrada.")
- * @UniqueEntity(fields="nomenclature", message="La nomenclatura indicada ya se encuentra registrada, por favor intente con otra.")
- * 
- */
+#[ORM\Entity(repositoryClass: "App\Repository\CategoryRepository")]
+#[ORM\Table(name: "mia_category")]
+#[UniqueEntity(fields: "name", message: "La categoría indicada ya se encuentra registrada.")]
+#[UniqueEntity(fields: "nomenclature", message: "La nomenclatura indicada ya se encuentra registrada, por favor intente con otra.")]
 class Category
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="bigint")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "bigint")]
     protected $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="name",nullable=false, type="string", length=255, unique=true)
-     */
+    #[ORM\Column(name: "name", nullable: false, type: "string", length: 255, unique: true)]
     protected $name;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="slug", type="string", length=255,nullable=false)
-     */
+    #[ORM\Column(name: "slug", type: "string", length: 255, nullable: false)]
     protected $slug;
 
-    /**
-     *
-     * @ORM\Column(name="id3pl", type="bigint", nullable=true)
-     */
+    #[ORM\Column(name: "id3pl", type: "bigint", nullable: true)]
     protected $id3pl;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="image", type="text", nullable=true)
-     */
+    #[ORM\Column(name: "image", type: "text", nullable: true)]
     protected $image;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Product::class, mappedBy="category")
-     */
+    #[ORM\OneToMany(targetEntity: Product::class, mappedBy: "category")]
     private $products;
 
-    /**
-     * @ORM\Column(name="description_es", type="text", nullable=true)
-     */
+    #[ORM\Column(name: "description_es", type: "text", nullable: true)]
     private $descriptionEs;
 
-    /**
-     * @ORM\Column(type="string", length=3, nullable=true, unique=true)
-     */
+    #[ORM\Column(type: "string", length: 3, nullable: true, unique: true)]
     private $nomenclature;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=false, options={"default":"CURRENT_TIMESTAMP"})
-     */
+    #[ORM\Column(type: "datetime", nullable: false)]
     private $created_at;
 
 
-    /**
-     * @ORM\Column(type="boolean", nullable=false, options={"default":false})
-     */
+    #[ORM\Column(type: "boolean", nullable: false, options: ["default" => false])]
     private $visible = false;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=false, options={"default":false})
-     */
+    #[ORM\Column(type: "boolean", nullable: false, options: ["default" => false])]
     private $principal = false;
 
-    /**
-     * @ORM\Column(name="description_en",type="text",nullable=true)
-     */
+    #[ORM\Column(name: "description_en", type: "text", nullable: true)]
     private $descriptionEn;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=CommunicationStatesBetweenPlatforms::class, inversedBy="categories")
-     * @ORM\JoinColumn(nullable=false, options={"default":1})
-     */
+    #[ORM\ManyToOne(targetEntity: CommunicationStatesBetweenPlatforms::class, inversedBy: "categories")]
+    #[ORM\JoinColumn(nullable: false, options: ["default" => 1])]
     private $status_sent_3pl;
 
-    /**
-     * @ORM\Column(type="smallint", options={"default":0})
-     */
+    #[ORM\Column(type: "smallint", options: ["default" => 0])]
     private $attempts_send_3pl;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: "text", nullable: true)]
     private $error_message_3pl;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Subcategory::class, mappedBy="category")
-     */
+    #[ORM\OneToMany(targetEntity: Subcategory::class, mappedBy: "category")]
     private $subcategories;
 
-    /**
-     * @ORM\OneToMany(targetEntity=SectionsHome::class, mappedBy="category1Section1")
-     */
+    #[ORM\OneToMany(targetEntity: SectionsHome::class, mappedBy: "category1Section1")]
     private $sectionsHomes11;
 
-    /**
-     * @ORM\OneToMany(targetEntity=SectionsHome::class, mappedBy="category2Section1")
-     */
+    #[ORM\OneToMany(targetEntity: SectionsHome::class, mappedBy: "category2Section1")]
     private $sectionsHomes21;
 
-    /**
-     * @ORM\OneToMany(targetEntity=SectionsHome::class, mappedBy="category3Section1")
-     */
+    #[ORM\OneToMany(targetEntity: SectionsHome::class, mappedBy: "category3Section1")]
     private $sectionsHomes31;
 
-    /**
-     * @ORM\OneToMany(targetEntity=SectionsHome::class, mappedBy="category1Section2")
-     */
+    #[ORM\OneToMany(targetEntity: SectionsHome::class, mappedBy: "category1Section2")]
     private $sectionsHomes12;
 
-    /**
-     * @ORM\OneToMany(targetEntity=SectionsHome::class, mappedBy="category2Section2")
-     */
+    #[ORM\OneToMany(targetEntity: SectionsHome::class, mappedBy: "category2Section2")]
     private $sectionsHomes22;
 
-    /**
-     * @ORM\OneToMany(targetEntity=SectionsHome::class, mappedBy="category3Section2")
-     */
+    #[ORM\OneToMany(targetEntity: SectionsHome::class, mappedBy: "category3Section2")]
     private $sectionsHomes32;
 
 
-    /**
-     * @ORM\OneToMany(targetEntity=SectionsHome::class, mappedBy="category1Section3")
-     */
+    #[ORM\OneToMany(targetEntity: SectionsHome::class, mappedBy: "category1Section3")]
     private $sectionsHomes13;
 
 
-    /**
-     * @ORM\OneToMany(targetEntity=SectionsHome::class, mappedBy="category2Section3")
-     */
+    #[ORM\OneToMany(targetEntity: SectionsHome::class, mappedBy: "category2Section3")]
     private $sectionsHomes23;
 
 
-    /**
-     * @ORM\OneToMany(targetEntity=SectionsHome::class, mappedBy="category3Section3")
-     */
+    #[ORM\OneToMany(targetEntity: SectionsHome::class, mappedBy: "category3Section3")]
     private $sectionsHomes33;
 
-    /**
-     * @ORM\OneToMany(targetEntity=SectionsHome::class, mappedBy="category1Section4")
-     */
+    #[ORM\OneToMany(targetEntity: SectionsHome::class, mappedBy: "category1Section4")]
     private $sectionsHomes14;
 
 
-    /**
-     * @ORM\OneToMany(targetEntity=SectionsHome::class, mappedBy="category2Section4")
-     */
+    #[ORM\OneToMany(targetEntity: SectionsHome::class, mappedBy: "category2Section4")]
     private $sectionsHomes24;
 
 
-    /**
-     * @ORM\OneToMany(targetEntity=SectionsHome::class, mappedBy="category3Section4")
-     */
+    #[ORM\OneToMany(targetEntity: SectionsHome::class, mappedBy: "category3Section4")]
     private $sectionsHomes34;
 
 
@@ -314,9 +247,6 @@ class Category
         ];
     }
 
-    /**
-     * @return string[]
-     */
     public function asMenu(): array
     {
         return [
@@ -326,9 +256,6 @@ class Category
         ];
     }
 
-    /**
-     * @return Collection|Product[]
-     */
     public function getProducts(): Collection
     {
         return $this->products;

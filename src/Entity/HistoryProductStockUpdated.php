@@ -5,53 +5,35 @@ namespace App\Entity;
 use App\Repository\HistoryProductStockUpdatedRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=HistoryProductStockUpdatedRepository::class)
- */
+ #[ORM\Entity(repositoryClass:HistoryProductStockUpdatedRepository::class)]
 class HistoryProductStockUpdated
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+     #[ORM\Id]
+     #[ORM\GeneratedValue]
+     #[ORM\Column(type:"integer")]
     private $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Product::class, inversedBy="historyProductStockUpdateds")
-     * @ORM\JoinColumn(nullable=false)
-     */
+     #[ORM\ManyToOne(targetEntity:Product::class, inversedBy:"historyProductStockUpdateds")]
+     #[ORM\JoinColumn(nullable:false)]
     private $product;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+     #[ORM\Column(type:"integer")]
     private $onhand;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+     #[ORM\Column(type:"integer")]
     private $commited;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+     #[ORM\Column(type:"integer")]
     private $incomming;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+     #[ORM\Column(type:"integer")]
     private $available;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=ActionsProductType::class, inversedBy="historyProductStockUpdateds")
-     * @ORM\JoinColumn(nullable=false)
-     */
+     #[ORM\ManyToOne(targetEntity:ActionsProductType::class, inversedBy:"historyProductStockUpdateds")]
+     #[ORM\JoinColumn(nullable:false)]
     private $action;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=false, options={"default":"CURRENT_TIMESTAMP"})
-     */
+     #[ORM\Column(type:"datetime", nullable:false)]
     private $updated_at;
 
     public function __construct()

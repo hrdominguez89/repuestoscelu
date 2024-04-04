@@ -7,31 +7,21 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=GenderTypeRepository::class)
- */
+#[ORM\Entity(repositoryClass: GenderTypeRepository::class)]
 class GenderType
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+     #[ORM\Id]
+     #[ORM\GeneratedValue]
+     #[ORM\Column(type:"integer")]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=1)
-     */
+     #[ORM\Column(type:"string", length:1)]
     private $initials;
 
-    /**
-     * @ORM\Column(type="string", length=30)
-     */
+     #[ORM\Column(type:"string", length:30)]
     private $description;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Customer::class, mappedBy="gender_type")
-     */
+     #[ORM\OneToMany(targetEntity:Customer::class, mappedBy:"gender_type")]
     private $customers;
 
     public function __construct()
@@ -68,9 +58,6 @@ class GenderType
         return $this;
     }
 
-    /**
-     * @return Collection|Customer[]
-     */
     public function getCustomers(): Collection
     {
         return $this->customers;

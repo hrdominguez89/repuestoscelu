@@ -4,62 +4,34 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\CoverImageRepository")
- * @ORM\Table("mia_cover_image")
- *  
- * 
- */
+#[ORM\Entity(repositoryClass: "App\Repository\CoverImageRepository")]
+#[ORM\Table(name: "mia_cover_image")]
 class CoverImage
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="bigint")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "bigint")]
     private $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="title", type="string", length=255)
-     */
+    #[ORM\Column(name: "title", type: "string", length: 255)]
     private $title;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="subtitle", type="text", nullable=true)
-     */
+    #[ORM\Column(name: "subtitle", type: "text", nullable: true)]
     private $subtitle;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="name_btn", type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(name: "name_btn", type: "string", length: 255, nullable: true)]
     private $nameBtn;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="link_btn", type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(name: "link_btn", type: "string", length: 255, nullable: true)]
     private $linkBtn;
 
-    /**
-     * @ORM\Column(name="volanta", type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(name: "volanta", type: "string", length: 255, nullable: true)]
     private $volanta;
 
-    /**
-     * @ORM\Column(name="number_order",type="smallint", nullable=true)
-     */
+    #[ORM\Column(name: "number_order", type: "smallint", nullable: true)]
     private $numberOrder;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: "boolean")]
     private $visible;
 
     public function __construct()

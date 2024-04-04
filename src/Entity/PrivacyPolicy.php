@@ -5,21 +5,15 @@ namespace App\Entity;
 use App\Repository\PrivacyPolicyRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=PrivacyPolicyRepository::class)
- */
+#[ORM\Entity(repositoryClass: PrivacyPolicyRepository::class)]
 class PrivacyPolicy
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "integer")]
     private $id;
 
-    /**
-     * @ORM\Column(type="text")
-     */
+    #[ORM\Column(type: "text")]
     private $description;
 
     public function getId(): ?int

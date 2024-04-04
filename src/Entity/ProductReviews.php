@@ -5,58 +5,30 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\Request;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\ProductReviewsRepository")
- * @ORM\Table("mia_product_reviews")
- */
+#[ORM\Entity(repositoryClass: "App\Repository\ProductReviewsRepository")]
+#[ORM\Table(name: "mia_product_reviews")]
 class ProductReviews
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="bigint")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "bigint")]
     private $id;
 
-    /**
-     * @var Product
-     *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Product")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="product_id", referencedColumnName="id", nullable=false)
-     * })
-     */
+    #[ORM\ManyToOne(targetEntity: Product::class)]
+    #[ORM\JoinColumn(name: "product_id", referencedColumnName: "id", nullable: false)]
     private $productId;
 
-    /**
-     * @var Customer
-     *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Customer")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="customer_id", referencedColumnName="id", nullable=false)
-     * })
-     */
+    #[ORM\ManyToOne(targetEntity: Customer::class)]
+    #[ORM\JoinColumn(name: "customer_id", referencedColumnName: "id", nullable: false)]
     private $customerId;
 
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="rating", type="integer")
-     */
+    #[ORM\Column(name: "rating", type: "integer")]
     private $rating;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="message", type="text")
-     */
+    #[ORM\Column(name: "message", type: "text")]
     private $message;
 
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="date_created", type="datetime")
-     */
+    #[ORM\Column(name: "date_created", type: "datetime")]
     private $dateCreated;
 
     /**
@@ -69,7 +41,7 @@ class ProductReviews
         $this->productId = $productId;
         $this->customerId = $customerId;
 
-        if($request){
+        if ($request) {
             $this->setRating($request->get('review_stars', 5));
             $this->setMessage($request->get('review_text', ''));
         }
@@ -180,5 +152,4 @@ class ProductReviews
 
         return $this;
     }
-
 }

@@ -4,27 +4,17 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\ProductSubcategoryRepository")
- * @ORM\Table("mia_product_subcategories")
- */
+#[ORM\Entity(repositoryClass: "App\Repository\ProductSubcategoryRepository")]
+#[ORM\Table(name: "mia_product_subcategories")]
 class ProductSubcategory
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="bigint")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "bigint")]
     private $id;
 
-    /**
-     * @var Subcategory
-     *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Subcategory")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="sub_categoria_id", referencedColumnName="id", nullable=false)
-     * })
-     */
+    #[ORM\ManyToOne(targetEntity: Subcategory::class)]
+    #[ORM\JoinColumn(name: "sub_categoria_id", referencedColumnName: "id", nullable: false)]
     private $subCategory;
 
     public function __construct(Product $product, Subcategory $subcategory)
@@ -51,7 +41,7 @@ class ProductSubcategory
     /**
      * @return Subcategory
      */
-        public function getSubCategory(): Subcategory
+    public function getSubCategory(): Subcategory
     {
         return $this->subCategory;
     }
@@ -66,6 +56,4 @@ class ProductSubcategory
 
         return $this;
     }
-
-
 }

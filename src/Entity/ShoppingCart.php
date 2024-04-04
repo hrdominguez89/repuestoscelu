@@ -5,60 +5,40 @@ namespace App\Entity;
 use App\Repository\ShoppingCartRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=ShoppingCartRepository::class)
- */
+#[ORM\Entity(repositoryClass: ShoppingCartRepository::class)]
 class ShoppingCart
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "integer")]
     private $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Customer::class, inversedBy="shoppingCarts")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: "shoppingCarts")]
+    #[ORM\JoinColumn(nullable: false)]
     private $customer;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Product::class, inversedBy="shoppingCarts")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Product::class, inversedBy: "shoppingCarts")]
+    #[ORM\JoinColumn(nullable: false)]
     private $product;
 
-    /**
-     * @ORM\Column(type="integer", options={"default":1})
-     */
+    #[ORM\Column(type: "integer", options: ["default" => 1])]
     private $quantity;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=StatusTypeShoppingCart::class, inversedBy="shoppingCarts")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: StatusTypeShoppingCart::class, inversedBy: "shoppingCarts")]
+    #[ORM\JoinColumn(nullable: false)]
     private $status;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=false, options={"default":"CURRENT_TIMESTAMP"})
-     */
+    #[ORM\Column(type: "datetime", nullable: false)]
     private $created_at;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+    #[ORM\Column(type: "datetime", nullable: true)]
     private $updated_at;
 
-    /**
-     * @ORM\OneToOne(targetEntity=FavoriteProduct::class, cascade={"persist", "remove"})
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\OneToOne(targetEntity: FavoriteProduct::class, cascade: ["persist", "remove"])]
+    #[ORM\JoinColumn(nullable: true)]
     private $favorite;
 
-    /**
-     * @ORM\OneToOne(targetEntity=OrdersProducts::class, mappedBy="shopping_cart", cascade={"persist", "remove"})
-     */
+    #[ORM\OneToOne(targetEntity: OrdersProducts::class, mappedBy: "shopping_cart", cascade: ["persist", "remove"])]
     private $ordersProducts;
 
     public function __construct()

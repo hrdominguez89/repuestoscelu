@@ -4,34 +4,20 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\CurrencyChangeRepository")
- * @ORM\Table("mia_currency_change")
- */
+ #[ORM\Entity(repositoryClass:"App\Repository\CurrencyChangeRepository")]
+ #[ORM\Table(name:"mia_currency_change")]
 class CurrencyChange
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="bigint")
-     */
+     #[ORM\Id]
+     #[ORM\GeneratedValue]
+     #[ORM\Column(type:"bigint")]
     private $id;
 
-    /**
-     * @var Currency
-     *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Currency")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="currency_id", referencedColumnName="id")
-     * })
-     */
+    #[ORM\ManyToOne(targetEntity: Currency::class)]
+    #[ORM\JoinColumn(name: "currency_id", referencedColumnName: "id")]
     private $currency;
 
-    /**
-     * @var float
-     *
-     * @ORM\Column(name="value", type="float")
-     */
+     #[ORM\Column(name:"value", type:"float")]
     private $value;
 
     /**

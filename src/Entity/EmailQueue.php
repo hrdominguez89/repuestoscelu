@@ -5,63 +5,41 @@ namespace App\Entity;
 use App\Repository\EmailQueueRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=EmailQueueRepository::class)
- */
+ #[ORM\Entity(repositoryClass:EmailQueueRepository::class)]
 class EmailQueue
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+     #[ORM\Id]
+     #[ORM\GeneratedValue]
+     #[ORM\Column(type:"integer")]
     private $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=EmailTypes::class, inversedBy="emailQueues")
-     * @ORM\JoinColumn(nullable=false)
-     */
+     #[ORM\ManyToOne(targetEntity:EmailTypes::class, inversedBy:"emailQueues")]
+     #[ORM\JoinColumn(nullable:false)]
     private $email_type;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=false)
-     */
+     #[ORM\Column(type:"string", length:255, nullable:false)]
     private $email_to;
 
-    /**
-     * @ORM\Column(type="json", nullable=false)
-     */
+     #[ORM\Column(type:"json", nullable:false)]
     private $parameters = [];
 
-    /**
-     * @ORM\Column(type="smallint", nullable=false, options={"default":0})
-     */
+     #[ORM\Column(type:"smallint", nullable:false, options:["default"=>0])]
     private $send_attempts = 0;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=false, options={"default":"CURRENT_TIMESTAMP"})
-     */
+     #[ORM\Column(type:"datetime", nullable:false)]
     private $created_at;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+     #[ORM\Column(type:"datetime", nullable:true)]
     private $updated_at;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+     #[ORM\Column(type:"datetime", nullable:true)]
     private $sent_on;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+     #[ORM\Column(type:"text", nullable:true)]
     private $error_message;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=EmailStatusType::class, inversedBy="emailQueues")
-     * @ORM\JoinColumn(nullable=false)
-     */
+     #[ORM\ManyToOne(targetEntity:EmailStatusType::class, inversedBy:"emailQueues")]
+     #[ORM\JoinColumn(nullable:false)]
     private $email_status;
 
     public function __construct()

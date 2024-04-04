@@ -7,31 +7,21 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=ProductConditionRepository::class)
- */
+ #[ORM\Entity(repositoryClass:ProductConditionRepository::class)]
 class ProductCondition
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+     #[ORM\Id]
+     #[ORM\GeneratedValue]
+     #[ORM\Column(type:"integer")]
     private $id;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+     #[ORM\Column(type:"integer")]
     private $api_id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+     #[ORM\Column(type:"string", length:255)]
     private $name;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Product::class, mappedBy="condition")
-     */
+     #[ORM\OneToMany(targetEntity:Product::class, mappedBy:"condition")]
     private $products;
 
     public function __construct()
@@ -68,9 +58,6 @@ class ProductCondition
         return $this;
     }
 
-    /**
-     * @return Collection|Product[]
-     */
     public function getProducts(): Collection
     {
         return $this->products;

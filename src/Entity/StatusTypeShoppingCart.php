@@ -7,26 +7,18 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=StatusTypeShoppingCartRepository::class)
- */
+#[ORM\Entity(repositoryClass: StatusTypeShoppingCartRepository::class)]
 class StatusTypeShoppingCart
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "integer")]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private $name;
 
-    /**
-     * @ORM\OneToMany(targetEntity=ShoppingCart::class, mappedBy="status")
-     */
+    #[ORM\OneToMany(targetEntity: ShoppingCart::class, mappedBy: "status")]
     private $shoppingCarts;
 
     public function __construct()

@@ -7,41 +7,27 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=CustomersTypesRolesRepository::class)
- */
+#[ORM\Entity(repositoryClass: CustomersTypesRolesRepository::class)]
 class CustomersTypesRoles
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "integer")]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private $role;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private $name;
 
-    /**
-     * @ORM\Column(type="text")
-     */
+    #[ORM\Column(type: "text")]
     private $description;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Customer::class, mappedBy="customer_type_role")
-     */
+    #[ORM\OneToMany(targetEntity: Customer::class, mappedBy: "customer_type_role")]
     private $customers;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Orders::class, mappedBy="customer_type")
-     */
+    #[ORM\OneToMany(targetEntity: Orders::class, mappedBy: "customer_type")]
     private $orders;
 
     public function __construct()
@@ -91,9 +77,6 @@ class CustomersTypesRoles
         return $this;
     }
 
-    /**
-     * @return Collection|Customer[]
-     */
     public function getCustomers(): Collection
     {
         return $this->customers;

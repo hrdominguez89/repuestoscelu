@@ -7,26 +7,18 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=EmailStatusTypeRepository::class)
- */
+#[ORM\Entity(repositoryClass: mailStatusTypeRepository::class)]
 class EmailStatusType
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "integer")]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=9)
-     */
+    #[ORM\Column(type: "string", length: 9)]
     private $name;
 
-    /**
-     * @ORM\OneToMany(targetEntity=EmailQueue::class, mappedBy="email_status")
-     */
+    #[ORM\OneToMany(targetEntity: EmailQueue::class, mappedBy: "email_status")]
     private $emailQueues;
 
     public function __construct()

@@ -7,68 +7,44 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=ProductDiscountRepository::class)
- */
+#[ORM\Entity(repositoryClass: ProductDiscountRepository::class)]
 class ProductDiscount
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "integer")]
     private $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Product::class, inversedBy="productDiscounts")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Product::class, inversedBy: "productDiscounts")]
+    #[ORM\JoinColumn(nullable: false)]
     private $product;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: "integer")]
     private $percentage_discount;
 
-    /**
-     * @ORM\Column(type="date")
-     */
+    #[ORM\Column(type: "date")]
     private $start_date;
 
-    /**
-     * @ORM\Column(type="date")
-     */
+    #[ORM\Column(type: "date")]
     private $end_date;
 
-    /**
-     * @ORM\Column(type="datetime", options={"default":"CURRENT_TIMESTAMP"})
-     */
+    #[ORM\Column(type: "datetime")]
     private $created_at;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="productDiscounts")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: "productDiscounts")]
+    #[ORM\JoinColumn(nullable: false)]
     private $created_by_user;
 
-    /**
-     * @ORM\Column(type="bigint")
-     */
+    #[ORM\Column(type: "bigint")]
     private $product_limit;
 
-    /**
-     * @ORM\Column(type="bigint",options={"default":0})
-     */
+    #[ORM\Column(type: "bigint", options: ["default" => 0])]
     private $used;
 
-    /**
-     * @ORM\Column(type="boolean",options={"default":true})
-     */
+    #[ORM\Column(type: "boolean", options: ["default" => true])]
     private $active;
 
-    /**
-     * @ORM\OneToMany(targetEntity=OrdersProducts::class, mappedBy="product_discount")
-     */
+    #[ORM\OneToMany(targetEntity: OrdersProducts::class, mappedBy: "product_discount")]
     private $ordersProducts;
 
     public function __construct()

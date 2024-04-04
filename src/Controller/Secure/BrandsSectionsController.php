@@ -12,17 +12,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-/**
- * @Route("/brands_sections")
- */
+#[Route("/brands_sections")]
 class BrandsSectionsController extends AbstractController
 {
 
     private $pathImg = 'brands';
 
-    /**
-     * @Route("/", name="secure_brands_sections_index", methods={"GET","POST"})
-     */
+    #[Route("/", name: "secure_brands_sections_index", methods: ["GET", "POST"])]
     public function new(BrandsSectionsRepository $brandsSections, Request $request, FileUploader $fileUploader, EntityManagerInterface $em): Response
     {
 

@@ -5,59 +5,32 @@ namespace App\Entity;
 use Cocur\Slugify\Slugify;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\SocialNetworkRepository")
- * @ORM\Table("mia_social_network")
- */
+#[ORM\Entity(repositoryClass: "App\Repository\SocialNetworkRepository")]
+#[ORM\Table(name: "mia_social_network")]
 class SocialNetwork
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="bigint")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "bigint")]
     private $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="name", type="string", length=50)
-     */
+
+    #[ORM\Column(name: "name", type: "string", length: 50)]
     private $name;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="type", type="string", length=50)
-     */
+    #[ORM\Column(name: "type", type: "string", length: 50)]
     private $type;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="slug", type="string", length=50)
-     */
+    #[ORM\Column(name: "slug", type: "string", length: 50)]
     private $slug;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="url", type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(name: "url", type: "string", length: 255, nullable: true)]
     private $url;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="icon", type="string", length=100)
-     */
+    #[ORM\Column(name: "icon", type: "string", length: 100)]
     private $icon;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="color", type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(name: "color", type: "string", length: 255, nullable: true)]
     private $color;
 
     /**
@@ -171,7 +144,7 @@ class SocialNetwork
      */
     public function setIcon(string $icon): SocialNetwork
     {
-//        $this->icon = $icon;
+        //        $this->icon = $icon;
 
         return $this;
     }
@@ -182,5 +155,4 @@ class SocialNetwork
 
         return $this;
     }
-
 }

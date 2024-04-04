@@ -5,42 +5,25 @@ namespace App\Entity\Model;
 use Cocur\Slugify\Slugify;
 use Doctrine\ORM\Mapping as ORM;
 
+#[ORM\MappedSuperclass]
 abstract class Category
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="bigint")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "bigint")]
     protected $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="name", type="string", length=255)
-     */
+    #[ORM\Column(name: "name", type: "string", length: 255)]
     protected $name;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="slug", type="string", length=255)
-     */
+    #[ORM\Column(name: "slug", type: "string", length: 255)]
     protected $slug;
 
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="api_id", type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(name: "api_id", type: "string", length: 255, nullable: true)]
     protected $apiId;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="image", type="text", nullable=true)
-     */
+    #[ORM\Column(name: "image", type: "text", nullable: true)]
     protected $image;
 
 
@@ -158,9 +141,6 @@ abstract class Category
         ];
     }
 
-    /**
-     * @return string[]
-     */
     public function asMenu(): array
     {
         return [

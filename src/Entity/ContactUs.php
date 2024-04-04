@@ -4,59 +4,31 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\ContactUsRepository")
- * @ORM\Table("mia_contact_us")
- */
+#[ORM\Entity(repositoryClass: "App\Repository\ContactUsRepository")]
+#[ORM\Table(name: "mia_contact_us")]
 class ContactUs
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="bigint")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "bigint")]
     private $id;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="description", type="text", nullable=true)
-     */
+    #[ORM\Column(name: "description", type: "text", nullable: true)]
     private $description;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="address", type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(name: "address", type: "string", length: 255, nullable: true)]
     private $address;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="email", type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(name: "email", type: "string", length: 255, nullable: true)]
     private $email;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="phone_main", type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(name: "phone_main", type: "string", length: 255, nullable: true)]
     private $phoneMain;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="phone_other", type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(name: "phone_other", type: "string", length: 255, nullable: true)]
     private $phoneOther;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="url", type="string", nullable=true)
-     */
+    #[ORM\Column(name: "url", type: "string", nullable: true)]
     private $url;
 
     /**
@@ -180,5 +152,4 @@ class ContactUs
 
         return $this;
     }
-
 }

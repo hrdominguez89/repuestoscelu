@@ -4,45 +4,31 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\FavoriteProductRepository")
- * @ORM\Table("mia_favorite_product")
- */
+#[ORM\Entity(repositoryClass: "App\Repository\FavoriteProductRepository")]
+#[ORM\Table(name: "mia_favorite_product")]
 class FavoriteProduct
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="bigint")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "bigint")]
     private $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=StatusTypeFavorite::class, inversedBy="favoriteProducts")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: StatusTypeFavorite::class, inversedBy: "favoriteProducts")]
+    #[ORM\JoinColumn(nullable: false)]
     private $status;
 
-    /**
-     * @ORM\Column(type="datetime",nullable=false, options={"default":"CURRENT_TIMESTAMP"})
-     */
+    #[ORM\Column(type: "datetime", nullable: false)]
     private $created_at;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+    #[ORM\Column(type: "datetime", nullable: true)]
     private $updated_at;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Product::class, inversedBy="favoriteProducts")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Product::class, inversedBy: "favoriteProducts")]
+    #[ORM\JoinColumn(nullable: false)]
     private $product;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Customer::class, inversedBy="favoriteProducts")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: "favoriteProducts")]
+    #[ORM\JoinColumn(nullable: false)]
     private $customer;
 
     public function __construct()

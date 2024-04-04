@@ -4,38 +4,22 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\TimeDelayStoreRepository")
- * @ORM\Table("mia_time_delay_store")
- */
+#[ORM\Entity(repositoryClass: "App\Repository\TimeDelayStoreRepository")]
+#[ORM\Table(name: "mia_time_delay_store")]
 class TimeDelayStore
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="bigint")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "bigint")]
     private $id;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="api_id", type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(name: "api_id", type: "string", length: 255, nullable: true)]
     private $apiId;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="name", type="string", length=100)
-     */
+    #[ORM\Column(name: "name", type: "string", length: 100)]
     private $name;
 
-    /**
-     * @var float
-     *
-     * @ORM\Column(name="tiempo", type="float")
-     */
+    #[ORM\Column(name: "tiempo", type: "float")]
     private $time;
 
     /**
@@ -102,6 +86,4 @@ class TimeDelayStore
 
         return $this;
     }
-
-
 }

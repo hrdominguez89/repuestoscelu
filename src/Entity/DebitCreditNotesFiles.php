@@ -5,32 +5,22 @@ namespace App\Entity;
 use App\Repository\DebitCreditNotesFilesRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=DebitCreditNotesFilesRepository::class)
- */
+#[ORM\Entity(repositoryClass: DebitCreditNotesFilesRepository::class)]
 class DebitCreditNotesFiles
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "integer")]
     private $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Orders::class, inversedBy="debitCreditNotesFiles")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Orders::class, inversedBy: "debitCreditNotesFiles")]
+    #[ORM\JoinColumn(nullable: false)]
     private $number_order;
 
-    /**
-     * @ORM\Column(type="text")
-     */
+    #[ORM\Column(type: "text")]
     private $debit_credit_note_file;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=false, options={"default":"CURRENT_TIMESTAMP"})
-     */
+    #[ORM\Column(type: "datetime", nullable: false)]
     private $created_at;
 
     public function __construct()

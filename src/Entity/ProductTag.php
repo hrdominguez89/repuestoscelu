@@ -4,27 +4,17 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\ProductTagRepository")
- * @ORM\Table("mia_product_tag")
- */
+#[ORM\Entity(repositoryClass: "App\Repository\ProductTagRepository")]
+#[ORM\Table(name: "mia_product_tag")]
 class ProductTag
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="bigint")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "bigint")]
     private $id;
 
-    /**
-     * @var Tag
-     *
-     * @ORM\ManyToOne(targetEntity="App\Entity\Tag")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="tag_id", referencedColumnName="id", nullable=false)
-     * })
-     */
+    #[ORM\ManyToOne(targetEntity: Tag::class)]
+    #[ORM\JoinColumn(name: "tag_id", referencedColumnName: "id", nullable: false)]
     private $tagId;
 
     /**
@@ -53,5 +43,4 @@ class ProductTag
 
         return $this;
     }
-
 }

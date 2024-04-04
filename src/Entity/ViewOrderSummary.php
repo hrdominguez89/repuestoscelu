@@ -4,38 +4,22 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\ViewOrderSummaryRepository", readOnly=true)
- * @ORM\Table("mia_view_orders_summary")
- */
+#[ORM\Entity(repositoryClass: "App\Repository\ViewOrderSummaryRepository", readOnly: true)]
+#[ORM\Table(name: "mia_view_orders_summary")]
 class ViewOrderSummary
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="bigint")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "bigint")]
     private $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="string", length=100)
-     */
+    #[ORM\Column(type: "string", length: 100)]
     private $date;
 
-    /**
-     * @var integer
-     *
-     * @ORM\Column(name="cant", type="integer")
-     */
+    #[ORM\Column(name: "cant", type: "integer")]
     private $cant;
 
-    /**
-     * @var float
-     *
-     * @ORM\Column(name="amount", type="float")
-     */
+    #[ORM\Column(name: "amount", type: "float")]
     private $amount;
 
     /**
@@ -102,6 +86,4 @@ class ViewOrderSummary
 
         return $this;
     }
-
-
 }

@@ -6,68 +6,42 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\MessageRepository")
- * @ORM\Table("mia_message")
- */
+#[ORM\Entity(repositoryClass: "App\Repository\MessageRepository")]
+#[ORM\Table(name: "mia_message")]
 class Message
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: "integer")]
     private $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="name", type="string", length=50)
-     * @Assert\Length(min=2, max=50)
-     * @Assert\NotBlank()
-     */
+    #[ORM\Column(name: "name", type: "string", length: 50)]
+    #[Assert\Length(min: 2, max: 50)]
+    #[Assert\NotBlank()]
     private $name;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="email", type="string", length=50)
-     * @Assert\Length(min=2, max=50)
-     * @Assert\Email(mode="strict")
-     * @Assert\NotBlank()
-     */
+    #[ORM\Column(name: "email", type: "string", length: 50)]
+    #[Assert\Length(min: 2, max: 50)]
+    #[Assert\Email(mode: "strict")]
+    #[Assert\NotBlank()]
     private $email;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="subject", type="string", length=50)
-     * @Assert\Length(min=2, max=50)
-     * @Assert\NotBlank()
-     */
+    #[ORM\Column(name: "subject", type: "string", length: 50)]
+    #[Assert\Length(min: 2, max: 50)]
+    #[Assert\NotBlank()]
     private $subject;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="message", type="text")
-     * @Assert\Length(min=2, max=255)
-     * @Assert\NotBlank()
-     */
+    #[ORM\Column(name: "message", type: "text")]
+    #[Assert\Length(min: 2, max: 255)]
+    #[Assert\NotBlank()]
     private $message;
 
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="date_created", type="datetime")
-     */
+
+    #[ORM\Column(name: "date_created", type: "datetime")]
     private $dateCreated;
 
-    /**
-     * @var boolean
-     *
-     * @ORM\Column(type="boolean")
-     */
+
+    #[ORM\Column(type: "boolean")]
     private $new;
 
     /**
