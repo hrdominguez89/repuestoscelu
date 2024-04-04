@@ -34,7 +34,7 @@ class CRUDUserController extends AbstractController
         // $data['files_css'] = array('hola.css?v='.rand());
         $data['files_js'] = array('table_full_buttons.js?v=' . rand());
 
-        $data['title'] = 'Operadores';
+        $data['title'] = 'Sucursales';
 
         $data['breadcrumbs'] = array(
             array('active' => true, 'title' => $data['title'])
