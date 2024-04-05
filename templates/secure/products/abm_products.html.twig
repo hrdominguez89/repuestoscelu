@@ -25,8 +25,12 @@
 								Id. &nbsp;
 							</th>
 
-							<th data-type="num" class="text-center">
-								Id 3PL &nbsp;
+							<th class="text-center" data-orderable="false">
+								Acciones &nbsp;
+							</th>
+
+							<th class="text-center" data-orderable="false">
+								Visible &nbsp;
 							</th>
 
 							<th>SKU &nbsp;</th>
@@ -37,7 +41,7 @@
 
 							<th>Nombre &nbsp;</th>
 
-							<th>Descripcion &nbsp;</th>
+							<th>Descripción &nbsp;</th>
 
 							<th>Marca &nbsp;</th>
 
@@ -46,8 +50,8 @@
 							<th>Subcategoría &nbsp;</th>
 
 							<th>Costo &nbsp;</th>
-
-							<th>Precio &nbsp;</th>
+							
+							{# <th>Precio &nbsp;</th> #}
 
 							<th>Descuento activo &nbsp;</th>
 
@@ -57,25 +61,15 @@
 
 							<th>Etiqueta expira en &nbsp;</th>
 
-							<th>Cant. en Warehouse &nbsp;</th>
+							<th>Cant. Disponible&nbsp;</th>
 
-							<th>Cant. Reservado en Warehouse &nbsp;</th>
+							<th>Cant. Reservado &nbsp;</th>
 
-							<th>Cant. por llegar a Warehouse &nbsp;</th>
-
-							<th>Cant. disponible en Warehouse &nbsp;</th>
+							<th>Cant. Por llegar&nbsp;</th>
 
 							<th>Condición &nbsp;</th>
 
 							<th>Alta&nbsp;</th>
-
-							<th class="text-center" data-orderable="false">
-								Visible &nbsp;
-							</th>
-
-							<th class="text-center" data-orderable="false">
-								Acciones &nbsp;
-							</th>
 
 						</tr>
 					</thead>
@@ -86,9 +80,22 @@
 									{{product.id}}
 								</td>
 
-
 								<td class="text-center">
-									{{product.id3pl}}
+									<a style="font-size:16px" class="text-danger m-2" href="{{ path('secure_product_discount',{"product_id":product.id}) }}" title="Descuento de producto.">
+										<i class="fas fa-percent"></i>
+									</a>
+									<a style="font-size:16px" class="text-primary m-2" href="{{ path('secure_product_tag',{"product_id":product.id}) }}" title="Etiqueta de producto.">
+										<i class="fas fa-tag"></i>
+									</a>
+									<a style="font-size:16px" class="text-warning m-2" href="{{ path('secure_product_edit',{"id":product.id}) }}" title="Editar producto.">
+										<i class="fas fa-edit"></i>
+									</a>
+								</td>
+								
+								<td class="text-center">
+									<a style="font-size:16px" data-status="{{product.visible ? 'on':'off'}}" data-slug="/secure/product/updateVisible/product" data-id="{{product.id}}" class="text-{{product.visible ? 'success':'secondary'}} m-2 toggle-on-off" href="javascript:void(0);">
+										<i class="fas fa-toggle-{{product.visible ? 'on':'off'}}"></i>
+									</a>
 								</td>
 
 								<td>{{product.sku}}</td>
@@ -110,8 +117,8 @@
 								<td class="text-center">$
 									{{product.cost|number_format(2, ',','.')}}</td>
 
-								<td class="text-center">$
-									{{product.price|number_format(2, ',','.')}}</td>
+								{# <td class="text-center">$
+									{{product.price|number_format(2, ',','.')}}</td> #}
 
 								<td class="text-center">{{product.getDiscountActive ? '% ' ~ product.getDiscountActive :''}}</td>
 
@@ -120,6 +127,7 @@
 								{# creo mensajes de fecha y mensaje de activo. #}
 
 								{% set mensaje_etiqueta_activo = '' %}
+								
 								{% set mensaje_etiqueta_fecha = '' %}
 
 
@@ -157,35 +165,16 @@
 
 								<td class="text-center">{{ mensaje_etiqueta_fecha }}</td>
 
-								<td class="text-center">{{product.onhand}}</td>
-
+								<td class="text-center">{{product.available}}</td>
+								
 								<td class="text-center">{{product.commited}}</td>
 
 								<td class="text-center">{{product.incomming}}</td>
 
-								<td class="text-center">{{product.available}}</td>
-
 								<td class="text-center">{{ product.conditium.name }}</td>
 
 								<td data-order="{{product.createdAt ? product.createdAt|date('U'):0}}" class="text-center">{{product.createdAt ? product.createdAt|date("d/m/Y"):'-'}}</td>
-
-								<td class="text-center">
-									<a style="font-size:16px" data-status="{{product.visible ? 'on':'off'}}" data-slug="/secure/product/updateVisible/product" data-id="{{product.id}}" class="text-{{product.visible ? 'success':'secondary'}} m-2 toggle-on-off" href="javascript:void(0);">
-										<i class="fas fa-toggle-{{product.visible ? 'on':'off'}}"></i>
-									</a>
-								</td>
-
-								<td class="text-center">
-									<a style="font-size:16px" class="text-danger m-2" href="{{ path('secure_product_discount',{"product_id":product.id}) }}" title="Descuento de producto.">
-										<i class="fas fa-percent"></i>
-									</a>
-									<a style="font-size:16px" class="text-primary m-2" href="{{ path('secure_product_tag',{"product_id":product.id}) }}" title="Etiqueta de producto.">
-										<i class="fas fa-tag"></i>
-									</a>
-									<a style="font-size:16px" class="text-warning m-2" href="{{ path('secure_product_edit',{"id":product.id}) }}" title="Editar producto.">
-										<i class="fas fa-edit"></i>
-									</a>
-								</td>
+								
 							</tr>
 						{% endfor %}
 					</tbody>

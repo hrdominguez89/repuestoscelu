@@ -57,16 +57,6 @@ security:
               roles:
                   [
                       ROLE_SUPER_ADMIN,
-                      ROLE_TEAM_GERENCIA,
-                      ROLE_TEAM_CATALOGO,
-                      ROLE_TEAM_OPERACIONES,
-                      ROLE_TEAM_FACTURACION_Y_COBRANZA,
-                      ROLE_TEAM_LOGISTICA,
-                      ROLE_TEAM_ATENCION_AL_CLIENTE_POSTVENTA,
-                      ROLE_TEAM_MARKETING,
-                      ROLE_TEAM_DISENO,
-                      ROLE_TEAM_SOCIAL_MEDIA,
-                      ROLE_TEAM_DESARROLLO,
-                      ROLE_TEAM_ANALYTICS_SEO_SEM,
+                      ROLE_SUCURSAL,
                   ],
           }

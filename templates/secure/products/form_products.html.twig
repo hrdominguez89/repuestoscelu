@@ -47,13 +47,6 @@
 
 	<div class="row my-2">
 		<div class="col-12">
-			{{ form_label (form.inventory) }}
-			{{ form_widget (form.inventory) }}
-			{{ form_errors (form.inventory)}}
-		</div>
-	</div>
-	<div class="row my-2">
-		<div class="col-12">
 			{{ form_label (form.name) }}
 			{{ form_widget (form.name) }}
 			{{ form_errors (form.name)}}
@@ -61,14 +54,14 @@
 	</div>
 
 	<div class="row my-2">
-		<div class="col-6">
+		<div class="col-12">
 			{{ form_label (form.descriptionEs) }}
 			{{ form_widget (form.descriptionEs) }}
 			{{ form_errors (form.descriptionEs)}}
 		</div>
 
 
-		<div class="col-6">
+		<div class="col-12">
 			{{ form_label (form.long_description_es) }}
 			{{ form_widget (form.long_description_es) }}
 			{{ form_errors (form.long_description_es)}}
@@ -76,7 +69,7 @@
 	</div>
 
 
-	<div class="row my-2">
+	{# <div class="row my-2">
 		<div class="col-6">
 			{{ form_label (form.descriptionEn) }}
 			{{ form_widget (form.descriptionEn) }}
@@ -89,7 +82,7 @@
 			{{ form_widget (form.long_description_en) }}
 			{{ form_errors (form.long_description_en)}}
 		</div>
-	</div>
+	</div> #}
 
 	{# FIN DATOS PRODUCTO #}
 
@@ -207,24 +200,24 @@
 			<div class="col-12">
 				<h3>Caracteristicas</h3>
 			</div>
-			<div class="col-3">
+			<div class="col-4">
 				{{ form_label (form.cost) }}
 				{{ form_widget (form.cost) }}
 				{{ form_errors (form.cost)}}
 			</div>
 
-			<div class="col-3">
+			{# <div class="col-3">
 				{{ form_label (form.price) }}
 				{{ form_widget (form.price) }}
 				{{ form_errors (form.price)}}
-			</div>
+			</div> #}
 
-			<div class="col-3">
+			<div class="col-4">
 				{{ form_label (form.cod) }}
 				{{ form_widget (form.cod) }}
 				{{ form_errors (form.cod)}}
 			</div>
-			<div class="col-3">
+			<div class="col-4">
 				{{ form_label (form.part_number) }}
 				{{ form_widget (form.part_number) }}
 				{{ form_errors (form.part_number)}}
@@ -349,7 +342,7 @@
 			<div class="col-12 text-end">
 				<a class="btn btn-secondary" href="{{ path('secure_product_index') }}">Regresar</a>
 
-				<button class="btn btn-primary">Guardar</button>
+				<button class="btn btn-success">Guardar</button>
 			</div>
 		</div>
 	</div>

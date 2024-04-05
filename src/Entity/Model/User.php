@@ -36,7 +36,7 @@ abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function __construct()
     {
-        $this->roles = [self::ROLE_DEFAULT];
+        $this->roles = self::ROLE_DEFAULT;
     }
 
     public function __serialize(): array

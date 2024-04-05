@@ -25,20 +25,20 @@
 		<!-- end page title -->
 
 		<div class="row">
-			<div
-				class="col-md-6">
+			<div class="col-md-6">
 				<!-- card -->
-				<div
-					class="card card-h-100">
-					<!-- card body -->
-					<div class="card-body">
-						<div class="row align-items-center">
-							<h5 class="card-title me-2 mb-3 lh-1 d-block text-truncate">Usuarios</h5>
-							<small>Gestión de usuarios de la plataforma</small>
+				<a href="{{ path('secure_crud_user_index') }}">
+					<div class="card card-h-100">
+						<!-- card body -->
+						<div class="card-body">
+							<div class="row align-items-center">
+								<h5 class="card-title me-2 mb-3 lh-1 d-block text-truncate">Sucursales</h5>
+								<small>Gestión de usuarios de la plataforma</small>
+							</div>
 						</div>
+						<!-- end card body -->
 					</div>
-					<!-- end card body -->
-				</div>
+				</a>
 				<!-- end card -->
 			</div>
 			<!-- end col -->
@@ -46,17 +46,21 @@
 			<div
 				class="col-md-6">
 				<!-- card -->
-				<div
-					class="card card-h-100">
-					<!-- card body -->
-					<div class="card-body">
-						<div class="row align-items-center">
-							<h5 class="card-title me-2 mb-3 lh-1 d-block text-truncate">Clientes</h5>
-							<small>Gestión de clientes</small>
+				<a href="{{ path('secure_crud_customer_index') }}">
+
+					<div
+						class="card card-h-100">
+						<!-- card body -->
+						<div class="card-body">
+							<div class="row align-items-center">
+								<h5 class="card-title me-2 mb-3 lh-1 d-block text-truncate">Clientes</h5>
+								<small>Gestión de clientes</small>
+							</div>
 						</div>
+						<!-- end card body -->
 					</div>
-					<!-- end card body -->
-				</div>
+				</a>
+
 				<!-- end card -->
 			</div>
 			<!-- end col -->
@@ -64,17 +68,20 @@
             <div
 				class="col-md-6">
 				<!-- card -->
-				<div
-					class="card card-h-100">
-					<!-- card body -->
-					<div class="card-body">
-						<div class="row align-items-center">
-							<h5 class="card-title me-2 mb-3 lh-1 d-block text-truncate">Ordenes</h5>
-							<small>Gestión de ordenes</small>
+				<a href="#">
+
+					<div
+						class="card card-h-100">
+						<!-- card body -->
+						<div class="card-body">
+							<div class="row align-items-center">
+								<h5 class="card-title me-2 mb-3 lh-1 d-block text-truncate">Ordenes</h5>
+								<small>Gestión de ordenes</small>
+							</div>
 						</div>
+						<!-- end card body -->
 					</div>
-					<!-- end card body -->
-				</div>
+				</a>
 				<!-- end card -->
 			</div>
 			<!-- end col -->
@@ -82,20 +89,46 @@
             <div
 				class="col-md-6">
 				<!-- card -->
-				<div
-					class="card card-h-100">
-					<!-- card body -->
-					<div class="card-body">
-						<div class="row align-items-center">
-							<h5 class="card-title me-2 mb-3 lh-1 d-block text-truncate">Productos</h5>
-							<small>Gestión de productos</small>
+				<a href="{{ path('secure_product_index') }}">
+
+					<div
+						class="card card-h-100">
+						<!-- card body -->
+						<div class="card-body">
+							<div class="row align-items-center">
+								<h5 class="card-title me-2 mb-3 lh-1 d-block text-truncate">Productos</h5>
+								<small>Gestión de productos</small>
+							</div>
 						</div>
+						<!-- end card body -->
 					</div>
-					<!-- end card body -->
-				</div>
+				</a>
 				<!-- end card -->
 			</div>
 			<!-- end col -->
+
+			<div class="col-xl-6">
+				<div class="card">
+					<div class="card-header">
+						<h4 class="card-title mb-0">Sucursales con más ventas</h4>
+					</div>
+					<div class="card-body">
+						<div id="bar_chart" data-colors='["#49923b"]' class="apex-charts" dir="ltr"></div>
+					</div>
+				</div><!--end card-->
+			</div>
+
+			<div class="col-xl-6">
+				<div class="card">
+					<div class="card-header">
+						<h4 class="card-title mb-0">Subcategorías más vendidas</h4>
+					</div>
+					<div class="card-body">
+						
+						<div id="pie_chart" data-colors='["#2ab57d", "#5156be", "#fd625e", "#4ba6ef", "#ffbf53"]' class="apex-charts" dir="ltr"></div>
+					</div>
+				</div>
+			</div>
 
 		</div>
 		<!-- end row-->

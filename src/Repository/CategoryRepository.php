@@ -91,7 +91,6 @@ class CategoryRepository extends ServiceEntityRepository
             ->createQuery('
             SELECT
             c.id,
-            c.id3pl,
             c.name,
             c.descriptionEn,
             c.descriptionEs,
@@ -109,9 +108,7 @@ class CategoryRepository extends ServiceEntityRepository
 
     public function findCategoriesToSendTo3pl(array $statuses, array $orders = null, int $limit = null): array
     {
-        $categories = $this->createQueryBuilder('c')
-            ->where('c.status_sent_3pl IN (:statuses)')
-            ->setParameter('statuses', $statuses);
+        $categories = $this->createQueryBuilder('c');
         if ($orders) {
             foreach ($orders as $orderKey => $orderValue) {
                 $categories->orderBy('c.' . $orderKey, $orderValue);
@@ -127,8 +124,7 @@ class CategoryRepository extends ServiceEntityRepository
     public function getVisibleCategories()
     {
         return  $this->createQueryBuilder('c')
-            ->where('c.id3pl IS NOT NULL')
-            ->andWhere('c.visible = :visible')
+            ->where('c.visible = :visible')
             ->setParameter('visible', true)
             ->orderBy('c.principal', 'DESC')
             ->addOrderBy('c.name', 'ASC')
@@ -140,8 +136,7 @@ class CategoryRepository extends ServiceEntityRepository
     {
         return  $this->createQueryBuilder('c')
             ->select('c.id,c.name')
-            ->where('c.id3pl IS NOT NULL')
-            ->andWhere('c.visible = :visible')
+            ->where('c.visible = :visible')
             ->andWhere('c.principal = :principal')
             ->setParameter('visible', true)
             ->setParameter('principal', true)

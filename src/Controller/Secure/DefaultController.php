@@ -12,8 +12,9 @@ class DefaultController extends AbstractController
     #[Route("/", name: "app_homepage")]
     public function index(): Response
     {
-        return $this->render('home/dashboard.html.twig', [
-            'controller_name' => 'DefaultController',
-        ]);
+        $data['files_js'] = array('apexcharts.init.js?v=' . rand());
+        $data['title'] = 'Inicio';
+        $data['controller_name'] = 'DefaultController';
+        return $this->render('home/dashboard.html.twig', $data);
     }
 }

@@ -70,6 +70,9 @@ class States
     #[ORM\OneToMany(targetEntity: Recipients::class, mappedBy: "state")]
     private $recipients;
 
+    #[ORM\OneToMany(mappedBy: 'state', targetEntity: User::class)]
+    private Collection $users;
+
     public function __construct()
     {
         $this->cities = new ArrayCollection();
@@ -77,6 +80,7 @@ class States
         $this->orders = new ArrayCollection();
         $this->receiver_orders = new ArrayCollection();
         $this->recipients = new ArrayCollection();
+        $this->users = new ArrayCollection();
     }
 
     public function __toString()
@@ -383,6 +387,36 @@ class States
             // set the owning side to null (unless already changed)
             if ($recipient->getState() === $this) {
                 $recipient->setState(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getUsers(): Collection
+    {
+        return $this->users;
+    }
+
+    public function addUser(User $user): static
+    {
+        if (!$this->users->contains($user)) {
+            $this->users->add($user);
+            $user->setState($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUser(User $user): static
+    {
+        if ($this->users->removeElement($user)) {
+            // set the owning side to null (unless already changed)
+            if ($user->getState() === $this) {
+                $user->setState(null);
             }
         }
 

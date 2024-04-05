@@ -21,11 +21,6 @@ class SubcategoryType extends AbstractType
             ->add('name', TextType::class, ['label' => 'Nombre de subcategoría', 'attr' => ['style' => 'text-transform:uppercase', 'required' => true,'placeholder'=>'Escriba el nombre de la subcategoría']])
             ->add('category', EntityType::class, [
                 'class'  => Category::class,
-                'query_builder' => function (CategoryRepository $er) {
-                    return $er->createQueryBuilder('c')
-                        ->where('c.id3pl is not null')
-                        ->orderBy('c.name');
-                },
                 'placeholder' => 'Seleccione una categoría',
                 'label' => 'Categoría',
                 'choice_label' => 'name',

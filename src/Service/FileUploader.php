@@ -18,7 +18,7 @@ class FileUploader
     {
         $this->filesystem = $filesystem;
         $this->slugger = $slugger;
-        $this->enviro = $_ENV['APP_ENV'] === 'dev' ? 'testing/' : '';
+        $this->enviro = $_ENV['APP_ENV'] === 'prod' ? 'prod/' : 'test/';
     }
 
     public function upload(UploadedFile $file, $nombre, $path = false): string
@@ -41,6 +41,6 @@ class FileUploader
         if (is_resource($stream)) {
             fclose($stream);
         }
-        return $newFilename;
+        return $path;
     }
 }

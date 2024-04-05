@@ -27,9 +27,6 @@ class Category
     #[ORM\Column(name: "slug", type: "string", length: 255, nullable: false)]
     protected $slug;
 
-    #[ORM\Column(name: "id3pl", type: "bigint", nullable: true)]
-    protected $id3pl;
-
     #[ORM\Column(name: "image", type: "text", nullable: true)]
     protected $image;
 
@@ -46,24 +43,14 @@ class Category
     private $created_at;
 
 
-    #[ORM\Column(type: "boolean", nullable: false, options: ["default" => false])]
-    private $visible = false;
+    #[ORM\Column(type: "boolean", nullable: false, options: ["default" => true])]
+    private $visible = true;
 
     #[ORM\Column(type: "boolean", nullable: false, options: ["default" => false])]
     private $principal = false;
 
     #[ORM\Column(name: "description_en", type: "text", nullable: true)]
     private $descriptionEn;
-
-    #[ORM\ManyToOne(targetEntity: CommunicationStatesBetweenPlatforms::class, inversedBy: "categories")]
-    #[ORM\JoinColumn(nullable: false, options: ["default" => 1])]
-    private $status_sent_3pl;
-
-    #[ORM\Column(type: "smallint", options: ["default" => 0])]
-    private $attempts_send_3pl;
-
-    #[ORM\Column(type: "text", nullable: true)]
-    private $error_message_3pl;
 
     #[ORM\OneToMany(targetEntity: Subcategory::class, mappedBy: "category")]
     private $subcategories;
@@ -115,9 +102,8 @@ class Category
     {
         $this->products = new ArrayCollection();
         $this->created_at = new \DateTime();
-        $this->visible = false;
+        $this->visible = true;
         $this->principal = false;
-        $this->attempts_send_3pl = 0;
         $this->subcategories = new ArrayCollection();
         $this->sectionsHomes11 = new ArrayCollection();
         $this->sectionsHomes12 = new ArrayCollection();
@@ -172,25 +158,6 @@ class Category
         return $this->slug;
     }
 
-
-    /**
-     * @return int|null
-     */
-    public function getId3pl(): ?int
-    {
-        return $this->id3pl;
-    }
-
-    /**
-     * @param int|null $id3pl
-     * @return $this
-     */
-    public function setId3pl(?int $id3pl): self
-    {
-        $this->id3pl = $id3pl;
-
-        return $this;
-    }
 
     /**
      * @return string|null
@@ -360,47 +327,6 @@ class Category
         $this->descriptionEn = $descriptionEn;
 
         return $this;
-    }
-
-    public function getStatusSent3pl(): ?CommunicationStatesBetweenPlatforms
-    {
-        return $this->status_sent_3pl;
-    }
-
-    public function setStatusSent3pl(?CommunicationStatesBetweenPlatforms $status_sent_3pl): self
-    {
-        $this->status_sent_3pl = $status_sent_3pl;
-
-        return $this;
-    }
-
-    public function getAttemptsSend3pl(): ?int
-    {
-        return $this->attempts_send_3pl;
-    }
-
-    public function setAttemptsSend3pl(int $attempts_send_3pl): self
-    {
-        $this->attempts_send_3pl = $attempts_send_3pl;
-
-        return $this;
-    }
-
-    public function getErrorMessage3pl(): ?string
-    {
-        return $this->error_message_3pl;
-    }
-
-    public function setErrorMessage3pl(?string $error_message_3pl): self
-    {
-        $this->error_message_3pl = $error_message_3pl;
-
-        return $this;
-    }
-
-    public function incrementAttemptsToSendCategoryTo3pl()
-    {
-        $this->setAttemptsSend3pl($this->attempts_send_3pl + 1); //you can access your entity values directly
     }
 
     /**

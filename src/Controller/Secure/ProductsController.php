@@ -83,7 +83,7 @@ class ProductsController extends AbstractController
     }
 
     #[Route("/new", name: "secure_product_new", methods: ["GET", "POST"])]
-    public function new(EntityManagerInterface $em, Request $request, SluggerInterface $slugger, SubcategoryRepository $subcategoryRepository, CommunicationStatesBetweenPlatformsRepository $communicationStatesBetweenPlatformsRepository, SendProductTo3pl $sendProductTo3pl): Response
+    public function new(EntityManagerInterface $em, Request $request, SluggerInterface $slugger, SubcategoryRepository $subcategoryRepository): Response
     {
         $data['title'] = 'Nuevo producto';
         $data['breadcrumbs'] = array(
@@ -97,7 +97,6 @@ class ProductsController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
 
-            $data['product']->setStatusSent3pl($communicationStatesBetweenPlatformsRepository->find(Constants::CBP_STATUS_PENDING));
             $data['product']->setSubcategory($subcategoryRepository->findOneBy(['id' => (int)$request->get('product')['subcategory']]));
 
             $entityManager = $em;
@@ -110,7 +109,7 @@ class ProductsController extends AbstractController
 
             $historicalPriceCost = new HistoricalPriceCost;
             $historicalPriceCost->setProduct($data['product']);
-            $historicalPriceCost->setPrice($form->get('price')->getData());
+            // $historicalPriceCost->setPrice($form->get('price')?$form->get('price')->getData():null);
             $historicalPriceCost->setCost($form->get('cost')->getData());
             // $historicalPriceCost->setCreatedByUser($this->getUser());
             $entityManager->persist($historicalPriceCost);
@@ -138,8 +137,8 @@ class ProductsController extends AbstractController
                         $tmpImagePath = sys_get_temp_dir() . '/' . uniqid() . '.jpg';
                         $tmpImage->save($tmpImagePath);
 
-                        $originalImagePath = $_ENV['APP_ENV'] === 'dev' ? 'testing/' . $this->pathImg . '/' . $productNameSlug . '-' . uniqid() . '.jpg' : $this->pathImg . '/' . $productNameSlug . '-' . uniqid() . '.jpg';
-                        $scaledImagePath = $_ENV['APP_ENV'] === 'dev' ? 'testing/' . $this->pathImg . '/thumbnails' . '/' . $productNameSlug . '-' . uniqid() . '.jpg' : $this->pathImg . '/' . $productNameSlug . '-' . uniqid() . '.jpg';
+                        $originalImagePath = $_ENV['APP_ENV'] === 'prod' ? 'prod/' . $this->pathImg . '/' . $productNameSlug . '-' . uniqid() . '.jpg' : 'test/' . $this->pathImg . '/' . $productNameSlug . '-' . uniqid() . '.jpg';
+                        $scaledImagePath = $_ENV['APP_ENV'] === 'prod' ? 'prod/' . $this->pathImg . '/thumbnails' . '/' . $productNameSlug . '-' . uniqid() . '.jpg' : 'test/' . $this->pathImg . '/' . $productNameSlug . '-' . uniqid() . '.jpg';
 
                         // Subir la imagen original al S3
                         $s3->putObject([
@@ -178,7 +177,6 @@ class ProductsController extends AbstractController
             }
             $entityManager->flush();
             $entityManager->refresh($data['product']);
-            $sendProductTo3pl->send($data['product']);
 
             return $this->redirectToRoute('secure_product_index');
         }
@@ -188,7 +186,7 @@ class ProductsController extends AbstractController
     }
 
     #[Route("/{id}/edit", name: "secure_product_edit", methods: ["GET", "POST"])]
-    public function edit(EntityManagerInterface $em, $id, Request $request, SluggerInterface $slugger, ProductRepository $productRepository, SubcategoryRepository $subcategoryRepository, CommunicationStatesBetweenPlatformsRepository $communicationStatesBetweenPlatformsRepository, SendProductTo3pl $sendProductTo3pl): Response
+    public function edit(EntityManagerInterface $em, $id, Request $request, SluggerInterface $slugger, ProductRepository $productRepository, SubcategoryRepository $subcategoryRepository): Response
     {
         $data['title'] = 'Editar producto';
         $data['breadcrumbs'] = array(
@@ -212,10 +210,14 @@ class ProductsController extends AbstractController
             $entityManager = $em;
             $data['product']->setSubcategory($subcategoryRepository->findOneBy(['id' => (int)@$request->get('product')['subcategory']]));
             //si precio o costo no son iguales a los ultimos valores registrados, guardo los nuevos valores de costo y precio,
-            if ($form->get('price')->getData() !== $data['product']->getPrice() || $form->get('cost')->getData() !== $data['product']->getCost()) {
+            if (
+                // $form->get('price')->getData() !== $data['product']->getPrice() 
+                // || 
+                $form->get('cost')->getData() !== $data['product']->getCost()
+                ) {
                 $historicalPriceCost = new HistoricalPriceCost;
                 $historicalPriceCost->setProduct($data['product']);
-                $historicalPriceCost->setPrice($form->get('price')->getData());
+                // $historicalPriceCost->setPrice($form->get('price')->getData());
                 $historicalPriceCost->setCost($form->get('cost')->getData());
                 // $historicalPriceCost->setCreatedByUser($this->getUser());
                 $entityManager->persist($historicalPriceCost);
@@ -249,8 +251,9 @@ class ProductsController extends AbstractController
                         $tmpImagePath = sys_get_temp_dir() . '/' . uniqid() . '.jpg';
                         $tmpImage->save($tmpImagePath);
 
-                        $originalImagePath = $_ENV['APP_ENV'] === 'dev' ? 'testing/' . $this->pathImg . '/' . $productNameSlug . '-' . uniqid() . '.jpg' : $this->pathImg . '/' . $productNameSlug . '-' . uniqid() . '.jpg';
-                        $scaledImagePath = $_ENV['APP_ENV'] === 'dev' ? 'testing/' . $this->pathImg . '/thumbnails' . '/' . $productNameSlug . '-' . uniqid() . '.jpg' : $this->pathImg . '/' . $productNameSlug . '-' . uniqid() . '.jpg';
+                        
+                        $originalImagePath = $_ENV['APP_ENV'] === 'prod' ? 'prod/' . $this->pathImg . '/' . $productNameSlug . '-' . uniqid() . '.jpg' :'test/'. $this->pathImg . '/' . $productNameSlug . '-' . uniqid() . '.jpg';
+                        $scaledImagePath = $_ENV['APP_ENV'] === 'prod' ? 'prod/' . $this->pathImg . '/thumbnails' . '/' . $productNameSlug . '-' . uniqid() . '.jpg' :'test/'. $this->pathImg . '/' . $productNameSlug . '-' . uniqid() . '.jpg';
 
                         // Subir la imagen original al S3
                         $s3->putObject([
@@ -287,9 +290,6 @@ class ProductsController extends AbstractController
                     //ver como manejar este error
                 }
             }
-
-            $data['product']->setStatusSent3pl($communicationStatesBetweenPlatformsRepository->find(Constants::CBP_STATUS_PENDING));
-            $data['product']->setAttemptsSend3pl(0);
             $entityManager->flush();
             $sendProductTo3pl->send($data['product'], 'PUT', 'update');
 

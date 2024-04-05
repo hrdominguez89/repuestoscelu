@@ -7,7 +7,6 @@ use App\Entity\Category;
 use App\Entity\Subcategory;
 use App\Form\SubcategoryType;
 use App\Helpers\FileUploader;
-use App\Helpers\SendSubcategoryTo3pl;
 use App\Repository\CommunicationStatesBetweenPlatformsRepository;
 use App\Repository\SubcategoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -34,7 +33,7 @@ class CrudSubcategoryController extends AbstractController
     }
 
     #[Route("/new", name: "secure_crud_subcategory_new", methods: ["GET", "POST"])]
-    public function new(EntityManagerInterface $em, Request $request, CommunicationStatesBetweenPlatformsRepository $communicationStatesBetweenPlatformsRepository, SendSubcategoryTo3pl $sendSubCategoryTo3pl): Response
+    public function new(EntityManagerInterface $em, Request $request): Response
     {
         $data['title'] = 'Nueva subcategoría';
         $data['breadcrumbs'] = array(
@@ -47,11 +46,9 @@ class CrudSubcategoryController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $data['subcategory']->setStatusSent3pl($communicationStatesBetweenPlatformsRepository->find(Constants::CBP_STATUS_PENDING));
             $entityManager = $em;
             $entityManager->persist($data['subcategory']);
             $entityManager->flush();
-            $sendSubCategoryTo3pl->send($data['subcategory']);
 
             return $this->redirectToRoute('secure_crud_subcategory_index');
         }
@@ -62,7 +59,7 @@ class CrudSubcategoryController extends AbstractController
 
 
     #[Route("/{subcategory_id}/edit", name: "secure_crud_subcategory_edit", methods: ["GET", "POST"])]
-    public function edit(EntityManagerInterface $em, $subcategory_id, Request $request, SubcategoryRepository $subcategoryRepository, CommunicationStatesBetweenPlatformsRepository $communicationStatesBetweenPlatformsRepository, SendSubcategoryTo3pl $sendSubCategoryTo3pl): Response
+    public function edit(EntityManagerInterface $em, $subcategory_id, Request $request, SubcategoryRepository $subcategoryRepository): Response
     {
         $data['title'] = 'Editar subcategoría';
         $data['breadcrumbs'] = array(
@@ -75,14 +72,10 @@ class CrudSubcategoryController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $data['subcategory']->setStatusSent3pl($communicationStatesBetweenPlatformsRepository->find(Constants::CBP_STATUS_PENDING));
-            $data['subcategory']->setAttemptsSend3pl(0);
             $data['subcategory']->setCategory($data['subcategory']->getCategory());
             $entityManager = $em;
             $entityManager->persist($data['subcategory']);
             $entityManager->flush();
-            $sendSubCategoryTo3pl->send($data['subcategory'], 'PUT', 'update');
-
 
             return $this->redirectToRoute('secure_crud_subcategory_index');
         }

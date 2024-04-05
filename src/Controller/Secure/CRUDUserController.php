@@ -12,8 +12,11 @@ use Symfony\Component\Routing\Annotation\Route;
 
 use App\Helpers\FileUploader;
 use App\Helpers\SendMail;
+use App\Repository\CitiesRepository;
+use App\Repository\RolesRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
@@ -27,7 +30,6 @@ class CRUDUserController extends AbstractController
     public function index(UserRepository $userRepository): Response
     {
         $data['users'] =  $userRepository->findBy(['role' => 2]);
-        // $data['files_css'] = array('hola.css?v='.rand());
         $data['files_js'] = array('table_full_buttons.js?v=' . rand());
 
         $data['title'] = 'Sucursales';
@@ -42,29 +44,24 @@ class CRUDUserController extends AbstractController
     #[Route("/new", name: "secure_crud_user_new", methods: ["GET", "POST"])]
     public function new(
         Request $request,
-        FileUploader $fileUploader,
         ResetPasswordHelperInterface $resetPasswordHelper,
         UrlGeneratorInterface $router,
         TranslatorInterface $translator,
         SendMail $sendMail,
+        RolesRepository $rolesRepository,
+        CitiesRepository $citiesRepository,
         EntityManagerInterface $em
     ): Response {
-
-
-
         $user = new User();
         $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
 
+        $data['files_js'] = array('../uppy.min.js', '../select2.min.js', 'user/user.js?v=' . rand());
+        $data['files_css'] = array('uppy.min.css', 'select2.min.css', 'select2-bootstrap4.min.css');
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var UploadedFile $imageFile */
-            $imageFile = $form->get('image')->getData();
-            if ($imageFile) {
-                $imageFileName = $fileUploader->upload($imageFile);
-                $user->setImage('uploads/images/' . $imageFileName);
-            }
             $user->setPassword($_ENV['PWD_NEW_USER']);
-
+            $user->setRole($rolesRepository->find(2));
+            $user->setCity($citiesRepository->find($request->get('user')['city']));
             $entityManager = $em;
             $entityManager->persist($user);
             $entityManager->flush();
@@ -74,45 +71,54 @@ class CRUDUserController extends AbstractController
             $msg = 'Felicitaciones es usted miembro de nuestro equipo de trabajo, use la siguiente dirección para acceder al sistema: <a href="' . $url . '"></a>' . $url . '<br>Este vinculo caducará en ' . $translator->trans($resetToken->getExpirationMessageKey(), $resetToken->getExpirationMessageData(), 'ResetPasswordBundle');
             ($sendMail)($user->getEmail(), $user->getName(), 'Credenciales del sistema', $msg);
 
-            return $this->redirectToRoute('secure_crud_user_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('secure_crud_user_index');
         }
 
         $data['user'] = $user;
         $data['form'] = $form;
-        $data['title'] = 'Nuevo operador';
+        $data['title'] = 'Nueva sucursal';
         $data['breadcrumbs'] = array(
-            array('path' => 'secure_crud_user_index', 'title' => 'Operadores'),
+            array('path' => 'secure_crud_user_index', 'title' => 'Sucursales'),
             array('active' => true, 'title' => $data['title'])
         );
 
         return $this->renderForm('secure/crud_user/new.html.twig', $data);
     }
 
-    #[Route("/{id}", name: "secure_crud_user_show", methods: ["GET"])]
-    public function show($id, UserRepository $userRepository): Response
-    {
-        $user = $userRepository->find($id);
+    // #[Route("/{id}", name: "secure_crud_user_show", methods: ["GET"])]
+    // public function show($id, UserRepository $userRepository): Response
+    // {
+    //     $user = $userRepository->find($id);
 
-        return $this->render('secure/crud_user/show.html.twig', [
-            'user' => $user,
-        ]);
-    }
+    //     return $this->render('secure/crud_user/show.html.twig', [
+    //         'user' => $user,
+    //     ]);
+    // }
 
     #[Route("/{id}/edit", name: "secure_crud_user_edit", methods: ["GET", "POST"])]
-    public function edit(EntityManagerInterface $em, Request $request, FileUploader $fileUploader, $id, UserRepository $userRepository): Response
-    {
-        $user = $userRepository->find($id);
+    public function edit(
+        $id,
+        Request $request,
+        ResetPasswordHelperInterface $resetPasswordHelper,
+        UrlGeneratorInterface $router,
+        TranslatorInterface $translator,
+        SendMail $sendMail,
+        RolesRepository $rolesRepository,
+        CitiesRepository $citiesRepository,
+        EntityManagerInterface $em,
+        UserRepository $userRepository
+    ): Response {
+        $user = $userRepository->findOneBy(['id' => $id, 'active' => true]);
 
         $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
-
+        
+        $data['files_js'] = array('../uppy.min.js', '../select2.min.js', 'user/user.js?v=' . rand());
+        $data['files_css'] = array('uppy.min.css', 'select2.min.css', 'select2-bootstrap4.min.css');
+        
         if ($form->isSubmitted() && $form->isValid()) {
-            /** @var UploadedFile $imageFile */
-            $imageFile = $form->get('image')->getData();
-            if ($imageFile) {
-                $imageFileName = $fileUploader->upload($imageFile);
-                $user->setImage('uploads/images/' . $imageFileName);
-            }
+            $user->setCity($citiesRepository->find($request->get('user')['city']));
+            $em->persist($user);
             $em->flush();
 
             return $this->redirectToRoute('secure_crud_user_index', [], Response::HTTP_SEE_OTHER);
@@ -142,5 +148,24 @@ class CRUDUserController extends AbstractController
         }
 
         return $this->redirectToRoute('secure_crud_user_index', [], Response::HTTP_SEE_OTHER);
+    }
+
+
+    #[Route("/getCities/{state_id}", name: "secure_get_cities", methods: ["GET"])]
+    public function getCities($state_id, CitiesRepository $citiesRepository): Response
+    {
+        if ((int)$state_id) {
+            $data['data'] = $citiesRepository->findCitiesByStateId($state_id);
+            if ($data['data']) {
+                $data['status'] = true;
+            } else {
+                $data['status'] = false;
+                $data['message'] = 'No se encontraron ciudades con el id indicado';
+            }
+        } else {
+            $data['status'] = false;
+            $data['message'] = 'No se encontraron ciudades con el id indicado';
+        }
+        return new JsonResponse($data);
     }
 }

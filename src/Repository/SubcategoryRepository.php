@@ -25,7 +25,6 @@ class SubcategoryRepository extends ServiceEntityRepository
             ->createQuery('
             SELECT
             sc.id,
-            sc.id3pl,
             c.name as category_name,
             sc.name,
             sc.slug,
@@ -40,9 +39,7 @@ class SubcategoryRepository extends ServiceEntityRepository
 
     public function findSubcategoriesToSendTo3pl(array $statuses, array $orders = null, int $limit = null): array
     {
-        $categories = $this->createQueryBuilder('sc')
-            ->where('sc.status_sent_3pl IN (:statuses)')
-            ->setParameter('statuses', $statuses);
+        $categories = $this->createQueryBuilder('sc');
         if ($orders) {
             foreach ($orders as $orderKey => $orderValue) {
                 $categories->orderBy('sc.' . $orderKey, $orderValue);
@@ -59,7 +56,6 @@ class SubcategoryRepository extends ServiceEntityRepository
     {
         $subcategories = $this->createQueryBuilder('sc')
             ->select('sc.name,sc.id')
-            ->where('sc.id3pl is not null')
             ->where('sc.category = :category_id')
             ->setParameter('category_id', $category_id)
             ->orderBy('sc.name', 'ASC');

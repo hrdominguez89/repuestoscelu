@@ -3,9 +3,12 @@
 namespace App\Form;
 
 use App\Entity\Roles;
+use App\Entity\States;
 use App\Entity\User;
+use App\Repository\StatesRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -21,40 +24,52 @@ class UserType extends AbstractType
     {
         $builder
             ->add('email', EmailType::class, ['label' => 'Correo',])
-            ->add('name', TextType::class, ['label' => 'Nombre',])
-            ->add('lastname', TextType::class, ['label' => 'Apellido', 'required' => true])
-            ->add('role', EntityType::class, [
-                'placeholder' => 'Seleccione un Rol',
-                'label' => 'Rol',
-                'class'  => Roles::class,
+            ->add('name', TextType::class, ['label' => 'Nombre','attr' => ['placeholder'=>'Nombre de la sucursal']])
+            ->add('state', EntityType::class, [
+                'placeholder' => 'Seleccione una provincia',
+                'label' => 'Provincia',
+                'class'  => States::class,
                 'choice_label' => 'name',
-                'required'=>true,
+                'required' => true,
+                'query_builder' => function (StatesRepository $er) {
+                    return $er->createQueryBuilder('s')
+                        ->where('s.visible = :visible')
+                        ->orderBy('s.name')
+                        ->setParameter('visible', true);
+                },
             ])
-            // ->add('password', PasswordType::class, ['label' => 'Contraseña',])
-            ->add('image', FileType::class, [
-                'label' => 'Imagen ',
-
-                // unmapped means that this field is not associated to any entity property
+            ->add('city', ChoiceType::class, [
+                'placeholder' => 'Seleccione una localidad/ciudad',
+                'label' => 'Localicad/Ciudad',
+                'disabled' => true,
                 'mapped' => false,
-
-                // make it optional so you don't have to re-upload the PDF file
-                // every time you edit the Product details
-                'required' => false,
-
-                // unmapped fields can't define their validation using annotations
-                // in the associated entity, so you can use the PHP constraint classes
-                'constraints' => [
-                    new File([
-                        'maxSize' => '2048k',
-                        'mimeTypes' => [
-                            'image/jpeg',
-                            'image/png',
-                            'image/svg',
-                        ],
-                        'mimeTypesMessage' => 'Please upload a valid document',
-                    ])
-                ],
+                'required' => true,
             ]);
+            // ->add('password', PasswordType::class, ['label' => 'Contraseña',])
+            // ->add('image', FileType::class, [
+            //     'label' => 'Imagen ',
+
+            //     // unmapped means that this field is not associated to any entity property
+            //     'mapped' => false,
+
+            //     // make it optional so you don't have to re-upload the PDF file
+            //     // every time you edit the Product details
+            //     'required' => false,
+
+            //     // unmapped fields can't define their validation using annotations
+            //     // in the associated entity, so you can use the PHP constraint classes
+            //     'constraints' => [
+            //         new File([
+            //             'maxSize' => '2048k',
+            //             'mimeTypes' => [
+            //                 'image/jpeg',
+            //                 'image/png',
+            //                 'image/svg',
+            //             ],
+            //             'mimeTypesMessage' => 'Please upload a valid document',
+            //         ])
+            //     ],
+            // ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

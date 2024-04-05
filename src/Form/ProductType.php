@@ -33,26 +33,14 @@ class ProductType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('inventory', EntityType::class, [
-                'class'  => Inventory::class,
-                'placeholder' => 'Seleccione un inventario',
-                'label' => 'Inventario *',
-                'choice_label' => 'name',
-                'required' => true,
-            ])
             ->add('name', TextType::class, ['label' => 'Nombre *', 'attr' => ['required' => true]])
-            ->add('descriptionEs', TextareaType::class, ['label' => 'Descripción corta español *', 'required' => true, 'attr' => ['rows' => 4]])
+            ->add('descriptionEs', TextType::class, ['label' => 'Descripción corta español *', 'required' => true])
             ->add('long_description_es', TextareaType::class, ['label' => 'Descripción larga en español', 'required' => false, 'attr' => ['rows' => 4]])
-            ->add('descriptionEn', TextareaType::class, ['label' => 'Descripción corta Inglés', 'required' => false, 'attr' => ['rows' => 4]])
-            ->add('long_description_en', TextareaType::class, ['label' => 'Descripción larga en Inglés', 'required' => false, 'attr' => ['rows' => 4]])
+            // ->add('descriptionEn', TextareaType::class, ['label' => 'Descripción corta Inglés', 'required' => false, 'attr' => ['rows' => 4]])
+            // ->add('long_description_en', TextareaType::class, ['label' => 'Descripción larga en Inglés', 'required' => false, 'attr' => ['rows' => 4]])
 
             ->add('category', EntityType::class, [
                 'class'  => Category::class,
-                'query_builder' => function (CategoryRepository $cr) {
-                    return $cr->createQueryBuilder('c')
-                        ->where('c.id3pl is not null')
-                        ->orderBy('c.name');
-                },
                 'placeholder' => 'Seleccione una categoría',
                 'label' => 'Categoría *',
                 'choice_label' => function ($category, $key, $index) {
@@ -69,11 +57,6 @@ class ProductType extends AbstractType
             ])
             ->add('brand', EntityType::class, [
                 'class'  => Brand::class,
-                'query_builder' => function (BrandRepository $br) {
-                    return $br->createQueryBuilder('b')
-                        ->where('b.id3pl is not null')
-                        ->orderBy('b.name');
-                },
                 'placeholder' => 'Seleccione una marca',
                 'label' => 'Marca *',
                 'choice_label' => function ($brand, $key, $index) {
@@ -182,21 +165,21 @@ class ProductType extends AbstractType
                     ]),
                 ]
             ])
-            ->add('price', MoneyType::class, [
-                'currency' => 'USD',
-                'label' => 'Precio *',
-                'required' => true,
-                'attr' => ['placeholder' => '0.00', 'pattern' => '^\d+(\.\d{1,2}|,\d{1,2})?$', 'title' => 'El formato debe ser 0,00 o 0.00'],
-                'constraints' => [
-                    new Regex([
-                        'pattern' => "/^\d+(\.\d{1,2}|,\d{1,2})?$/",
-                        'message' => 'El valor debe cumplir con el formato 00,00 o 00.00',
-                    ]),
-                ]
-            ])
+            // ->add('price', MoneyType::class, [
+            //     'currency' => 'USD',
+            //     'label' => 'Precio *',
+            //     'required' => true,
+            //     'attr' => ['placeholder' => '0.00', 'pattern' => '^\d+(\.\d{1,2}|,\d{1,2})?$', 'title' => 'El formato debe ser 0,00 o 0.00'],
+            //     'constraints' => [
+            //         new Regex([
+            //             'pattern' => "/^\d+(\.\d{1,2}|,\d{1,2})?$/",
+            //             'message' => 'El valor debe cumplir con el formato 00,00 o 00.00',
+            //         ]),
+            //     ]
+            // ])
             ->add('weight', NumberType::class, [
                 'label' => 'Peso en Lb *',
-                'required' => true,
+                'required' => false,
                 'attr' => ['placeholder' => '0.00', 'pattern' => '^\d+(\.\d{0,3}|,\d{0,2})?$', 'title' => 'El formato debe ser 0.1 o 0.12 o 0.12 o 0,1 o 0,1 o 0,12 o 1'],
                 'constraints' => [
                     new Regex([

@@ -144,12 +144,12 @@
 					</a>
 				</li>
 
-				<li>
+				{# <li>
 					<a href="{{ path('api_clients') }}">
 						<i class="fas fa-user-lock"></i>
 						<span>Usuarios API</span>
 					</a>
-				</li>
+				</li> #}
 
 				<li>
 					<a href="{{ path('secure_crud_customer_index') }}">
@@ -161,7 +161,7 @@
 				<li>
 					<a href="{{ path('secure_crud_world_index') }}">
 						<i class="fas fa-map-marked-alt"></i>
-						<span>Paises/Estados/Ciudades</span>
+						<span>Provincias/Ciudades</span>
 					</a>
 				</li>
 				<li>
@@ -170,12 +170,12 @@
 						<span data-key="t-products">Productos</span>
 					</a>
 					<ul class="sub-menu water-green-background" aria-expanded="true">
-						<li>
+						{# <li>
 							<a href="{{ path('secure_crud_warehouse_index') }}">
 								<i class="fas fa-warehouse"></i>
 								<span data-key="t-warehouses">Warehouses</span>
 							</a>
-						</li>
+						</li> #}
 
 						<li>
 							<a href="{{ path('secure_crud_brand_index') }}">
@@ -218,18 +218,18 @@
 
 					</ul>
 				</li>
-				{# <li>
-					<a href="{{ path('order') }}">
-						<i class="fas fa-money-check-alt"></i>
-						<span data-key="t-orders">Ordenes</span>
-					</a>
-				</li> #}
 				<li>
+					<a href="#">
+						<i class="fas fa-money-check-alt"></i>
+						<span>Gestión de ordenes</span>
+					</a>
+				</li>
+				{# <li>
 					<a href="{{ path('secure_crud_coupon_discount_index') }}">
 						<i class="fab fa-aws"></i>
 						<span data-key="t-offert-coupon">Cupones de descuento</span>
 					</a>
-				</li>
+				</li> #}
 
 			</ul>
 		</div>

@@ -34,7 +34,7 @@ class StatesRepository extends ServiceEntityRepository
 
             WHERE co.id = :country_id
 
-            ORDER BY s.name
+            ORDER BY s.name asc
             ')
             ->setParameter('country_id', $country_id)
             ->getResult();

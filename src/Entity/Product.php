@@ -63,9 +63,6 @@ class Product
     #[ORM\Column(type: "integer", nullable: false, options: ["default" => 0])]
     private $available;
 
-    #[ORM\Column(name: "id3pl", type: "integer", nullable: "true")]
-    private $id3pl;
-
     #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: "products")]
     private $category;
 
@@ -81,22 +78,8 @@ class Product
     #[ORM\Column(name: "description_en", nullable: true, type: "text")]
     private $descriptionEn;
 
-    #[ORM\ManyToOne(targetEntity: Inventory::class, inversedBy: "products")]
-    #[ORM\JoinColumn(nullable: false)]
-    private $inventory;
-
     #[ORM\ManyToOne(targetEntity: Subcategory::class, inversedBy: "products")]
     private $subcategory;
-
-    #[ORM\ManyToOne(targetEntity: CommunicationStatesBetweenPlatforms::class, inversedBy: "products")]
-    #[ORM\JoinColumn(nullable: false, options: ["default" => 1])]
-    private $status_sent_3pl;
-
-    #[ORM\Column(type: "smallint", options: ["default" => 0])]
-    private $attempts_send_3pl;
-
-    #[ORM\Column(type: "text", nullable: true)]
-    private $error_message_3pl;
 
     #[ORM\OneToMany(targetEntity: HistoryProductStockUpdated::class, mappedBy: "product")]
     private $historyProductStockUpdateds;
@@ -113,7 +96,7 @@ class Product
     #[ORM\Column(type: "text", nullable: true)]
     private $long_description_en;
 
-    #[ORM\Column(type: "float")]
+    #[ORM\Column(type: "float", nullable: true)]
     private $weight;
 
     #[ORM\ManyToOne(targetEntity: Specification::class, inversedBy: "products_model")]
@@ -189,7 +172,6 @@ class Product
         $this->commited = 0;
         $this->incomming = 0;
         $this->available = 0;
-        $this->attempts_send_3pl = 0;
         $this->historyProductStockUpdateds = new ArrayCollection();
         $this->itemsGuideNumbers = new ArrayCollection();
         $this->ordersProducts = new ArrayCollection();
@@ -372,18 +354,6 @@ class Product
         return $this;
     }
 
-    public function getId3pl(): ?int
-    {
-        return $this->id3pl;
-    }
-
-    public function setId3pl(int $id3pl): self
-    {
-        $this->id3pl = $id3pl;
-
-        return $this;
-    }
-
     public function getCategory(): ?Category
     {
         return $this->category;
@@ -482,18 +452,6 @@ class Product
         return $this;
     }
 
-    public function getInventory(): ?Inventory
-    {
-        return $this->inventory;
-    }
-
-    public function setInventory(?Inventory $inventory): self
-    {
-        $this->inventory = $inventory;
-
-        return $this;
-    }
-
     public function getSubcategory(): ?Subcategory
     {
         return $this->subcategory;
@@ -506,79 +464,13 @@ class Product
         return $this;
     }
 
-    public function getStatusSent3pl(): ?CommunicationStatesBetweenPlatforms
-    {
-        return $this->status_sent_3pl;
-    }
-
-    public function setStatusSent3pl(?CommunicationStatesBetweenPlatforms $status_sent_3pl): self
-    {
-        $this->status_sent_3pl = $status_sent_3pl;
-
-        return $this;
-    }
-
-    public function getAttemptsSend3pl(): ?int
-    {
-        return $this->attempts_send_3pl;
-    }
-
-    public function setAttemptsSend3pl(int $attempts_send_3pl): self
-    {
-        $this->attempts_send_3pl = $attempts_send_3pl;
-
-        return $this;
-    }
-
-    public function getErrorMessage3pl(): ?string
-    {
-        return $this->error_message_3pl;
-    }
-
-    public function setErrorMessage3pl(?string $error_message_3pl): self
-    {
-        $this->error_message_3pl = $error_message_3pl;
-
-        return $this;
-    }
-
-    public function incrementAttemptsToSendProductTo3pl()
-    {
-        $this->setAttemptsSend3pl($this->attempts_send_3pl + 1); //you can access your entity values directly
-    }
-
-    public function getProductTo3pl($edit = false)
-    {
-
-        $product = [
-            'inventory_id' => $this->getInventory()->getId3pl(),
-            'category_id' => $this->getCategory()->getId3pl(),
-            'subcategory_id' => $this->getSubcategory() ? $this->getSubcategory()->getId3pl() : '',
-            'brand_id' => $this->getBrand()->getId3pl(),
-            'sku' => $this->getSku(),
-            'cod' => $this->getCod(),
-            'part_number' => $this->getPartNumber(),
-            'name' => $this->getName(),
-            'description' => $this->getDescriptionEs(),
-            'weight' => $this->getWeight(),
-            'conditium' => $this->getConditium()->getName(),
-            'cost' => $this->getCost(),
-            'price' => $this->getPrice()
-        ];
-        if ($edit) {
-            $product['id'] = $this->getId3pl();
-        }
-        return $product;
-    }
-
     public function getFullDataProduct()
     {
         return [
-            'id' => $this->getId3pl(),
-            'inventory_id' => $this->getInventory()->getId3pl(),
-            'category_id' => $this->getCategory()->getId3pl(),
-            'subcategory_id' => $this->getSubcategory() ? $this->getSubcategory()->getId3pl() : '',
-            'brand_id' => $this->getBrand()->getId3pl(),
+            'id' => $this->getId(),
+            'category_id' => $this->getCategory()->getId(),
+            'subcategory_id' => $this->getSubcategory() ? $this->getSubcategory()->getId() : '',
+            'brand_id' => $this->getBrand()->getId(),
             'sku' => $this->getSku(),
             'cod' => $this->getCod(),
             'part_number' => $this->getPartNumber(),

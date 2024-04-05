@@ -36,7 +36,7 @@ class CrudBrandController extends AbstractController
     }
 
     #[Route("/new", name: "secure_crud_brand_new", methods: ["GET", "POST"])]
-    public function new(EntityManagerInterface $em, Request $request, FileUploader $fileUploader, CommunicationStatesBetweenPlatformsRepository $communicationStatesBetweenPlatformsRepository, SendBrandTo3pl $sendBrandTo3pl): Response
+    public function new(EntityManagerInterface $em, Request $request, FileUploader $fileUploader): Response
     {
         $data['title'] = 'Nueva marca';
         $data['breadcrumbs'] = array(
@@ -49,16 +49,14 @@ class CrudBrandController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $data['brand']->setStatusSent3pl($communicationStatesBetweenPlatformsRepository->find(Constants::CBP_STATUS_PENDING));
             $imageFile = $form->get('image')->getData();
             if ($imageFile) {
                 $imageFileName = $fileUploader->upload($imageFile, $form->get('name')->getData(), $this->pathImg);
-                $data['brand']->setImage($_ENV['AWS_S3_URL'] . '/' . $this->pathImg . '/' . $imageFileName);
+                $data['brand']->setImage($_ENV['AWS_S3_URL'] . $imageFileName);
             }
             $entityManager = $em;
             $entityManager->persist($data['brand']);
             $entityManager->flush();
-            $sendBrandTo3pl->send($data['brand']);
 
             return $this->redirectToRoute('secure_crud_brand_index');
         }
@@ -67,7 +65,7 @@ class CrudBrandController extends AbstractController
     }
 
     #[Route("/{id}/edit", name: "secure_crud_brand_edit", methods: ["GET", "POST"])]
-    public function edit(EntityManagerInterface $em, $id, Request $request, BrandRepository $brandRepository, FileUploader $fileUploader, CommunicationStatesBetweenPlatformsRepository $communicationStatesBetweenPlatformsRepository, SendBrandTo3pl $sendBrandTo3pl): Response
+    public function edit(EntityManagerInterface $em, $id, Request $request, BrandRepository $brandRepository, FileUploader $fileUploader): Response
     {
         $data['title'] = 'Editar marca';
         $data['breadcrumbs'] = array(
@@ -83,13 +81,10 @@ class CrudBrandController extends AbstractController
             $imageFile = $form->get('image')->getData();
             if ($imageFile) {
                 $imageFileName = $fileUploader->upload($imageFile, $form->get('name')->getData(), $this->pathImg);
-                $data['brand']->setImage($_ENV['AWS_S3_URL'] . '/' . $this->pathImg . '/' . $imageFileName);
+                $data['brand']->setImage($_ENV['AWS_S3_URL'] . $imageFileName);
             }
 
-            $data['brand']->setStatusSent3pl($communicationStatesBetweenPlatformsRepository->find(Constants::CBP_STATUS_PENDING));
-            $data['brand']->setAttemptsSend3pl(0);
             $em->flush();
-            $sendBrandTo3pl->send($data['brand'], 'PUT', 'update');
 
             return $this->redirectToRoute('secure_crud_brand_index');
         }

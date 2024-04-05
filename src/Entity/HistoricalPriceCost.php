@@ -20,7 +20,7 @@ class HistoricalPriceCost
      #[ORM\Column(type:"float")]
     private $cost;
 
-     #[ORM\Column(type:"float")]
+     #[ORM\Column(type:"float",nullable:true)]
     private $price;
 
      #[ORM\Column(type:"datetime",nullable:false)]

@@ -3,9 +3,6 @@
 namespace App\Entity;
 
 use Cocur\Slugify\Slugify;
-use DateTime;
-use App\Constants\Constants;
-use App\Repository\CommunicationStatesBetweenPlatformsRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -21,9 +18,6 @@ class Brand
     #[ORM\GeneratedValue]
     #[ORM\Column(type: "bigint")]
     private $id;
-
-    #[ORM\Column(name: "id3pl", type: "bigint", nullable: true)]
-    private $id3pl;
 
     #[ORM\Column(name: "name", type: "string", length: 255, unique: true)]
     private $name;
@@ -41,8 +35,8 @@ class Brand
     #[ORM\OneToMany(targetEntity: Product::class, mappedBy: "brand")]
     private $products;
 
-    #[ORM\Column(type: "boolean", nullable: false, options: ["default" => false])]
-    private $visible = false;
+    #[ORM\Column(type: "boolean", nullable: false, options: ["default" => true])]
+    private $visible = true;
 
     #[ORM\Column(type: "datetime", nullable: false)]
     private $created_at;
@@ -56,23 +50,12 @@ class Brand
     #[ORM\Column(type: "boolean", nullable: false, options: ["default" => false])]
     private $principal = false;
 
-    #[ORM\ManyToOne(targetEntity: CommunicationStatesBetweenPlatforms::class, inversedBy: "brands")]
-    #[ORM\JoinColumn(nullable: false, options: ["default" => 1])]
-    private $status_sent_3pl;
-
-    #[ORM\Column(type: "smallint", options: ["default" => 0])]
-    private $attempts_send_3pl;
-
-    #[ORM\Column(type: "text", nullable: true)]
-    private $error_message_3pl;
-
     public function __construct()
     {
         $this->products = new ArrayCollection();
         $this->created_at = new \DateTime();
-        $this->visible = false;
+        $this->visible = true;
         $this->principal = false;
-        $this->attempts_send_3pl = 0;
     }
 
     /**
@@ -81,25 +64,6 @@ class Brand
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getId3pl(): ?int
-    {
-        return $this->id3pl;
-    }
-
-    /**
-     * @param int|null $id3pl
-     * @return $this
-     */
-    public function setId3pl(?int $id3pl): Brand
-    {
-        $this->id3pl = $id3pl;
-
-        return $this;
     }
 
     /**
@@ -269,45 +233,5 @@ class Brand
         $this->principal = $principal;
 
         return $this;
-    }
-
-    public function getStatusSent3pl(): ?CommunicationStatesBetweenPlatforms
-    {
-        return $this->status_sent_3pl;
-    }
-
-    public function setStatusSent3pl(?CommunicationStatesBetweenPlatforms $status_sent_3pl): self
-    {
-        $this->status_sent_3pl = $status_sent_3pl;
-
-        return $this;
-    }
-
-    public function getAttemptsSend3pl(): ?int
-    {
-        return $this->attempts_send_3pl;
-    }
-
-    public function setAttemptsSend3pl(int $attempts_send_3pl): self
-    {
-        $this->attempts_send_3pl = $attempts_send_3pl;
-
-        return $this;
-    }
-
-    public function getErrorMessage3pl(): ?string
-    {
-        return $this->error_message_3pl;
-    }
-
-    public function setErrorMessage3pl(?string $error_message_3pl): self
-    {
-        $this->error_message_3pl = $error_message_3pl;
-
-        return $this;
-    }
-    public function incrementAttemptsToSendBrandTo3pl()
-    {
-        $this->setAttemptsSend3pl($this->attempts_send_3pl + 1); //you can access your entity values directly
     }
 }

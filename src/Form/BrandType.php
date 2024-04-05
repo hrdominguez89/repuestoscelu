@@ -43,7 +43,7 @@ class BrandType extends AbstractType
                 ],
             ])
             ->add('descriptionEs', TextareaType::class, ['label' => 'Descripción español', 'required' => false])
-            ->add('descriptionEn', TextareaType::class, ['label' => 'Descripción Inglés', 'required' => false])
+            // ->add('descriptionEn', TextareaType::class, ['label' => 'Descripción Inglés', 'required' => false])
             ->add('nomenclature', TextType::class, ['label' => 'Nomenclatura', 'attr' => ['style' => 'text-transform: uppercase', 'minlength' => 3, 'maxlength' => 3]])
             ->add('principal', CheckboxType::class, [
                 'label'    => 'Establecer como marca principal',

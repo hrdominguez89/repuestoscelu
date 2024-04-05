@@ -1,5 +1,55 @@
-{{ form_start(form) }}
-{{ form_widget(form) }}
-<button class="btn btn-primary">{{ button_label|default('Guardar') }}</button>
-<a class="btn btn-secondary" href="{{ path('secure_crud_user_index') }}">Regresar</a>
-{{ form_end(form) }}
+{{ form_start (form) }}
+
+{% if form_errors (form) %}
+	<div class="row">
+		<div class="col-12">
+			<div class="alert alert-danger">
+				{{ form_errors (form) }}
+			</div>
+		</div>
+	</div>
+{% endif %}
+<div class="row my-2">
+	<div class="col-xs-12 col-md-6">
+		{{ form_label (form.name) }}
+		{{ form_widget (form.name) }}
+		{{ form_errors (form.name)}}
+	</div>
+
+
+	<div class="col-xs-12 col-md-6">
+		{{ form_label (form.email) }}
+		{{ form_widget (form.email) }}
+		{{ form_errors (form.email)}}
+	</div>
+</div>
+
+<div class="row my-2">
+	<div class="col-xs-12 col-md-6">
+		{{ form_label (
+			form.state,
+			'Provincia *',
+			{'label_attr': {'class': 'form-label','id':'label-state','data-state-id':user.state ? user.state.id:'0'}}
+		)}}
+		{{ form_widget (form.state) }}
+		{{ form_errors (form.state)}}
+	</div>
+
+
+	<div class="col-xs-12 col-md-6">
+		{{ form_label (
+			form.city,
+			'Localidad/Ciudad *',
+			{'label_attr': {'class': 'form-label','id':'label-city','data-city-id':user.city ? user.city.id:'0'}}
+		)}}
+		{{ form_widget (form.city) }}
+		{{ form_errors (form.city)}}
+	</div>
+</div>
+<div class="row my-2">
+	<div class="col-xs-12 text-end">
+		<a class="btn btn-secondary m-2" href="{{ path('secure_crud_user_index') }}">Regresar</a>
+		<button class="btn btn-success m-2">{{ button_label|default('Guardar') }}</button>
+		{{ form_end(form) }}
+	</div>
+</div>

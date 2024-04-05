@@ -25,148 +25,145 @@ class WorldController extends AbstractController
     #[Route("/", name: "secure_crud_world_index")]
     public function index(CountriesRepository $countriesRepository): Response
     {
-        $data['title'] = 'Paises';
-        $data['breadcrumbs'] = array(
-            array('active' => true, 'title' => $data['title'])
-        );
-        $data['files_js'] = array('table_full_buttons.js?v=' . rand());
-        $data['countries'] = $countriesRepository->listCountries();
-        return $this->render('secure/world/abm_countries.html.twig', $data);
+        $argentina =  $countriesRepository->find(11);
+
+        return $this->redirectToRoute('secure_crud_states_index', ['country_id'=>$argentina->getId()]);
     }
 
-    #[Route("/new", name: "secure_crud_world_new_country")]
-    public function newCountry(EntityManagerInterface $em, Request $request, SubregionTypeRepository $subregionTypeRepository): Response
-    {
-        $data['title'] = 'Nuevo país';
-        $data['breadcrumbs'] = array(
-            array('path' => 'secure_crud_world_index', 'title' => 'Paises'),
-            array('active' => true, 'title' => $data['title'])
-        );
-        $data['files_js'] = array(
-            'world/country.js?v=' . rand(),
-        );
-        $data['country'] = new Countries;
-        $form = $this->createForm(CountriesType::class, $data['country']);
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $data['country']->setSubregionType($subregionTypeRepository->find($request->get('countries')['subregion']));
+    // #[Route("/new", name: "secure_crud_world_new_country")]
+    // public function newCountry(EntityManagerInterface $em, Request $request, SubregionTypeRepository $subregionTypeRepository): Response
+    // {
+    //     $data['title'] = 'Nuevo país';
+    //     $data['breadcrumbs'] = array(
+    //         array('path' => 'secure_crud_world_index', 'title' => 'Paises'),
+    //         array('active' => true, 'title' => $data['title'])
+    //     );
+    //     $data['files_js'] = array(
+    //         'world/country.js?v=' . rand(),
+    //     );
+    //     $data['country'] = new Countries;
+    //     $form = $this->createForm(CountriesType::class, $data['country']);
+    //     $form->handleRequest($request);
+    //     if ($form->isSubmitted() && $form->isValid()) {
+    //         $data['country']->setSubregionType($subregionTypeRepository->find($request->get('countries')['subregion']));
 
-            $entityManager = $em;
-            $entityManager->persist($data['country']);
-            $entityManager->flush();
+    //         $entityManager = $em;
+    //         $entityManager->persist($data['country']);
+    //         $entityManager->flush();
 
-            return $this->redirectToRoute('secure_crud_world_index');
-        }
-        $data['form'] = $form;
-        return $this->renderForm('secure/world/form_country.html.twig', $data);
-    }
+    //         return $this->redirectToRoute('secure_crud_world_index');
+    //     }
+    //     $data['form'] = $form;
+    //     return $this->renderForm('secure/world/form_country.html.twig', $data);
+    // }
 
 
-    #[Route("/{country_id}/edit", name: "secure_crud_world_edit_country")]
-    public function editCountry(EntityManagerInterface $em, $country_id, Request $request, CountriesRepository $countriesRepository, SubregionTypeRepository $subregionTypeRepository): Response
-    {
-        $data['title'] = 'Editar País';
-        $data['breadcrumbs'] = array(
-            array('path' => 'secure_crud_world_index', 'title' => 'Paises'),
-            array('active' => true, 'title' => $data['title'])
-        );
-        $data['files_js'] = array(
-            'world/country.js?v=' . rand(),
-        );
-        $data['country'] = $countriesRepository->find($country_id);
-        $form = $this->createForm(CountriesType::class, $data['country']);
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $data['country']->setSubregionType($subregionTypeRepository->find($request->get('countries')['subregion']));
+    // #[Route("/{country_id}/edit", name: "secure_crud_world_edit_country")]
+    // public function editCountry(EntityManagerInterface $em, $country_id, Request $request, CountriesRepository $countriesRepository, SubregionTypeRepository $subregionTypeRepository): Response
+    // {
+    //     $data['title'] = 'Editar País';
+    //     $data['breadcrumbs'] = array(
+    //         array('path' => 'secure_crud_world_index', 'title' => 'Paises'),
+    //         array('active' => true, 'title' => $data['title'])
+    //     );
+    //     $data['files_js'] = array(
+    //         'world/country.js?v=' . rand(),
+    //     );
+    //     $data['country'] = $countriesRepository->find($country_id);
+    //     $form = $this->createForm(CountriesType::class, $data['country']);
+    //     $form->handleRequest($request);
+    //     if ($form->isSubmitted() && $form->isValid()) {
+    //         $data['country']->setSubregionType($subregionTypeRepository->find($request->get('countries')['subregion']));
 
-            $entityManager = $em;
-            $entityManager->persist($data['country']);
-            $entityManager->flush();
+    //         $entityManager = $em;
+    //         $entityManager->persist($data['country']);
+    //         $entityManager->flush();
 
-            return $this->redirectToRoute('secure_crud_world_index');
-        }
-        $data['form'] = $form;
-        return $this->renderForm('secure/world/form_country.html.twig', $data);
-    }
+    //         return $this->redirectToRoute('secure_crud_world_index');
+    //     }
+    //     $data['form'] = $form;
+    //     return $this->renderForm('secure/world/form_country.html.twig', $data);
+    // }
 
 
     #[Route("/{country_id}/states", name: "secure_crud_states_index")]
     public function indexStates($country_id, CountriesRepository $countriesRepository, StatesRepository $statesRepository): Response
     {
-        $data['title'] = 'Estados/Provincias';
+        
+        $data['title'] = 'Provincias';
         $data['files_js'] = array('table_full_buttons.js?v=' . rand());
-        $data['country'] = $countriesRepository->find($country_id);
-        $data['states'] = $statesRepository->findStatesByCountryId($country_id);
+        $data['country'] = $countriesRepository->find(11); //11=argentina
+        $data['states'] = $statesRepository->findStatesByCountryId(11);
         $data['breadcrumbs'] = array(
-            array('path' => 'secure_crud_world_index', 'title' => 'Paises'),
-            array('active' => true, 'title' => $data['title'] . ' de ' . $data['country']->getName())
+            // array('path' => 'secure_crud_world_index', 'title' => 'Paises'),
+            array('active' => true, 'title' => $data['title'])
         );
         return $this->render('secure/world/abm_states.html.twig', $data);
     }
 
-    #[Route("/{country_id}/state/new", name: "secure_crud_state_new")]
-    public function newState(EntityManagerInterface $em, $country_id, CountriesRepository $countriesRepository, Request $request): Response
-    {
-        $data['title'] = 'Nuevo Estado/Provincia';
-        $data['country'] = $countriesRepository->find($country_id);
-        $data['state'] = new States;
-        $data['breadcrumbs'] = array(
-            array('path' => 'secure_crud_world_index', 'title' => 'Paises'),
-            array('path' => 'secure_crud_states_index', 'path_parameters' => ['country_id' => $country_id], 'title' => 'Estados/Provincias ' . $data['country']->getName()),
-            array('active' => true, 'title' => $data['title'])
-        );
-        $form = $this->createForm(StatesType::class, $data['state']);
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
+    // #[Route("/{country_id}/state/new", name: "secure_crud_state_new")]
+    // public function newState(EntityManagerInterface $em, $country_id, CountriesRepository $countriesRepository, Request $request): Response
+    // {
+    //     $data['title'] = 'Nuevo Estado/Provincia';
+    //     $data['country'] = $countriesRepository->find($country_id);
+    //     $data['state'] = new States;
+    //     $data['breadcrumbs'] = array(
+    //         array('path' => 'secure_crud_world_index', 'title' => 'Paises'),
+    //         array('path' => 'secure_crud_states_index', 'path_parameters' => ['country_id' => $country_id], 'title' => 'Estados/Provincias ' . $data['country']->getName()),
+    //         array('active' => true, 'title' => $data['title'])
+    //     );
+    //     $form = $this->createForm(StatesType::class, $data['state']);
+    //     $form->handleRequest($request);
+    //     if ($form->isSubmitted() && $form->isValid()) {
 
-            $data['state']->setCountry($data['country']);
+    //         $data['state']->setCountry($data['country']);
 
-            $entityManager = $em;
-            $entityManager->persist($data['state']);
-            $entityManager->flush();
+    //         $entityManager = $em;
+    //         $entityManager->persist($data['state']);
+    //         $entityManager->flush();
 
-            return $this->redirectToRoute('secure_crud_states_index', ['country_id' => $country_id]);
-        }
-        $data['form'] = $form;
-        return $this->renderForm('secure/world/form_state.html.twig', $data);
-    }
+    //         return $this->redirectToRoute('secure_crud_states_index', ['country_id' => $country_id]);
+    //     }
+    //     $data['form'] = $form;
+    //     return $this->renderForm('secure/world/form_state.html.twig', $data);
+    // }
 
-    #[Route("/{country_id}/state/{state_id}/edit", name: "secure_crud_state_edit")]
-    public function editState(EntityManagerInterface $em, $country_id, $state_id, Request $request, CountriesRepository $countriesRepository, StatesRepository $statesRepository): Response
-    {
-        $data['title'] = 'Editar Estado/Provincia';
-        $data['country'] = $countriesRepository->find($country_id);
-        $data['state'] = $statesRepository->find($state_id);
-        $data['breadcrumbs'] = array(
-            array('path' => 'secure_crud_world_index', 'title' => 'Paises'),
-            array('path' => 'secure_crud_states_index', 'path_parameters' => ['country_id' => $country_id], 'title' => 'Estados/Provincias de ' . $data['country']->getName()),
-            array('active' => true, 'title' => $data['title'])
-        );
-        $form = $this->createForm(StatesType::class, $data['state']);
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
+    // #[Route("/{country_id}/state/{state_id}/edit", name: "secure_crud_state_edit")]
+    // public function editState(EntityManagerInterface $em, $country_id, $state_id, Request $request, CountriesRepository $countriesRepository, StatesRepository $statesRepository): Response
+    // {
+    //     $data['title'] = 'Editar Estado/Provincia';
+    //     $data['country'] = $countriesRepository->find($country_id);
+    //     $data['state'] = $statesRepository->find($state_id);
+    //     $data['breadcrumbs'] = array(
+    //         // array('path' => 'secure_crud_world_index', 'title' => 'Paises'),
+    //         array('path' => 'secure_crud_states_index', 'path_parameters' => ['country_id' => $country_id], 'title' => 'Provincias'),
+    //         array('active' => true, 'title' => $data['title'])
+    //     );
+    //     $form = $this->createForm(StatesType::class, $data['state']);
+    //     $form->handleRequest($request);
+    //     if ($form->isSubmitted() && $form->isValid()) {
 
-            $entityManager = $em;
-            $entityManager->persist($data['state']);
-            $entityManager->flush();
+    //         $entityManager = $em;
+    //         $entityManager->persist($data['state']);
+    //         $entityManager->flush();
 
-            return $this->redirectToRoute('secure_crud_states_index', ['country_id' => $country_id]);
-        }
-        $data['form'] = $form;
-        return $this->renderForm('secure/world/form_state.html.twig', $data);
-    }
+    //         return $this->redirectToRoute('secure_crud_states_index', ['country_id' => $country_id]);
+    //     }
+    //     $data['form'] = $form;
+    //     return $this->renderForm('secure/world/form_state.html.twig', $data);
+    // }
 
     #[Route("/{country_id}/state/{state_id}/cities", name: "secure_crud_cities_index")]
     public function indexCities($country_id, $state_id, CountriesRepository $countriesRepository, StatesRepository $statesRepository, CitiesRepository $citiesRepository): Response
     {
-        $data['title'] = 'Ciudades';
+        $data['title'] = 'Localidades/Ciudades';
         $data['files_js'] = array('table_full_buttons.js?v=' . rand());
         $data['country'] = $countriesRepository->find($country_id);
         $data['state'] = $statesRepository->find($state_id);
         $data['cities'] = $citiesRepository->findCitiesByStateId($state_id);
         $data['breadcrumbs'] = array(
-            array('path' => 'secure_crud_world_index', 'title' => 'Paises'),
-            array('path' => 'secure_crud_states_index', 'path_parameters' => ['country_id' => $country_id], 'title' => 'Estados/Provincias de ' . $data['country']->getName()),
+            // array('path' => 'secure_crud_world_index', 'title' => 'Paises'),
+            array('path' => 'secure_crud_states_index', 'path_parameters' => ['country_id' => $country_id], 'title' => 'Provincias'),
             array('active' => true, 'title' => $data['title'] . ' de ' . $data['state']->getName())
         );
         return $this->render('secure/world/abm_cities.html.twig', $data);
@@ -181,8 +178,8 @@ class WorldController extends AbstractController
         $data['city'] = new Cities;
         $data['breadcrumbs'] = array(
             array('path' => 'secure_crud_world_index', 'title' => 'Paises'),
-            array('path' => 'secure_crud_states_index', 'path_parameters' => ['country_id' => $country_id], 'title' => 'Estados/Provincias de ' . $data['country']->getName()),
-            array('path' => 'secure_crud_cities_index', 'path_parameters' => ['country_id' => $country_id, 'state_id' => $state_id], 'title' => 'Ciudades de ' . $data['state']->getName()),
+            array('path' => 'secure_crud_states_index', 'path_parameters' => ['country_id' => $country_id], 'title' => 'Provincias'),
+            array('path' => 'secure_crud_cities_index', 'path_parameters' => ['country_id' => $country_id, 'state_id' => $state_id], 'title' => 'Localidades/Ciudades de ' . $data['state']->getName()),
             array('active' => true, 'title' => $data['title'])
         );
         $form = $this->createForm(CitiesType::class, $data['city']);
@@ -206,14 +203,14 @@ class WorldController extends AbstractController
     #[Route("/{country_id}/state/{state_id}/city/{city_id}/edit", name: "secure_crud_city_edit")]
     public function editCity(EntityManagerInterface $em, $country_id, $state_id, $city_id, Request $request, CountriesRepository $countriesRepository, StatesRepository $statesRepository, CitiesRepository $citiesRepository): Response
     {
-        $data['title'] = 'Editar Ciudad';
+        $data['title'] = 'Editar Localidad/Ciudad';
         $data['country'] = $countriesRepository->find($country_id);
         $data['state'] = $statesRepository->find($state_id);
         $data['city'] = $citiesRepository->find($city_id);
         $data['breadcrumbs'] = array(
-            array('path' => 'secure_crud_world_index', 'title' => 'Paises'),
-            array('path' => 'secure_crud_states_index', 'path_parameters' => ['country_id' => $country_id], 'title' => 'Estados/Provincias de ' . $data['country']->getName()),
-            array('path' => 'secure_crud_cities_index', 'path_parameters' => ['country_id' => $country_id, 'state_id' => $state_id], 'title' => 'Ciudades de ' . $data['state']->getName()),
+            // array('path' => 'secure_crud_world_index', 'title' => 'Paises'),
+            array('path' => 'secure_crud_states_index', 'path_parameters' => ['country_id' => $country_id], 'title' => 'Provincias'),
+            array('path' => 'secure_crud_cities_index', 'path_parameters' => ['country_id' => $country_id, 'state_id' => $state_id], 'title' => 'Localidades/Ciudades de ' . $data['state']->getName()),
             array('active' => true, 'title' => $data['title'])
         );
         $form = $this->createForm(CitiesType::class, $data['city']);
