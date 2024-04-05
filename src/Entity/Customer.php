@@ -78,16 +78,6 @@ class Customer extends BaseUser
     #[ORM\Column(name: "roles", type: "string", length: 255, nullable: false)]
     protected $roles;
 
-    #[ORM\Column(type: "integer", options: ["default" => 0])]
-    private $attempts_send_crm;
-
-    #[ORM\Column(type: "string", length: 255, nullable: true)]
-    private $error_message_crm;
-
-    #[ORM\ManyToOne(targetEntity: CommunicationStatesBetweenPlatforms::class, inversedBy: "customers")]
-    #[ORM\JoinColumn(nullable: false, options: ["default" => 0])]
-    private $status_sent_crm;
-
     #[ORM\Column(type: "uuid", nullable: true)]
     private $verification_code;
     #[ORM\Column(type: "boolean", options: ["default" => 0])]
@@ -132,7 +122,6 @@ class Customer extends BaseUser
         $this->customerAddresses = new ArrayCollection();
         $this->roles = json_encode([self::ROLE_DEFAULT]);
         $this->registration_date = new \DateTime();
-        $this->attempts_send_crm = 0;
         $this->change_password = false;
         $this->orders = new ArrayCollection();
         $this->favoriteProducts = new ArrayCollection();
@@ -481,42 +470,6 @@ class Customer extends BaseUser
         return $this;
     }
 
-    public function getAttemptsSendCrm(): ?int
-    {
-        return $this->attempts_send_crm;
-    }
-
-    public function setAttemptsSendCrm(int $attempts_send_crm): self
-    {
-        $this->attempts_send_crm = $attempts_send_crm;
-
-        return $this;
-    }
-
-    public function getErrorMessageCrm(): ?string
-    {
-        return $this->error_message_crm;
-    }
-
-    public function setErrorMessageCrm(?string $error_message_crm): self
-    {
-        $this->error_message_crm = $error_message_crm;
-
-        return $this;
-    }
-
-    public function getStatusSentCrm(): ?CommunicationStatesBetweenPlatforms
-    {
-        return $this->status_sent_crm;
-    }
-
-    public function setStatusSentCrm(?CommunicationStatesBetweenPlatforms $status_sent_crm): self
-    {
-        $this->status_sent_crm = $status_sent_crm;
-
-        return $this;
-    }
-
     public function getVerificationCode()
     {
         return $this->verification_code;
@@ -575,11 +528,6 @@ class Customer extends BaseUser
         $this->country_phone_code = $country_phone_code;
 
         return $this;
-    }
-
-    public function incrementAttemptsToSendCustomerToCrm()
-    {
-        $this->setAttemptsSendCrm($this->attempts_send_crm + 1); //you can access your entity values directly
     }
 
     public function getIdentityType(): ?string

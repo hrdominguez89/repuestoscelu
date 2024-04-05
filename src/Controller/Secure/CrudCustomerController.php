@@ -37,7 +37,7 @@ class CrudCustomerController extends AbstractController
     }
 
     #[Route("/new", name: "secure_crud_customer_new", methods: ["GET", "POST"])]
-    public function new(EntityManagerInterface $em, Request $request, CustomerStatusTypeRepository $customerStatusTypeRepository, SendCustomerToCrm $sendCustomerToCrm, CommunicationStatesBetweenPlatformsRepository $communicationStatesBetweenPlatformsRepository): Response
+    public function new(EntityManagerInterface $em, Request $request, CustomerStatusTypeRepository $customerStatusTypeRepository): Response
     {
 
         $data['title'] = "Nuevo cliente";
@@ -54,16 +54,11 @@ class CrudCustomerController extends AbstractController
                 $data['customer']->setDateOfBirth(null);
             }
 
-            $data['customer']->setStatusSentCrm($communicationStatesBetweenPlatformsRepository->find(Constants::CBP_STATUS_PENDING));
-            $data['customer']->setAttemptsSendCrm(0);
-
             $entityManager = $em;
             $entityManager->persist($data['customer']);
             $entityManager->flush();
 
             //envio por helper los datos del cliente al crm
-            $sendCustomerToCrm->SendCustomerToCrm($data['customer']);
-
             return $this->redirectToRoute('secure_crud_customer_index', [], Response::HTTP_SEE_OTHER);
         }
 
@@ -79,7 +74,7 @@ class CrudCustomerController extends AbstractController
     }
 
     #[Route("/{id}/edit", name: "secure_crud_customer_edit", methods: ["GET", "POST"])]
-    public function edit(EntityManagerInterface $em, $id, Request $request, CustomerRepository $customerRepository, CommunicationStatesBetweenPlatformsRepository $communicationStatesBetweenPlatformsRepository, SendCustomerToCrm $sendCustomerToCrm): Response
+    public function edit(EntityManagerInterface $em, $id, Request $request, CustomerRepository $customerRepository): Response
     {
         $data['title'] = "Editar cliente";
         $data['customer'] = $customerRepository->find($id);
@@ -91,13 +86,9 @@ class CrudCustomerController extends AbstractController
                 $data['customer']->setGenderType(null);
                 $data['customer']->setDateOfBirth(null);
             }
-            $data['customer']->setStatusSentCrm($communicationStatesBetweenPlatformsRepository->find(Constants::CBP_STATUS_PENDING));
-            $data['customer']->setAttemptsSendCrm(0);
             $em->flush();
 
             //envio por helper los datos del cliente al crm
-            $sendCustomerToCrm->SendCustomerToCrm($data['customer']);
-
             return $this->redirectToRoute('secure_crud_customer_index', [], Response::HTTP_SEE_OTHER);
         }
 

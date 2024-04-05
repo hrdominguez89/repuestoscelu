@@ -18,15 +18,12 @@ class CommunicationStatesBetweenPlatforms
     #[ORM\Column(type: "string", length: 20)]
     private $name;
 
-    #[ORM\OneToMany(targetEntity: Customer::class, mappedBy: "status_sent_crm")]
-    private $customers;
 
     #[ORM\OneToMany(targetEntity: Orders::class, mappedBy: "status_sent_crm")]
     private $orders;
 
     public function __construct()
     {
-        $this->customers = new ArrayCollection();
         $this->orders = new ArrayCollection();
     }
 
@@ -43,36 +40,6 @@ class CommunicationStatesBetweenPlatforms
     public function setName(string $name): self
     {
         $this->name = $name;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Customer>
-     */
-    public function getCustomers(): Collection
-    {
-        return $this->customers;
-    }
-
-    public function addCustomer(Customer $customer): self
-    {
-        if (!$this->customers->contains($customer)) {
-            $this->customers[] = $customer;
-            $customer->setStatusSentCrm($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCustomer(Customer $customer): self
-    {
-        if ($this->customers->removeElement($customer)) {
-            // set the owning side to null (unless already changed)
-            if ($customer->getStatusSentCrm() === $this) {
-                $customer->setStatusSentCrm(null);
-            }
-        }
 
         return $this;
     }
