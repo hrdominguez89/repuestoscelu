@@ -178,7 +178,7 @@ class ProductType extends AbstractType
             //     ]
             // ])
             ->add('weight', NumberType::class, [
-                'label' => 'Peso en Lb *',
+                'label' => 'Peso en Lb',
                 'required' => false,
                 'attr' => ['placeholder' => '0.00', 'pattern' => '^\d+(\.\d{0,3}|,\d{0,2})?$', 'title' => 'El formato debe ser 0.1 o 0.12 o 0.12 o 0,1 o 0,1 o 0,12 o 1'],
                 'constraints' => [
