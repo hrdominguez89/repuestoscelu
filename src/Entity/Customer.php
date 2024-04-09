@@ -24,27 +24,9 @@ class Customer extends BaseUser
     #[ORM\OneToMany(targetEntity: Order::class, mappedBy: "customer")]
     private $shoppingOrders;
 
-
-
-    #[ORM\Column(name: "state_code_cel_phone", type: "string", length: 100, nullable: true)]
-    #[Assert\Length(min: 2, max: 100)]
-    public $state_code_cel_phone;
-
     #[ORM\Column(name: "cel_phone", type: "string", length: 100, nullable: true)]
     #[Assert\Length(min: 2, max: 100)]
     public $cel_phone;
-
-
-    #[ORM\Column(name: "state_code_phone", type: "string", length: 100, nullable: true)]
-    #[Assert\Length(min: 2, max: 100)]
-    public $state_code_phone;
-
-    #[ORM\Column(name: "phone", type: "string", length: 100, nullable: true)]
-    #[Assert\Length(min: 2, max: 100)]
-    public $phone;
-
-    #[ORM\ManyToOne(targetEntity: CustomersTypesRoles::class, inversedBy: "customers")]
-    public $customer_type_role;
 
     #[ORM\ManyToOne(targetEntity: RegistrationType::class, inversedBy: "customers")]
     public $registration_type;
@@ -52,31 +34,6 @@ class Customer extends BaseUser
     #[ORM\Column(type: "datetime", nullable: false)]
 
     public $registration_date;
-
-    #[ORM\OneToMany(targetEntity: CustomerAddresses::class, mappedBy: "customer")]
-    public $customerAddresses;
-
-    #[ORM\ManyToOne(targetEntity: GenderType::class, inversedBy: "customers")]
-    private $gender_type;
-
-    #[ORM\Column(type: "date", nullable: true)]
-    private $date_of_birth;
-
-    #[ORM\Column(type: "bigint", nullable: true)]
-    private $google_oauth_uid;
-
-    #[ORM\Column(type: "string", length: 255, nullable: true)]
-    private $url_facebook;
-
-    #[ORM\Column(type: "string", length: 255, nullable: true)]
-    private $url_instagram;
-
-
-    #[ORM\Column(name: "password", type: "string", length: 512, nullable: false)]
-    protected $password;
-
-    #[ORM\Column(name: "roles", type: "string", length: 255, nullable: false)]
-    protected $roles;
 
     #[ORM\Column(type: "uuid", nullable: true)]
     private $verification_code;
@@ -90,13 +47,6 @@ class Customer extends BaseUser
     #[ORM\JoinColumn(nullable: false)]
     private $status;
 
-    #[ORM\ManyToOne(targetEntity: Countries::class, inversedBy: "customers")]
-    #[ORM\JoinColumn(nullable: false)]
-    private $country_phone_code;
-
-    #[ORM\Column(type: "string", length: 20, nullable: true)]
-    private $identity_type;
-
     #[ORM\Column(type: "string", length: 50, nullable: true)]
     private $identity_number;
 
@@ -109,8 +59,28 @@ class Customer extends BaseUser
     #[ORM\OneToMany(targetEntity: ShoppingCart::class, mappedBy: "customer")]
     private $shoppingCarts;
 
-    #[ORM\OneToMany(targetEntity: Recipients::class, mappedBy: "customer", orphanRemoval: true)]
-    private $recipients;
+    #[ORM\ManyToOne(inversedBy: 'customers')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?States $state = null;
+
+    #[ORM\ManyToOne(inversedBy: 'customers')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Cities $city = null;
+
+    #[ORM\Column]
+    private ?int $code_area = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $street_address = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $number_address = null;
+
+    #[ORM\Column(length: 15, nullable: true)]
+    private ?string $floor_apartment = null;
+
+    #[ORM\Column]
+    private ?bool $policies_agree = null;
 
 
     public function __construct()
@@ -119,14 +89,12 @@ class Customer extends BaseUser
 
         $this->couponDiscounts = new ArrayCollection();
         $this->shoppingOrders = new ArrayCollection();
-        $this->customerAddresses = new ArrayCollection();
         $this->roles = json_encode([self::ROLE_DEFAULT]);
         $this->registration_date = new \DateTime();
         $this->change_password = false;
         $this->orders = new ArrayCollection();
         $this->favoriteProducts = new ArrayCollection();
         $this->shoppingCarts = new ArrayCollection();
-        $this->recipients = new ArrayCollection();
     }
 
 
@@ -219,55 +187,15 @@ class Customer extends BaseUser
 
     public function getCustomerTotalInfo(): array
     {
-        $addresses = $this->getCustomerAddresses();
-        foreach ($addresses as $address) {
-            if ($address->getActive()) {
-
-                if ($address->getHomeAddress()) {
-                    $home = [
-                        'home_address_id' => $address->getId(),
-                        'Country' => $address->getCountry() ? $address->getCountry()->getName() : '',
-                        'State' => $address->getState() ? $address->getState()->getName() : '',
-                        'City' => $address->getCity() ? $address->getCity()->getName() : '',
-                        'address' => $address->getStreet() . ' ' . $address->getNumberStreet() . ', ' . $address->getFloor() . ' ' . $address->getDepartment(),
-                        'postal_code' => $address->getPostalCode(),
-                        'additional_info' => $address->getAdditionalInfo(),
-                    ];
-                }
-
-                if ($address->getBillingAddress()) {
-                    $bill = [
-                        'bill_address_id' => $address->getId(),
-                        'Country' => $address->getCountry() ? $address->getCountry()->getName() : '',
-                        'State' => $address->getState() ? $address->getState()->getName() : '',
-                        'City' => $address->getCity() ? $address->getCity()->getName() : '',
-                        'address' => $address->getStreet() . ' ' . $address->getNumberStreet() . ', ' . $address->getFloor() . ' ' . $address->getDepartment(),
-                        'postal_code' => $address->getPostalCode(),
-                        'additional_info' => $address->getAdditionalInfo(),
-                    ];
-                }
-            }
-        }
-
 
         return [
             'id' => (int) $this->getId(),
             'email' => $this->getEmail(),
             'name' => $this->getName(),
-            'customer_type_role_id' => $this->getCustomerTypeRole()->getId(),
-            'customer_type_role_name' => $this->getCustomerTypeRole()->getName(),
-            'identity_type' => $this->getIdentityType(),
             'identity_number' => $this->getIdentityNumber(),
-            'phone' => $this->getPhone() ? $this->getCountryPhoneCode()->getPhonecode() . ($this->getStateCodePhone() ? $this->getStateCodePhone() : '') . $this->getPhone() : '',
-            'cel_phone' => $this->getCountryPhoneCode()->getPhonecode() . ($this->getStateCodePhone() ? $this->getStateCodePhone() : '') . $this->getCelPhone(),
             'status_id' => $this->getStatus()->getId(),
             'status_name' => $this->getStatus()->getName(),
-            'gender_type_id' => $this->getGenderType() ? $this->getGenderType()->getId() : '',
-            'gender_type_name' => $this->getGenderType() ? $this->getGenderType()->getInitials() : '',
-            'birth_day' => $this->getDateOfBirth() ? $this->getDateOfBirth()->format('Y-m-d') : '',
             'created_at' => $this->getRegistrationDate()->format('Y-m-d H:i:s'),
-            'home_address' => @$home ? $home : '',
-            'bill_address' => @$bill ? $bill : '',
         ];
     }
 
@@ -292,18 +220,6 @@ class Customer extends BaseUser
         return $this;
     }
 
-    public function getStateCodeCelPhone(): ?string
-    {
-        return $this->state_code_cel_phone;
-    }
-
-    public function setStateCodeCelPhone(?string $state_code_cel_phone): self
-    {
-        $this->state_code_cel_phone = $state_code_cel_phone;
-
-        return $this;
-    }
-
     public function getCelPhone(): ?string
     {
         return $this->cel_phone;
@@ -312,42 +228,6 @@ class Customer extends BaseUser
     public function setCelPhone(?string $cel_phone): self
     {
         $this->cel_phone = $cel_phone;
-
-        return $this;
-    }
-
-    public function getStateCodePhone(): ?string
-    {
-        return $this->state_code_phone;
-    }
-
-    public function setStateCodePhone(?string $state_code_phone): self
-    {
-        $this->state_code_phone = $state_code_phone;
-
-        return $this;
-    }
-
-    public function getPhone(): ?string
-    {
-        return $this->phone;
-    }
-
-    public function setPhone(?string $phone): self
-    {
-        $this->phone = $phone;
-
-        return $this;
-    }
-
-    public function getCustomerTypeRole(): ?CustomersTypesRoles
-    {
-        return $this->customer_type_role;
-    }
-
-    public function setCustomerTypeRole(?CustomersTypesRoles $customer_type_role): self
-    {
-        $this->customer_type_role = $customer_type_role;
 
         return $this;
     }
@@ -372,93 +252,6 @@ class Customer extends BaseUser
     public function setRegistrationDate(?\DateTimeInterface $registration_date): self
     {
         $this->registration_date = $registration_date;
-
-        return $this;
-    }
-
-    public function getCustomerAddresses(): Collection
-    {
-        return $this->customerAddresses;
-    }
-
-    public function addCustomerAddress(CustomerAddresses $customerAddress): self
-    {
-        if (!$this->customerAddresses->contains($customerAddress)) {
-            $this->customerAddresses[] = $customerAddress;
-            $customerAddress->setCustomer($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCustomerAddress(CustomerAddresses $customerAddress): self
-    {
-        if ($this->customerAddresses->removeElement($customerAddress)) {
-            // set the owning side to null (unless already changed)
-            if ($customerAddress->getCustomer() === $this) {
-                $customerAddress->setCustomer(null);
-            }
-        }
-
-        return $this;
-    }
-
-    public function getGenderType(): ?GenderType
-    {
-        return $this->gender_type;
-    }
-
-    public function setGenderType(?GenderType $gender_type): self
-    {
-        $this->gender_type = $gender_type;
-
-        return $this;
-    }
-
-    public function getDateOfBirth(): ?\DateTimeInterface
-    {
-        return $this->date_of_birth;
-    }
-
-    public function setDateOfBirth(?\DateTimeInterface $date_of_birth): self
-    {
-        $this->date_of_birth = $date_of_birth;
-
-        return $this;
-    }
-
-    public function getGoogleOauthUid(): ?string
-    {
-        return $this->google_oauth_uid;
-    }
-
-    public function setGoogleOauthUid(?string $google_oauth_uid): self
-    {
-        $this->google_oauth_uid = $google_oauth_uid;
-
-        return $this;
-    }
-
-    public function getUrlFacebook(): ?string
-    {
-        return $this->url_facebook;
-    }
-
-    public function setUrlFacebook(?string $url_facebook): self
-    {
-        $this->url_facebook = $url_facebook;
-
-        return $this;
-    }
-
-    public function getUrlInstagram(): ?string
-    {
-        return $this->url_instagram;
-    }
-
-    public function setUrlInstagram(?string $url_instagram): self
-    {
-        $this->url_instagram = $url_instagram;
 
         return $this;
     }
@@ -514,30 +307,6 @@ class Customer extends BaseUser
     public function setStatus(?CustomerStatusType $status): self
     {
         $this->status = $status;
-
-        return $this;
-    }
-
-    public function getCountryPhoneCode(): ?Countries
-    {
-        return $this->country_phone_code;
-    }
-
-    public function setCountryPhoneCode(?Countries $country_phone_code): self
-    {
-        $this->country_phone_code = $country_phone_code;
-
-        return $this;
-    }
-
-    public function getIdentityType(): ?string
-    {
-        return $this->identity_type;
-    }
-
-    public function setIdentityType(?string $identity_type): self
-    {
-        $this->identity_type = $identity_type;
 
         return $this;
     }
@@ -635,30 +404,88 @@ class Customer extends BaseUser
         return $this;
     }
 
-    public function getRecipients(): Collection
+    public function getState(): ?States
     {
-        return $this->recipients;
+        return $this->state;
     }
 
-    public function addRecipient(Recipients $recipient): self
+    public function setState(?States $state): static
     {
-        if (!$this->recipients->contains($recipient)) {
-            $this->recipients[] = $recipient;
-            $recipient->setCustomer($this);
-        }
+        $this->state = $state;
 
         return $this;
     }
 
-    public function removeRecipient(Recipients $recipient): self
+    public function getCity(): ?Cities
     {
-        if ($this->recipients->removeElement($recipient)) {
-            // set the owning side to null (unless already changed)
-            if ($recipient->getCustomer() === $this) {
-                $recipient->setCustomer(null);
-            }
-        }
+        return $this->city;
+    }
+
+    public function setCity(?Cities $city): static
+    {
+        $this->city = $city;
 
         return $this;
     }
+
+    public function getCodeArea(): ?int
+    {
+        return $this->code_area;
+    }
+
+    public function setCodeArea(int $code_area): static
+    {
+        $this->code_area = $code_area;
+
+        return $this;
+    }
+
+    public function getStreetAddress(): ?string
+    {
+        return $this->street_address;
+    }
+
+    public function setStreetAddress(string $street_address): static
+    {
+        $this->street_address = $street_address;
+
+        return $this;
+    }
+
+    public function getNumberAddress(): ?string
+    {
+        return $this->number_address;
+    }
+
+    public function setNumberAddress(string $number_address): static
+    {
+        $this->number_address = $number_address;
+
+        return $this;
+    }
+
+    public function getFloorApartment(): ?string
+    {
+        return $this->floor_apartment;
+    }
+
+    public function setFloorApartment(?string $floor_apartment): static
+    {
+        $this->floor_apartment = $floor_apartment;
+
+        return $this;
+    }
+
+    public function isPoliciesAgree(): ?bool
+    {
+        return $this->policies_agree;
+    }
+
+    public function setPoliciesAgree(bool $policies_agree): static
+    {
+        $this->policies_agree = $policies_agree;
+
+        return $this;
+    }
+
 }

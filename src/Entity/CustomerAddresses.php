@@ -15,10 +15,6 @@ class CustomerAddresses
      #[ORM\Column(type:"integer")]
     private $id;
 
-     #[ORM\ManyToOne(targetEntity:Customer::class, inversedBy:"customerAddresses")]
-     #[ORM\JoinColumn(nullable:false)]
-    private $customer;
-
      #[ORM\ManyToOne(targetEntity:Countries::class, inversedBy:"customerAddresses")]
      #[ORM\JoinColumn(nullable:false)]
     private $country;
@@ -78,18 +74,6 @@ class CustomerAddresses
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getCustomer(): ?customer
-    {
-        return $this->customer;
-    }
-
-    public function setCustomer(?customer $customer): self
-    {
-        $this->customer = $customer;
-
-        return $this;
     }
 
     public function getStreet(): ?string
@@ -275,7 +259,6 @@ class CustomerAddresses
     public function getTotalCustomerAddressInfo()
     {
         return [
-            'customer_id' => $this->getCustomer()->getId(),
             'customer_address_id' => $this->getId(),
             'country_id' => $this->getCountry()->getId(),
             'country_name' => $this->getCountry()->getName(),

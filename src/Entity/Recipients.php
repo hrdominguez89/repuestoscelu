@@ -15,10 +15,6 @@ class Recipients
     #[ORM\Column(type: "integer")]
     private $id;
 
-    #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: "recipients")]
-    #[ORM\JoinColumn(nullable: false)]
-    private $customer;
-
     #[ORM\ManyToOne(targetEntity: Countries::class, inversedBy: "recipients")]
     #[ORM\JoinColumn(nullable: false)]
     private $country;
@@ -66,18 +62,6 @@ class Recipients
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getCustomer(): ?Customer
-    {
-        return $this->customer;
-    }
-
-    public function setCustomer(?Customer $customer): self
-    {
-        $this->customer = $customer;
-
-        return $this;
     }
 
     public function getCountry(): ?Countries

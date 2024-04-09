@@ -102,9 +102,6 @@ class Countries
     #[ORM\Column(type: "boolean", nullable: true)]
     private $visible;
 
-    #[ORM\OneToMany(targetEntity: Customer::class, mappedBy: "country_phone_code")]
-    private $customers;
-
     #[ORM\OneToMany(targetEntity: Orders::class, mappedBy: "customer_phone_code")]
     private $orders;
 
@@ -119,7 +116,6 @@ class Countries
         $this->states = new ArrayCollection();
         $this->cities = new ArrayCollection();
         $this->customerAddresses = new ArrayCollection();
-        $this->customers = new ArrayCollection();
         $this->orders = new ArrayCollection();
         $this->receiver_orders = new ArrayCollection();
         $this->recipients = new ArrayCollection();
@@ -520,36 +516,6 @@ class Countries
     public function setVisible(?bool $visible): self
     {
         $this->visible = $visible;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Customer>
-     */
-    public function getCustomers(): Collection
-    {
-        return $this->customers;
-    }
-
-    public function addCustomer(Customer $customer): self
-    {
-        if (!$this->customers->contains($customer)) {
-            $this->customers[] = $customer;
-            $customer->setCountryPhoneCode($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCustomer(Customer $customer): self
-    {
-        if ($this->customers->removeElement($customer)) {
-            // set the owning side to null (unless already changed)
-            if ($customer->getCountryPhoneCode() === $this) {
-                $customer->setCountryPhoneCode(null);
-            }
-        }
 
         return $this;
     }

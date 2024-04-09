@@ -24,15 +24,11 @@ class CustomersTypesRoles
     #[ORM\Column(type: "text")]
     private $description;
 
-    #[ORM\OneToMany(targetEntity: Customer::class, mappedBy: "customer_type_role")]
-    private $customers;
-
     #[ORM\OneToMany(targetEntity: Orders::class, mappedBy: "customer_type")]
     private $orders;
 
     public function __construct()
     {
-        $this->customers = new ArrayCollection();
         $this->orders = new ArrayCollection();
     }
 
@@ -73,33 +69,6 @@ class CustomersTypesRoles
     public function setDescription(string $description): self
     {
         $this->description = $description;
-
-        return $this;
-    }
-
-    public function getCustomers(): Collection
-    {
-        return $this->customers;
-    }
-
-    public function addCustomer(Customer $customer): self
-    {
-        if (!$this->customers->contains($customer)) {
-            $this->customers[] = $customer;
-            $customer->setCustomerTypeRole($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCustomer(Customer $customer): self
-    {
-        if ($this->customers->removeElement($customer)) {
-            // set the owning side to null (unless already changed)
-            if ($customer->getCustomerTypeRole() === $this) {
-                $customer->setCustomerTypeRole(null);
-            }
-        }
 
         return $this;
     }

@@ -174,13 +174,9 @@ class FrontApiController extends AbstractController
                 "name" => $customer->getName(),
                 "image" => $customer->getImage(),
                 "email" => $customer->getEmail(),
-                "customer_type_role" => $customer->getCustomerTypeRole() ? (int)$customer->getCustomerTypeRole()->getId() : null,
-                "country_phone_code" =>  $customer->getCountryPhoneCode() ? (int)$customer->getCountryPhoneCode()->getId() : null,
-                "gender_type" => $customer->getGenderType() ? (int)$customer->getGenderType()->getId() : null,
                 "wish_list" => $favorite_products_list,
                 "shop_cart" => $shopping_cart_products_list,
                 "cel_phone" => $customer->getCelPhone(),
-                "date_of_birth" => $customer->getDateOfBirth() ? $customer->getDateOfBirth()->format('Y-m-d') : null,
             ]
         ]);
     }
@@ -818,13 +814,10 @@ class FrontApiController extends AbstractController
         //set Customer data
         $customer = new Customer();
         $customer
-            ->setCustomerTypeRole($customer_type_role)
             ->setVerificationCode(Uuid::v4())
             ->setStatus($status_customer)
             ->setRegistrationType($registration_type)
-            ->setRegistrationDate(new \DateTime)
-            ->setStatusSentCrm($status_sent_crm);
-
+            ->setRegistrationDate(new \DateTime);
 
         $form = $this->createForm(RegisterCustomerApiType::class, $customer);
         $form->submit($data, false);
@@ -909,14 +902,10 @@ class FrontApiController extends AbstractController
             );
         }
         //find relational objects
-        $status_sent_crm = $communicationStatesBetweenPlatformsRepository->find(Constants::CBP_STATUS_PENDING);
         $status_customer = $customerStatusTypeRepository->find(Constants::CUSTOMER_STATUS_VALIDATED);
 
         $customer->setStatus($status_customer)
-            ->setStatusSentCrm($status_sent_crm)
-            ->setAttemptsSendCrm(0)
             ->setVerificationCode(null);
-
         $em->persist($customer);
         $em->flush();
 

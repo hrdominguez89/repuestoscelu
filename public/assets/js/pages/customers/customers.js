@@ -1,43 +1,64 @@
 "use strict";
 
+let selectState;
+let stateId;
+let cityId;
+
+let cities;
+
 $(document).ready(() => {
-  listenSelectCustomerTypeRole();
+  initSelect2();
+  initInputs();
+  listenSelectStates();
 });
-
-let selectCustomerTypeRole;
-
-const listenSelectCustomerTypeRole = () => {
-  selectCustomerTypeRole = $("#customer_customer_type_role");
-  if (selectCustomerTypeRole.length) {
-    showDivs(parseInt(selectCustomerTypeRole.val()));
-    selectCustomerTypeRole.on("change", () => {
-      showDivs(parseInt(selectCustomerTypeRole.val()));
-    });
-  }
+const initSelect2 = () => {
+  $('select').select2({
+    theme: 'bootstrap4',
+  });
+}
+const initInputs = () => {
+  cityId = $('#label-city').data('city-id')
+  stateId = $('#label-state').data('state-id')
+  getCities();
+}
+const listenSelectStates = () => {
+  selectState = $('#customer_state');
+  selectState.on("change", async () => {
+    stateId = parseInt(selectState.val());
+    await getCities();
+    $("#customer_city").trigger("chosen:updated");
+  });
 };
-
-const showDivs = (value) => {
-  const divCustomerForm = $("#divCustomerForm");
-  const divsPerson = $(".col-data-person");
-  const inputLastName = $("#customer_lastname");
-  const nameInput = $('#name_input');
-
-  switch (value) {
-    case 1: //Persona
-      divCustomerForm.show();
-      divsPerson.show();
-      inputLastName.attr('required','required')
-      nameInput.html('Nombre');
-      break;
-    case 2: //Empresa
-      divCustomerForm.show();
-      divsPerson.hide();
-      inputLastName.removeAttr('required')
-      nameInput.html('Razón social');
-      break;
-    default: //Ninguno
-      divCustomerForm.hide();
-      inputLastName.removeAttr('required')
-      break;
+const getCities = () => {
+  $.ajax({
+    url: `/secure/customer/getCities/${stateId}`,
+    method: "GET",
+    success: async (res) => {
+      if (res.status) {
+        cities = await res.data;
+        cleanSelects();
+        $("#customer_city").prop("disabled", false);
+        for (let i = 0; i < cities.length; i++) {
+          const element = cities[i];
+          const option = $("<option></option>").text(element.name);
+          option.attr("value", element.id);
+          if (cityId && cityId == element.id) {
+            option.attr("selected", "selected");
+          }
+          $("#customer_city").append(option);
+        }
+      } else {
+        cleanSelects(true);
+      }
+    },
+  });
+};
+const cleanSelects = (disable = false) => {
+  const defaultOptionSelect = $("<option></option>").text(
+    "Seleccione una localidad/ciudad"
+  );
+  $("#customer_city").html(defaultOptionSelect);
+  if (disable) {
+    $("#customer_city").prop("disabled", true);
   }
 };

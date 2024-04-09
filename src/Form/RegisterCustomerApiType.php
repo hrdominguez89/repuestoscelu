@@ -23,16 +23,6 @@ class RegisterCustomerApiType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('customer_type_role', EntityType::class, [
-                'class'  => CustomersTypesRoles::class,
-                'constraints' => [
-                    new NotNull(),
-                    new NotBlank(),
-                ]
-            ])
-            ->add('gender_type', EntityType::class, [
-                'class' => GenderType::class,
-            ])
             ->add('name', TextType::class, [
                 'constraints' => [
                     new NotNull(),
@@ -51,21 +41,11 @@ class RegisterCustomerApiType extends AbstractType
                     new NotBlank(),
                 ]
             ])
-            ->add('country_phone_code', EntityType::class, [
-                'class' => Countries::class,
-                'constraints' => [
-                    new NotNull(),
-                    new NotBlank(),
-                ]
-            ])
             ->add('cel_phone', TextType::class, [
                 'constraints' => [
                     new NotNull(),
                     new NotBlank(),
                 ]
-            ])
-            ->add('date_of_birth', DateType::class, [
-                'widget' => 'single_text',
             ]);
     }
 

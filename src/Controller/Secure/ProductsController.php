@@ -2,7 +2,6 @@
 
 namespace App\Controller\Secure;
 
-use App\Constants\Constants;
 use App\Entity\HistoricalPriceCost;
 use App\Entity\Product;
 use App\Entity\ProductDiscount;
@@ -10,9 +9,7 @@ use App\Entity\ProductImages;
 use App\Form\ProductDiscountType;
 use App\Form\ProductTagType;
 use App\Form\ProductType;
-use App\Helpers\SendProductTo3pl;
 use App\Repository\BrandRepository;
-use App\Repository\CommunicationStatesBetweenPlatformsRepository;
 use App\Repository\ProductDiscountRepository;
 use App\Repository\ProductImagesRepository;
 use App\Repository\ProductRepository;
@@ -24,12 +21,10 @@ use App\Repository\TagRepository;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Service\FileUploader;
 use Intervention\Image\ImageManager;
 use Aws\S3\S3Client;
 use Doctrine\ORM\EntityManagerInterface;
@@ -70,7 +65,7 @@ class ProductsController extends AbstractController
     }
 
     #[Route("/", name: "secure_product_index", methods: ["GET"])]
-    public function index(ProductRepository $productRepository, Request $request, PaginatorInterface $pagination): Response
+    public function index(ProductRepository $productRepository): Response
     {
         $data['products'] = $productRepository->findAll();
         $data['title'] = 'Productos';
@@ -291,8 +286,6 @@ class ProductsController extends AbstractController
                 }
             }
             $entityManager->flush();
-            $sendProductTo3pl->send($data['product'], 'PUT', 'update');
-
             return $this->redirectToRoute('secure_product_index');
         }
 

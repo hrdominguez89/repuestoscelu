@@ -31,7 +31,7 @@ abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\NotBlank]
     protected $name;
 
-    #[ORM\Column(name: "roles", type: "json")]
+    #[ORM\Column(name: "roles", type: "string")]
     protected $roles;
 
     public function __construct()
@@ -80,7 +80,7 @@ abstract class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getRoles(): array
     {
-        $roles = $this->roles;
+        // $roles = $this->roles;
         // Asegúrate de incluir al menos un rol para cada usuario
         $roles[] = static::ROLE_DEFAULT;
 

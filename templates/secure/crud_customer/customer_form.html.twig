@@ -12,7 +12,87 @@
 		</div>
 		<div class="row">
 			<div class="col-12 mt-3">
-				{{ include('secure/crud_customer/_form.html.twig') }}
+				{{ form_start(form) }}
+				{% if form_errors(form) %}
+					<div class="row">
+						<div class="col-12">
+							<div class="alert alert-danger">
+								{{ form_errors(form) }}
+							</div>
+						</div>
+					</div>
+				{% endif %}
+
+				<div class="row my-2">
+					<div class="col-12">
+						<h5 class="mr-auto mb-0 title-table">Datos del cliente</h5>
+					</div>
+				</div>
+				<div class="row my-2">
+					<div class="col-md-3">
+						{{ form_row(form.name) }}
+					</div>
+					<div class="col-md-3">
+						{{ form_row(form.email) }}
+					</div>
+					<div class="col-md-3">
+						{{ form_row(form.identity_number) }}
+					</div>
+					<div class="col-1">
+						{{ form_row(form.code_area) }}
+					</div>
+					<div class="col-2">
+						{{ form_row(form.cel_phone) }}
+					</div>
+				</div>
+
+				<div class="row my-2">
+					<div class="col-xs-12 col-md-3">
+						{{ form_label (
+							form.state,
+							'Provincia *',
+							{'label_attr': {'class': 'form-label','id':'label-state','data-state-id':customer.state ? customer.state.id:'0'}}
+						)}}
+						{{ form_widget (form.state) }}
+						{{ form_errors (form.state)}}
+					</div>
+
+
+					<div class="col-xs-12 col-md-3">
+						{{ form_label (
+							form.city,
+							'Localidad/Ciudad *',
+							{'label_attr': {'class': 'form-label','id':'label-city','data-city-id':customer.city ? customer.city.id:'0'}}
+						)}}
+						{{ form_widget (form.city) }}
+						{{ form_errors (form.city)}}
+					</div>
+
+					
+					<div class="col-md-4">
+						{{ form_row(form.street_address) }}
+					</div>
+					<div class="col-1">
+						{{ form_row(form.number_address) }}
+					</div>
+					<div class="col-1">
+						{{ form_row(form.floor_apartment) }}
+					</div>
+
+
+				</div>
+				<hr>
+				<div class="row my-2">
+					<div class="col-12 text-end">
+						<a class="btn btn-secondary" href="{{ path('secure_crud_customer_index') }}">Regresar</a>
+
+						<button class="btn btn-success">Guardar</button>
+					</div>
+				</div>
+
+
+				{{ form_end(form) }}
+
 			</div>
 		</div>
 	</div>
