@@ -805,10 +805,8 @@ class FrontApiController extends AbstractController
 
         //find relational objects
         // $country = $countriesRepository->find($data['country_id']);
-        $customer_type_role = $customersTypesRolesRepository->find($data['customer_type_role']);
         $status_customer = $customerStatusTypeRepository->find(Constants::CUSTOMER_STATUS_PENDING);
         $registration_type = $registrationTypeRepository->find(Constants::REGISTRATION_TYPE_WEB);
-        $status_sent_crm = $communicationStatesBetweenPlatformsRepository->find(Constants::CBP_STATUS_PENDING);
 
 
         //set Customer data

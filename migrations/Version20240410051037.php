@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20221020031154 extends AbstractMigration
+final class Version20240410051037 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -20,17 +20,12 @@ final class Version20221020031154 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-        $this->addSql('ALTER TABLE mia_brand ADD id3pl BIGINT DEFAULT NULL');
-        $this->addSql('ALTER TABLE mia_brand DROP api_id');
-        $this->addSql('ALTER TABLE mia_category ALTER nomenclature TYPE VARCHAR(2)');
+        $this->addSql("INSERT INTO email_types (id,name,template_name) values (8,'CREDENCIALES DE ACCESO A REPUESTOS CELU','welcome.backoffice')");
     }
 
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
         $this->addSql('CREATE SCHEMA public');
-        $this->addSql('ALTER TABLE mia_category ALTER nomenclature TYPE VARCHAR(3)');
-        $this->addSql('ALTER TABLE mia_brand ADD api_id VARCHAR(255) DEFAULT NULL');
-        $this->addSql('ALTER TABLE mia_brand DROP id3pl');
     }
 }

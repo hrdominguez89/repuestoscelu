@@ -39,6 +39,9 @@
                             <th>
                                 Localidad/Ciudad &nbsp;
                             </th>
+                            <th>
+                                Dirección
+                            </th>
                             <th class="text-center" data-orderable="false">
                                 Tel. Celular &nbsp;
                             </th>
@@ -65,18 +68,22 @@
                                     </a>
                                 </td>
                                 <td>
-                                    {{ customer.state }}
+                                    {{ customer.state.name }}
                                 </td>
                                 <td>
-                                    {{ customer.city }}
+                                    {{ customer.city.name }}
                                 </td>
+                                <td>
+                                    {{ customer.streetAddress ~' '~ customer.numberAddress ~' '~ customer.floorApartment }}
+                                </td>
+                                <td class="text-center">
+                                    <a href="tel:+54{{customer.codeArea ~ customer.celphone}}">({{customer.codeArea}}) {{customer.celPhone}}</a>
+                                </td>
+
                                 <td data-order="{{ customer.registration_date|date('U') }}" class="text-center">
                                     {{ customer.registration_date|date("d/m/Y") }}
                                 </td>
-                                <td>
-                                    <a style="font-size:16px" class="text-primary m-2" href="{{ path('secure_customer_addresses', {'customer_id': customer.id}) }}" title="Editar Direcciones">
-                                        <i class="fas fa-map-marked"></i>
-                                    </a>
+                                <td class="text-center">
                                     <a style="font-size:16px" class="text-warning m-2" href="{{ path('secure_crud_customer_edit', {'id': customer.id}) }}" title="Editar cliente">
                                         <i class="fas fa-user-edit"></i>
                                     </a>

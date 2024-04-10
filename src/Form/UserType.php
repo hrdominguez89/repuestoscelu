@@ -8,6 +8,7 @@ use App\Entity\User;
 use App\Repository\StatesRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -22,6 +23,7 @@ class UserType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $user = $builder->getData();
         $builder
             ->add('email', EmailType::class, ['label' => 'Correo',])
             ->add('name', TextType::class, ['label' => 'Nombre','attr' => ['placeholder'=>'Nombre de la sucursal']])
@@ -45,6 +47,13 @@ class UserType extends AbstractType
                 'mapped' => false,
                 'required' => true,
             ]);
+            if ($user && $user->getId()) {
+                $builder->add('reset_password', CheckboxType::class, [
+                    'label'    => 'Reiniciar contraseña',
+                    'required' => false,
+                    'mapped' => false
+                ]);
+            }
             // ->add('password', PasswordType::class, ['label' => 'Contraseña',])
             // ->add('image', FileType::class, [
             //     'label' => 'Imagen ',

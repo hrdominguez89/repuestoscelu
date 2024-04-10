@@ -2,8 +2,10 @@
 
 namespace App\Controller\Secure;
 
+use App\Constants\Constants;
 use App\Entity\User;
 use App\Form\UserType;
+use App\Helpers\EnqueueEmail;
 use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,6 +17,8 @@ use App\Helpers\SendMail;
 use App\Repository\CitiesRepository;
 use App\Repository\RolesRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -44,114 +48,170 @@ class CRUDUserController extends AbstractController
     #[Route("/new", name: "secure_crud_user_new", methods: ["GET", "POST"])]
     public function new(
         Request $request,
-        ResetPasswordHelperInterface $resetPasswordHelper,
-        UrlGeneratorInterface $router,
-        TranslatorInterface $translator,
-        SendMail $sendMail,
+        EnqueueEmail $queue,
         RolesRepository $rolesRepository,
         CitiesRepository $citiesRepository,
-        EntityManagerInterface $em
+        EntityManagerInterface $entityManager
     ): Response {
-        $user = new User();
-        $form = $this->createForm(UserType::class, $user);
-        $form->handleRequest($request);
+        $data['user'] = new User();
+        $data['form'] = $this->createForm(UserType::class, $data['user']);
+        $data['form']->handleRequest($request);
+
+        $city = (int)@$request->get('user')['city'];
+        if ($data['form']->isSubmitted()) {
+            try {
+
+                if ($data['form']->isValid()) {
+                    $password = $this->generatePassword();
+                    $data['user']->setPassword($password);
+                    $data['user']->setChangePassword(true);
+                    $data['user']->setChangePasswordDate(null);
+                    $data['user']->setRole($rolesRepository->find(2));
+                    $data['user']->setCity($citiesRepository->find($city));
+
+                    $entityManager->persist($data['user']);
+                    $entityManager->flush();
+
+                    //queue the email
+                    $id_email = $queue->enqueue(
+                        Constants::EMAIL_TYPE_WELCOME_BACKOFFICE, //tipo de email
+                        $data['user']->getEmail(), //email destinatario
+                        [ //parametros
+                            'name' => $data['user']->getName(),
+                            'url_back_login' => $_ENV['SITE_URL'],
+                            'email' => $data['user']->getEmail(),
+                            'password' => $password
+                        ]
+                    );
+
+                    //Intento enviar el correo encolado
+                    $queue->sendEnqueue($id_email);
+
+                    $message['type'] = 'modal';
+                    $message['alert'] = 'success';
+                    $message['title'] = 'Éxito';
+                    $message['message'] = 'Usuario creado correctamente, Se envió un email a su cuenta de correo con las credenciales.';
+                    $this->addFlash('message', $message);
+                    return $this->redirectToRoute('secure_crud_user_index');
+                }
+            } catch (Exception $e) {
+                $message['type'] = 'modal';
+                $message['alert'] = 'danger';
+                $message['title'] = 'Error';
+                $message['message'] = 'Error al crear la sucursal: .' . $e->getMessage();
+                $this->addFlash('message', $message);
+                return $this->redirectToRoute('secure_crud_user_index');
+            }
+        }
 
         $data['files_js'] = array('../uppy.min.js', '../select2.min.js', 'user/user.js?v=' . rand());
         $data['files_css'] = array('uppy.min.css', 'select2.min.css', 'select2-bootstrap4.min.css');
-        if ($form->isSubmitted() && $form->isValid()) {
-            $user->setPassword($_ENV['PWD_NEW_USER']);
-            $user->setRole($rolesRepository->find(2));
-            $user->setCity($citiesRepository->find($request->get('user')['city']));
-            $entityManager = $em;
-            $entityManager->persist($user);
-            $entityManager->flush();
-
-            $resetToken = $resetPasswordHelper->generateResetToken($user);
-            $url = $router->generate('app_reset_password', ['token' => $resetToken->getToken()], UrlGeneratorInterface::ABSOLUTE_URL);
-            $msg = 'Felicitaciones es usted miembro de nuestro equipo de trabajo, use la siguiente dirección para acceder al sistema: <a href="' . $url . '"></a>' . $url . '<br>Este vinculo caducará en ' . $translator->trans($resetToken->getExpirationMessageKey(), $resetToken->getExpirationMessageData(), 'ResetPasswordBundle');
-            ($sendMail)($user->getEmail(), $user->getName(), 'Credenciales del sistema', $msg);
-
-            return $this->redirectToRoute('secure_crud_user_index');
-        }
-
-        $data['user'] = $user;
-        $data['form'] = $form;
+        $data['user'] = $data['user'];
         $data['title'] = 'Nueva sucursal';
         $data['breadcrumbs'] = array(
             array('path' => 'secure_crud_user_index', 'title' => 'Sucursales'),
             array('active' => true, 'title' => $data['title'])
         );
 
-        return $this->renderForm('secure/crud_user/new.html.twig', $data);
+        return $this->renderForm('secure/crud_user/form_user.html.twig', $data);
     }
-
-    // #[Route("/{id}", name: "secure_crud_user_show", methods: ["GET"])]
-    // public function show($id, UserRepository $userRepository): Response
-    // {
-    //     $user = $userRepository->find($id);
-
-    //     return $this->render('secure/crud_user/show.html.twig', [
-    //         'user' => $user,
-    //     ]);
-    // }
 
     #[Route("/{id}/edit", name: "secure_crud_user_edit", methods: ["GET", "POST"])]
     public function edit(
         $id,
         Request $request,
-        ResetPasswordHelperInterface $resetPasswordHelper,
-        UrlGeneratorInterface $router,
-        TranslatorInterface $translator,
-        SendMail $sendMail,
-        RolesRepository $rolesRepository,
+        EnqueueEmail $queue,
         CitiesRepository $citiesRepository,
-        EntityManagerInterface $em,
+        EntityManagerInterface $entityManager,
         UserRepository $userRepository
     ): Response {
-        $user = $userRepository->findOneBy(['id' => $id, 'active' => true]);
+        $data['user'] = $userRepository->findOneBy(['id' => $id, 'active' => true]);
 
-        $form = $this->createForm(UserType::class, $user);
-        $form->handleRequest($request);
-        
+        $data['form'] = $this->createForm(UserType::class, $data['user']);
+        $data['form']->handleRequest($request);
+
         $data['files_js'] = array('../uppy.min.js', '../select2.min.js', 'user/user.js?v=' . rand());
         $data['files_css'] = array('uppy.min.css', 'select2.min.css', 'select2-bootstrap4.min.css');
-        
-        if ($form->isSubmitted() && $form->isValid()) {
-            $user->setCity($citiesRepository->find($request->get('user')['city']));
-            $em->persist($user);
-            $em->flush();
 
-            return $this->redirectToRoute('secure_crud_user_index', [], Response::HTTP_SEE_OTHER);
+        $city = (int)@$request->get('user')['city'];
+
+        if ($data['form']->isSubmitted()) {
+            try {
+                if (!$city) {
+                    $data['form']->addError(new FormError('La ciudad seleccionada no es válida.'));
+                }
+                if ($data['form']->isValid()) {
+                    if (@$request->get('user')['reset_password']) {
+                        $password = $this->generatePassword();
+                        $data['user']->setPassword($password);
+                        $data['user']->setChangePassword(true);
+                        $data['user']->setChangePasswordDate(null);
+                        $message['message'] = 'Sucursal editada correctamente. Se envio un e-mail a la cuenta de correo con las nuevas credenciales';
+                    } else {
+                        $message['message'] = 'Sucursal editada correctamente.';
+                    }
+                    $data['user']->setCity($citiesRepository->find($request->get('user')['city']));
+                    $entityManager->persist($data['user']);
+                    $entityManager->flush();
+                    if (@$request->get('user')['reset_password']) {
+                        //queue the email
+                        $id_email = $queue->enqueue(
+                            Constants::EMAIL_TYPE_WELCOME_BACKOFFICE, //tipo de email
+                            $data['user']->getEmail(), //email destinatario
+                            [ //parametros
+                                'name' => $data['user']->getName(),
+                                'url_back_login' => $_ENV['SITE_URL'],
+                                'email' => $data['user']->getEmail(),
+                                'password' => $password
+                            ]
+                        );
+
+                        //Intento enviar el correo encolado
+                        $queue->sendEnqueue($id_email);
+                    }
+
+                    $message['type'] = 'modal';
+                    $message['alert'] = 'success';
+                    $message['title'] = 'Éxito';
+                    $this->addFlash('message', $message);
+                    return $this->redirectToRoute('secure_crud_user_index');
+                }
+            } catch (Exception $e) {
+                $message['type'] = 'modal';
+                $message['alert'] = 'danger';
+                $message['title'] = 'Error';
+                $message['message'] = 'Error al editar la sucursal: .' . $e->getMessage();
+                $this->addFlash('message', $message);
+                return $this->redirectToRoute('secure_crud_user_index');
+            }
         }
 
-        $data['user'] = $user;
-        $data['form'] = $form;
-        $data['title'] = 'Editar operador';
+        $data['title'] = 'Editar sucursal';
         $data['breadcrumbs'] = array(
-            array('path' => 'secure_crud_user_index', 'title' => 'Operadores'),
+            array('path' => 'secure_crud_user_index', 'title' => 'Sucursales'),
             array('active' => true, 'title' => $data['title'])
         );
 
-        return $this->renderForm('secure/crud_user/edit.html.twig', $data);
+        return $this->renderForm('secure/crud_user/form_user.html.twig', $data);
     }
 
-    #[Route("/{id}", name: "secure_crud_user_delete", methods: ["POST"])]
-    public function delete(EntityManagerInterface $em, Request $request, $id, UserRepository $userRepository): Response
-    {
-        $user = $userRepository->find($id);
+    // #[Route("/{id}", name: "secure_crud_user_delete", methods: ["POST"])]
+    // public function delete(EntityManagerInterface $entityManager, Request $request, $id, UserRepository $userRepository): Response
+    // {
+    //     $user = $userRepository->find($id);
 
 
-        if ($this->isCsrfTokenValid('delete' . $user->getId(), $request->request->get('_token'))) {
-            $entityManager = $em;
-            $entityManager->remove($user);
-            $entityManager->flush();
-        }
+    //     if ($this->isCsrfTokenValid('delete' . $user->getId(), $request->request->get('_token'))) {
+    //         $entityManager = $entityManager;
+    //         $entityManager->remove($user);
+    //         $entityManager->flush();
+    //     }
 
-        return $this->redirectToRoute('secure_crud_user_index', [], Response::HTTP_SEE_OTHER);
-    }
+    //     return $this->redirectToRoute('secure_crud_user_index');
+    // }
 
 
-    #[Route("/getCities/{state_id}", name: "secure_get_cities", methods: ["GET"])]
+    #[Route("/getCities/{state_id}", name: "secure_get_cities_user", methods: ["GET"])]
     public function getCities($state_id, CitiesRepository $citiesRepository): Response
     {
         if ((int)$state_id) {
@@ -167,5 +227,29 @@ class CRUDUserController extends AbstractController
             $data['message'] = 'No se encontraron ciudades con el id indicado';
         }
         return new JsonResponse($data);
+    }
+
+    private function generatePassword()
+    {
+        // Caracteres disponibles
+        $minusculas = 'abcdefghijklmnopqrstuvwxyz';
+        $mayusculas = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $numeros = '0123456789';
+
+        // Asegurar al menos 1 mayúscula, 1 minúscula y 3 números
+        $password = $mayusculas[rand(0, strlen($mayusculas) - 1)];
+        $password .= $minusculas[rand(0, strlen($minusculas) - 1)];
+        for ($i = 0; $i < 3; $i++) {
+            $password .= $numeros[rand(0, strlen($numeros) - 1)];
+        }
+
+        // Completar hasta 8 caracteres con una mezcla aleatoria de todos los caracteres
+        $todosLosCaracteres = $minusculas . $mayusculas . $numeros;
+        while (strlen($password) < 8) {
+            $password .= $todosLosCaracteres[rand(0, strlen($todosLosCaracteres) - 1)];
+        }
+
+        // Mezclar la contraseña para no tener un patrón predecible
+        return str_shuffle($password);
     }
 }

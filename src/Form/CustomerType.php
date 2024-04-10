@@ -10,10 +10,12 @@ use App\Entity\States;
 use App\Repository\StatesRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -26,6 +28,7 @@ class CustomerType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $customer = $builder->getData();
         $builder
             ->add('name', TextType::class, ['label' => 'Nombre y Apellido / Empresa *', 'required' => true])
             ->add('email', EmailType::class, ['label' => 'Email *', 'required' => true])
@@ -52,10 +55,16 @@ class CustomerType extends AbstractType
                 'mapped' => false,
                 'required' => true,
             ])
-            ->add('street_address', TextType::class, ['label' => 'Dirección', 'required' => true])
-            ->add('number_address', TextType::class, ['label' => 'Altura', 'required' => true])
-            ->add('floor_apartment', TextType::class, ['label' => 'Piso/Departamento', 'required' => true])
-            ;
+            ->add('street_address', TextType::class, ['label' => 'Dirección *', 'required' => true])
+            ->add('number_address', TextType::class, ['label' => 'Altura *', 'required' => true])
+            ->add('floor_apartment', TextType::class, ['label' => 'Piso/Depto', 'required' => true]);
+        if ($customer && $customer->getId()) {
+            $builder->add('reset_password', CheckboxType::class, [
+                'label'    => 'Reiniciar contraseña',
+                'required' => false,
+                'mapped' => false
+            ]);
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver): void

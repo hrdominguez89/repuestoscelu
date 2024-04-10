@@ -14,12 +14,8 @@
 			<div class="col-12 mt-3">
 				{{ form_start(form) }}
 				{% if form_errors(form) %}
-					<div class="row">
-						<div class="col-12">
-							<div class="alert alert-danger">
-								{{ form_errors(form) }}
-							</div>
-						</div>
+					<div class="alert alert-danger">
+						{{ form_errors(form) }}
 					</div>
 				{% endif %}
 
@@ -68,7 +64,7 @@
 						{{ form_errors (form.city)}}
 					</div>
 
-					
+
 					<div class="col-md-4">
 						{{ form_row(form.street_address) }}
 					</div>
@@ -81,6 +77,13 @@
 
 
 				</div>
+				{% if form.vars.value.id %}
+					<div class="row my-2">
+						<div class="col-12">
+							{{ form_row(form.reset_password) }}
+						</div>
+					</div>
+				{% endif %}
 				<hr>
 				<div class="row my-2">
 					<div class="col-12 text-end">

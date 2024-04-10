@@ -57,31 +57,6 @@ class CustomerRepository extends ServiceEntityRepository
     //  * @return Customers[] Returns an array of customers objects
     //  */
 
-    public function listCustomersInfo()
-    {
-        return $this->getEntityManager()
-            ->createQuery('
-            SELECT
-            c.id,
-            c.email,
-            c.image,
-            c.name,
-            c.cel_phone,
-            c.registration_date
-
-            FROM App:Customer c
-
-            GROUP BY
-            c.id,
-            c.email,
-            c.image,
-            c.name,
-            c.cel_phone,
-            c.registration_date
-            ')
-            ->getResult();
-    }
-
     public function findCustomersToSendToCrm(array $statuses, array $orders = null, int $limit = null): array
     {
         $customers = $this->createQueryBuilder('c')

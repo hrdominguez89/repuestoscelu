@@ -35,8 +35,9 @@ class Customer extends BaseUser
 
     public $registration_date;
 
-    #[ORM\Column(type: "uuid", nullable: true)]
+    #[ORM\Column(type: "string", nullable: true)]
     private $verification_code;
+
     #[ORM\Column(type: "boolean", options: ["default" => 0])]
     private $change_password;
 
@@ -79,8 +80,8 @@ class Customer extends BaseUser
     #[ORM\Column(length: 15, nullable: true)]
     private ?string $floor_apartment = null;
 
-    #[ORM\Column]
-    private ?bool $policies_agree = null;
+    #[ORM\Column(nullable: false, options: ['default' => true])]
+    private bool $policies_agree = true;
 
 
     public function __construct()
@@ -95,6 +96,7 @@ class Customer extends BaseUser
         $this->orders = new ArrayCollection();
         $this->favoriteProducts = new ArrayCollection();
         $this->shoppingCarts = new ArrayCollection();
+        $this->policies_agree = true;
     }
 
 
@@ -487,5 +489,4 @@ class Customer extends BaseUser
 
         return $this;
     }
-
 }
