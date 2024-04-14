@@ -15,7 +15,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Service\AwsSnsClient;
 use Exception;
 use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -27,7 +26,6 @@ class CrudCustomerController extends AbstractController
     #[Route("/", name: "secure_crud_customer_index")]
     public function index(CustomerRepository $customerRepository): Response
     {
-        // dd($awsSnsClient->sendSMS('MENSAJE DE PRUEBA','+5491163549766'));
         $data['title'] = 'Clientes';
         $data['customers'] = $customerRepository->findAll();
         $data['title'] = "Clientes";
@@ -62,6 +60,7 @@ class CrudCustomerController extends AbstractController
                     $data['customer']->setPassword($password);
                     $data['customer']->setChangePassword(true);
                     $data['customer']->setChangePasswordDate(null);
+                    $data['customer']->setPoliciesAgree(true);
                     $data['customer']->setCity($citiesRepository->find($city));
 
                     $entityManager->persist($data['customer']);

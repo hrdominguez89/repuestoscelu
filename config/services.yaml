@@ -25,7 +25,15 @@ services:
     App\Helpers\FileUploader:
         arguments:
             $targetDirectory: '%images_directory%'
-    
+
+    App\Form\DataTransformer\CityToEntityTransformer:
+            arguments:
+                $entityManager: '@doctrine.orm.default_entity_manager'
+
+    App\Form\DataTransformer\StateToEntityTransformer:
+        arguments:
+            $entityManager: '@doctrine.orm.default_entity_manager'
+
     Aws\S3\S3Client:
         arguments:
             -   

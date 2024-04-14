@@ -26,6 +26,7 @@ use App\Repository\AdvertisementsRepository;
 use App\Repository\BrandRepository;
 use App\Repository\BrandsSectionsRepository;
 use App\Repository\CategoryRepository;
+use App\Repository\CitiesRepository;
 use App\Repository\CommunicationStatesBetweenPlatformsRepository;
 use App\Repository\CustomerRepository;
 use App\Repository\CustomerStatusTypeRepository;
@@ -34,17 +35,438 @@ use App\Repository\ProductRepository;
 use App\Repository\RegistrationTypeRepository;
 use App\Repository\SectionsHomeRepository;
 use App\Repository\ShoppingCartRepository;
+use App\Repository\StatesRepository;
 use App\Repository\TagRepository;
 use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 use Symfony\Component\Uid\Uuid;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
+use App\Service\AwsSnsClient;
+use DateTime;
 
 #[Route("/api/front")]
 class FrontApiController extends AbstractController
 {
 
+
+    #[Route("/register", name: "api_register_customer", methods: ["POST"])]
+    public function register(
+
+        EntityManagerInterface $em,
+        Request $request,
+        CustomerStatusTypeRepository $customerStatusTypeRepository,
+        RegistrationTypeRepository $registrationTypeRepository,
+        // EnqueueEmail $queue,
+        AwsSnsClient $awsSnsClient
+    ): Response {
+
+        $body = $request->getContent();
+        $data = json_decode($body, true);
+
+        //find relational objects
+        // $country = $countriesRepository->find($data['country_id']);
+        $status_customer = $customerStatusTypeRepository->find(Constants::CUSTOMER_STATUS_PENDING);
+        $registration_type = $registrationTypeRepository->find(Constants::REGISTRATION_TYPE_WEB);
+
+
+        //set Customer data
+        $customer = new Customer();
+        // AGREGO NULO A LOS VALORES QUE NO VINIERON EN EL JSON
+        @$data['policies_agree'] ?? $data['policies_agree'] = false;
+        @$data['name'] ?? $data['name'] = null;
+        @$data['email'] ?? $data['email'] = null;
+        @$data['password'] ?? $data['password'] = null;
+        @$data['code_area'] ?? $data['code_area'] = null;
+        @$data['cel_phone'] ?? $data['cel_phone'] = null;
+        @$data['state'] ?? $data['state'] = null;
+        @$data['city'] ?? $data['city'] = null;
+        @$data['street_address'] ?? $data['street_address'] = null;
+        @$data['number_address'] ?? $data['number_address'] = null;
+        @$data['floor_apartment'] ?? $data['floor_apartment'] = null;
+        @$data['identity_number'] ?? $data['identity_number'] = null;
+        @$data['policies_agree'] ?? $data['policies_agree'] = null;
+
+
+        $verification_code = mt_rand(100000, 999999);
+        $customer
+            ->setVerificationCode($verification_code)
+            ->setDatetimeVerificationCode(new \DateTime)
+            ->setStatus($status_customer)
+            ->setRegistrationType($registration_type)
+            ->setRegistrationDate(new \DateTime);
+
+        $form = $this->createForm(RegisterCustomerApiType::class, $customer);
+        $form->submit($data, false);
+
+        if (!$form->isValid()) {
+            $error_forms = $this->getErrorsFromForm($form);
+            return $this->json(
+                [
+                    'status' => false,
+                    'message' => 'Error de validación',
+                    'validation' => $error_forms
+                ],
+                Response::HTTP_BAD_REQUEST,
+                ['Content-Type' => 'application/json']
+            );
+        }
+        try {
+            $em->persist($customer);
+            $em->flush();
+
+            //envio SMS
+            $awsSnsClient->sendSMS($_ENV['SMS_REGISTER_MSG'] . $verification_code, '+549' . $customer->getCodeArea() . $customer->getCelPhone());
+
+            return $this->json(
+                [
+                    'status' => true,
+                    'message' => 'Usuario registrado, esperando validación',
+                    'url_validacion' => $_ENV['FRONT_URL'] . $_ENV['FRONT_VALIDATION'] . '?email=' . $customer->getEmail()
+                ],
+                Response::HTTP_CREATED,
+                ['Content-Type' => 'application/json']
+            );
+        } catch (Exception $e) {
+            return $this->json(
+                [
+                    'status' => false,
+                    'message' => 'Error al intentar registrar usuario: ' . $e->getMessage(),
+                ],
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+                ['Content-Type' => 'application/json']
+            );
+        }
+    }
+
+    #[Route("/validate", name: "api_validate_customer", methods: ["POST"])]
+    public function validate(
+
+        EntityManagerInterface $em,
+        Request $request,
+        CustomerRepository $customerRepository,
+        CustomerStatusTypeRepository $customerStatusTypeRepository,
+        EnqueueEmail $queue,
+    ): Response {
+        $body = $request->getContent();
+        $data = json_decode($body, true);
+
+        //get Customer data
+        if (!@$data['email'] || !@$data['validation_code']) {
+            return $this->json(
+                [
+                    'status' => false,
+                    'message' => 'Los campos email y validation_code son obligatorios'
+                ],
+                Response::HTTP_BAD_REQUEST,
+                ['Content-Type' => 'application/json']
+            );
+        }
+
+        $customer = $customerRepository->findOneBy(['email' => @$data['email']]);
+        if (!$customer || !($customer->getStatus()->getId() === Constants::CUSTOMER_STATUS_PENDING)) {
+            return $this->json(
+                [
+                    'status' => false,
+                    'message' => 'No fue posible encontrar el usuario.'
+                ],
+                Response::HTTP_NOT_FOUND,
+                ['Content-Type' => 'application/json']
+            );
+        }
+
+        if (!password_verify($data['validation_code'], $customer->getVerificationCode())) {
+            return $this->json(
+                [
+                    'status' => false,
+                    'message' => 'Código incorrecto.'
+                ],
+                Response::HTTP_BAD_REQUEST,
+                ['Content-Type' => 'application/json']
+            );
+        }
+        try {
+
+            //find relational objects
+            $status_customer = $customerStatusTypeRepository->find(Constants::CUSTOMER_STATUS_VALIDATED);
+
+            $customer->setStatus($status_customer)
+                ->setVerificationCode(null)
+                ->setDatetimeVerificationCode(null);
+            $em->persist($customer);
+            $em->flush();
+
+            //queue the email
+            $id_email = $queue->enqueue(
+                Constants::EMAIL_TYPE_WELCOME, //tipo de email
+                $customer->getEmail(), //email destinatario
+                [ //parametros
+                    'name' => $customer->getName(),
+                    'url_front_login' => $_ENV['FRONT_URL'] . $_ENV['FRONT_LOGIN'],
+                ]
+            );
+
+            //Intento enviar el correo encolado
+            $queue->sendEnqueue($id_email);
+
+            return $this->json(
+                [
+                    'status' => true,
+                    'message' => 'Su cuenta fue verificada con éxito.'
+                ],
+                Response::HTTP_ACCEPTED,
+                ['Content-Type' => 'application/json']
+            );
+        } catch (Exception $e) {
+            return $this->json(
+                [
+                    'status' => false,
+                    'message' => 'Ocurrió un error: ' . $e->getMessage()
+                ],
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+                ['Content-Type' => 'application/json']
+            );
+        }
+    }
+
+    #[Route("/new_validation_code", name: "api_new_validation_code_customer", methods: ["POST"])]
+    public function newValidationCode(
+        EntityManagerInterface $em,
+        Request $request,
+        CustomerRepository $customerRepository,
+        AwsSnsClient $awsSnsClient
+    ): Response {
+        $body = $request->getContent();
+        $data = json_decode($body, true);
+
+        $errors = [];
+        //get Customer data
+        if (!@$data['email']) {
+            $errors[] = 'El campo email es obligatorio';
+        }
+        if ((@$data['code_area'] && !@$data['cel_phone']) || (@$data['cel_phone'] && !@$data['code_area'])) {
+            $errors[] = 'Si desea modificar el numero destinatario del sms son requeridos los campos code_area y cel_phone';
+        }
+        if ($errors) {
+            return $this->json(
+                [
+                    'status' => false,
+                    'message' => $errors
+                ],
+                Response::HTTP_BAD_REQUEST,
+                ['Content-Type' => 'application/json']
+            );
+        }
+
+        $customer = $customerRepository->findOneBy(['email' => @$data['email']]);
+
+        if (!$customer || !($customer->getStatus()->getId() === Constants::CUSTOMER_STATUS_PENDING)) {
+            return $this->json(
+                [
+                    'status' => false,
+                    'message' => 'No fue posible encontrar el usuario.'
+                ],
+                Response::HTTP_NOT_FOUND,
+                ['Content-Type' => 'application/json']
+            );
+        }
+
+        $dateVerificationCode =  $customer->getDatetimeVerificationCode();
+        $dateVerificationCode->modify('+' . $_ENV['SMS_TIME_LIMIT'] . ' minutes');
+        $currentDateTime = new DateTime();
+
+        if ($currentDateTime < $dateVerificationCode) {
+            return $this->json(
+                [
+                    'status' => false,
+                    'message' => 'Aun no es posible enviar un nuevo código de verificación, aguarde unos instantes.'
+                ],
+                Response::HTTP_BAD_REQUEST,
+                ['Content-Type' => 'application/json']
+            );
+        }
+
+        try {
+            $verification_code = mt_rand(100000, 999999);
+
+
+            if (@$data['code_area'] && @$data['cel_phone']) {
+                $customer->setCodeArea($data['code_area'])
+                    ->setCelPhone($data['cel_phone']);
+            }
+
+            $customer->setVerificationCode($verification_code)
+                ->setDatetimeVerificationCode($currentDateTime);
+            $em->persist($customer);
+            $em->flush();
+
+            //envio SMS
+            $awsSnsClient->sendSMS($_ENV['SMS_REGISTER_MSG'] . $verification_code, '+549' . $customer->getCodeArea() . $customer->getCelPhone());
+
+            return $this->json(
+                [
+                    'status' => true,
+                    'message' => 'Se envió un nuevo código por sms al celular ' . $customer->getCodeArea() . $customer->getCelPhone() . '.'
+                ],
+                Response::HTTP_ACCEPTED,
+                ['Content-Type' => 'application/json']
+            );
+        } catch (Exception $e) {
+            return $this->json(
+                [
+                    'status' => false,
+                    'message' => 'Ocurrió un error: ' . $e->getMessage()
+                ],
+                Response::HTTP_INTERNAL_SERVER_ERROR,
+                ['Content-Type' => 'application/json']
+            );
+        }
+    }
+
+    #[Route("/login", name: "api_login", methods: ["POST"])]
+    public function login(Request $request, FavoriteProductRepository $favoriteProductRepository, ShoppingCartRepository $shoppingCartRepository, CustomerRepository $customerRepository, PasswordHasherFactoryInterface $passwordHasherFactoryInterface, JWTTokenManagerInterface $jwtManager): Response
+    {
+        $body = $request->getContent();
+        $data = json_decode($body, true);
+
+        if (!(@$data['email'] && @$data['password'])) {
+            $validation = [];
+            if (!@$data['email']) {
+                $validation["email"] =  "Debe ingresar una dirección de correo.";
+            }
+            if (!@$data['password']) {
+                $validation["password"] =  "El campo password es obligatorio.";
+            }
+            return $this->json(
+                [
+                    "status" => false,
+                    'message' => 'Error de validacion',
+                    'validation' => $validation
+                ],
+                Response::HTTP_BAD_REQUEST,
+                ['Content-Type' => 'application/json']
+            );
+        }
+
+        try {
+            $customer = $customerRepository->findOneBy(["email" => @$data['email']]);
+            if (!$passwordHasherFactoryInterface->getPasswordHasher($customer)->verify($customer->getPassword(), $data['password'])) {
+                throw new Exception();
+            }
+            if ($customer->getStatus()->getId() == Constants::CUSTOMER_STATUS_PENDING) {
+                return $this->json(
+                    [
+                        "status" => false,
+                        'message' => 'Su cuenta aún no fue validada.',
+                        'url_validacion' => $_ENV['FRONT_URL'] . $_ENV['FRONT_VALIDATION'] . '?email=' . $customer->getEmail()
+                    ],
+                    Response::HTTP_UNAUTHORIZED,
+                    ['Content-Type' => 'application/json']
+                );
+            }
+            if ($customer->getStatus()->getId() == Constants::CUSTOMER_STATUS_DISABLED) {
+                return $this->json(
+                    [
+                        "status" => false,
+                        'message' => 'Su cuenta se encuentra deshabilitada, por favor contacte a atención al cliente.',
+                    ],
+                    Response::HTTP_UNAUTHORIZED,
+                    ['Content-Type' => 'application/json']
+                );
+            }
+        } catch (\Exception $e) {
+            return $this->json(
+                [
+                    "status" => false,
+                    'message' => 'Usuario y/o password incorrectos.',
+                ],
+                Response::HTTP_BAD_REQUEST,
+                ['Content-Type' => 'application/json']
+            );
+        }
+
+        $jwt = $jwtManager->create($customer);
+
+        $favorite_products = $favoriteProductRepository->findAllFavoriteProductsByStatus($customer->getId(), 1);
+        $favorite_products_list = [];
+        if ($favorite_products) {
+            foreach ($favorite_products as $favorite_product) {
+                $favorite_products_list[] = (int)$favorite_product->getProduct()->getId();
+            }
+        }
+
+        $shopping_cart_products = $shoppingCartRepository->findAllShoppingCartProductsByStatus($customer->getId(), 1);
+        $shopping_cart_products_list = [];
+        if ($shopping_cart_products) {
+            foreach ($shopping_cart_products as $favorite_product) {
+                $shopping_cart_products_list[] = (int)$favorite_product->getProduct()->getId();
+            }
+        }
+
+        return new JsonResponse([
+            "status" => true,
+            "token" => $jwt,
+            "token_type" => "Bearer",
+            "expires_in" => (int)$_ENV['JWT_TOKEN_TTL'],
+            "user_data" => [
+                "id" => (int)$customer->getId(),
+                "name" => $customer->getName(),
+                "image" => $customer->getImage(),
+                "email" => $customer->getEmail(),
+                "wish_list" => $favorite_products_list,
+                "shop_cart" => $shopping_cart_products_list,
+                "code_area" => $customer->getCodeArea(),
+                "state_id" => $customer->getState()->getId(),
+                "state_name" => $customer->getState()->getName(),
+                "city_id" => $customer->getCity()->getId(),
+                "city_name" => $customer->getCity()->getName(),
+                "cel_phone" => $customer->getCelPhone(),
+                "cel_phone_complete" => '+549' . $customer->getCodeArea() . $customer->getCelPhone(),
+            ]
+        ]);
+    }
+
+
+    #[Route("/states", name: "api_get_states", methods: ["GET"])]
+    public function getStates(CountriesRepository $countriesRepository, StatesRepository $statesRepository): Response
+    {
+        $states = $statesRepository->findVisibleStatesByCountryId(['country_id' => 11]); //11 = argentina
+        return $this->json(
+            [
+                'status' => true,
+                'states' => $states
+            ],
+            Response::HTTP_OK,
+            ['Content-Type' => 'application/json']
+        );
+    }
+
+    #[Route("/cities/{state_id?}", name: "api_get_cities_by_state_id", methods: ["GET"])]
+    public function getCities($state_id, CitiesRepository $citiesRepository): Response
+    {
+        $cities = $citiesRepository->findVisibleCitiesByStateId(['state' => (int)$state_id]);
+        if ($cities) {
+            return $this->json(
+                [
+                    'status' => true,
+                    'cities' => $cities
+                ],
+                Response::HTTP_OK,
+                ['Content-Type' => 'application/json']
+            );
+        }
+        return $this->json(
+            [
+                'status' => false,
+                'message' => 'No se encotraron localidades/ciudades con el ID indicado.'
+            ],
+            Response::HTTP_NOT_FOUND,
+            ['Content-Type' => 'application/json']
+        );
+    }
+
+
+    //DE ACA PARA ABAJO SIN REVISAR
 
     #[Route("/searchTypeList", name: "api_search_type_list", methods: ["GET"])]
     public function searchTypeList(CategoryRepository $categoryRepository, TagRepository $tagRepository, BrandRepository $brandRepository): Response
@@ -82,103 +504,6 @@ class FrontApiController extends AbstractController
             Response::HTTP_OK,
             ['Content-Type' => 'application/json']
         );
-    }
-
-
-    #[Route("/login", name: "api_login", methods: ["POST"])]
-    public function login(Request $request, FavoriteProductRepository $favoriteProductRepository, ShoppingCartRepository $shoppingCartRepository, CustomerRepository $customerRepository, PasswordHasherFactoryInterface $passwordHasherFactoryInterface, JWTTokenManagerInterface $jwtManager): Response
-    {
-        $body = $request->getContent();
-        $data = json_decode($body, true);
-
-        if (!(@$data['email'] && @$data['password'])) {
-            $validation = [];
-            if (!@$data['email']) {
-                $validation["email"] =  "Debe ingresar una dirección de correo.";
-            }
-            if (!@$data['password']) {
-                $validation["password"] =  "El campo password es obligatorio.";
-            }
-            return $this->json(
-                [
-                    "status" => false,
-                    'message' => 'Error de validacion',
-                    'validation' => $validation
-                ],
-                Response::HTTP_BAD_REQUEST,
-                ['Content-Type' => 'application/json']
-            );
-        }
-
-        try {
-            $customer = $customerRepository->findOneBy(["email" => @$data['email']]);
-            if (!$passwordHasherFactoryInterface->getPasswordHasher($customer)->verify($customer->getPassword(), $data['password'])) {
-                throw new Exception();
-            }
-            if ($customer->getStatus()->getId() == Constants::CUSTOMER_STATUS_PENDING) {
-                return $this->json(
-                    [
-                        "status" => false,
-                        'message' => 'Su cuenta aún no fue validada, por favor revise su correo inclusive en la carpeta SPAM.',
-                    ],
-                    Response::HTTP_UNAUTHORIZED,
-                    ['Content-Type' => 'application/json']
-                );
-            }
-            if ($customer->getStatus()->getId() == Constants::CUSTOMER_STATUS_DISABLED) {
-                return $this->json(
-                    [
-                        "status" => false,
-                        'message' => 'Su cuenta se encuentra deshabilitada.',
-                    ],
-                    Response::HTTP_UNAUTHORIZED,
-                    ['Content-Type' => 'application/json']
-                );
-            }
-        } catch (\Exception $e) {
-            return $this->json(
-                [
-                    "status" => false,
-                    'message' => 'Usuario y/o password incorrectos.',
-                ],
-                Response::HTTP_UNAUTHORIZED,
-                ['Content-Type' => 'application/json']
-            );
-        }
-
-        $jwt = $jwtManager->create($customer);
-
-        $favorite_products = $favoriteProductRepository->findAllFavoriteProductsByStatus($customer->getId(), 1);
-        $favorite_products_list = [];
-        if ($favorite_products) {
-            foreach ($favorite_products as $favorite_product) {
-                $favorite_products_list[] = (int)$favorite_product->getProduct()->getId();
-            }
-        }
-
-        $shopping_cart_products = $shoppingCartRepository->findAllShoppingCartProductsByStatus($customer->getId(), 1);
-        $shopping_cart_products_list = [];
-        if ($shopping_cart_products) {
-            foreach ($shopping_cart_products as $favorite_product) {
-                $shopping_cart_products_list[] = (int)$favorite_product->getProduct()->getId();
-            }
-        }
-
-        return new JsonResponse([
-            "status" => true,
-            "token" => $jwt,
-            "token_type" => "Bearer",
-            "expires_in" => (int)$_ENV['JWT_TOKEN_TTL'],
-            "user_data" => [
-                "id" => (int)$customer->getId(),
-                "name" => $customer->getName(),
-                "image" => $customer->getImage(),
-                "email" => $customer->getEmail(),
-                "wish_list" => $favorite_products_list,
-                "shop_cart" => $shopping_cart_products_list,
-                "cel_phone" => $customer->getCelPhone(),
-            ]
-        ]);
     }
 
     #[Route("/contact", name: "api_contanct", methods: ["POST"])]
@@ -785,153 +1110,6 @@ class FrontApiController extends AbstractController
         );
     }
 
-    #[Route("/register", name: "api_register_customer", methods: ["POST"])]
-    public function register(
-
-        EntityManagerInterface $em,
-        Request $request,
-        CustomerStatusTypeRepository $customerStatusTypeRepository,
-        RegistrationTypeRepository $registrationTypeRepository,
-        CustomersTypesRolesRepository $customersTypesRolesRepository,
-        CountriesRepository $countriesRepository,
-        CommunicationStatesBetweenPlatformsRepository $communicationStatesBetweenPlatformsRepository,
-        EnqueueEmail $queue,
-        SendCustomerToCrm $sendCustomerToCrm
-
-    ): Response {
-
-        $body = $request->getContent();
-        $data = json_decode($body, true);
-
-        //find relational objects
-        // $country = $countriesRepository->find($data['country_id']);
-        $status_customer = $customerStatusTypeRepository->find(Constants::CUSTOMER_STATUS_PENDING);
-        $registration_type = $registrationTypeRepository->find(Constants::REGISTRATION_TYPE_WEB);
-
-
-        //set Customer data
-        $customer = new Customer();
-        $customer
-            ->setVerificationCode(Uuid::v4())
-            ->setStatus($status_customer)
-            ->setRegistrationType($registration_type)
-            ->setRegistrationDate(new \DateTime);
-
-        $form = $this->createForm(RegisterCustomerApiType::class, $customer);
-        $form->submit($data, false);
-
-        if (!$form->isValid()) {
-            $error_forms = $this->getErrorsFromForm($form);
-            return $this->json(
-                [
-                    'status' => false,
-                    'message' => 'Error de validación',
-                    'validation' => $error_forms
-                ],
-                Response::HTTP_BAD_REQUEST,
-                ['Content-Type' => 'application/json']
-            );
-        }
-        $em->persist($customer);
-        $em->flush();
-
-        //queue the email
-        $id_email = $queue->enqueue(
-            Constants::EMAIL_TYPE_VALIDATION, //tipo de email
-            $customer->getEmail(), //email destinatario
-            [ //parametros
-                'name' => $customer->getName(),
-                'url_front_validation' => $_ENV['FRONT_URL'] . $_ENV['FRONT_VALIDATION'] . '?code=' . $customer->getVerificationCode() . '&id=' . $customer->getId(),
-            ]
-        );
-
-        //Intento enviar el correo encolado
-        $queue->sendEnqueue($id_email);
-        //envio por helper los datos del cliente al crm
-        $sendCustomerToCrm->SendCustomerToCrm($customer);
-
-        return $this->json(
-            [
-                'status' => true,
-                'message' => 'Usuario creado'
-            ],
-            Response::HTTP_CREATED,
-            ['Content-Type' => 'application/json']
-        );
-    }
-
-    #[Route("/validate", name: "api_validate_customer", methods: ["POST"])]
-    public function validate(
-
-        EntityManagerInterface $em,
-        Request $request,
-        CustomerRepository $customerRepository,
-        CustomerStatusTypeRepository $customerStatusTypeRepository,
-        CommunicationStatesBetweenPlatformsRepository $communicationStatesBetweenPlatformsRepository,
-        EnqueueEmail $queue,
-        SendCustomerToCrm $sendCustomerToCrm
-    ): Response {
-
-        $body = $request->getContent();
-        $data = json_decode($body, true);
-
-        //get Customer data
-        $customer = $customerRepository->findOneBy(['id' => $data['id']]);
-
-        if (!$customer || (!$customer->getVerificationCode() || !$customer->getVerificationCode()->equals(Uuid::fromString($data['code'])))) {
-            return $this->json(
-                [
-                    'status' => false,
-                    'message' => 'No fue posible encontrar el usuario o el enlace expiró.'
-                ],
-                Response::HTTP_NOT_FOUND,
-                ['Content-Type' => 'application/json']
-            );
-        }
-
-        if ($customer->getStatus()->getId() !== Constants::CUSTOMER_STATUS_PENDING) {
-            return $this->json(
-                [
-                    'status' => true,
-                    'message' => 'Su cuenta ya se encuentra validada.'
-                ],
-                Response::HTTP_OK,
-                ['Content-Type' => 'application/json']
-            );
-        }
-        //find relational objects
-        $status_customer = $customerStatusTypeRepository->find(Constants::CUSTOMER_STATUS_VALIDATED);
-
-        $customer->setStatus($status_customer)
-            ->setVerificationCode(null);
-        $em->persist($customer);
-        $em->flush();
-
-        //queue the email
-        $id_email = $queue->enqueue(
-            Constants::EMAIL_TYPE_WELCOME, //tipo de email
-            $customer->getEmail(), //email destinatario
-            [ //parametros
-                'name' => $customer->getName(),
-                'url_front_login' => $_ENV['FRONT_URL'] . $_ENV['FRONT_LOGIN'],
-            ]
-        );
-
-        //Intento enviar el correo encolado
-        $queue->sendEnqueue($id_email);
-
-        //envio por helper los datos del cliente al crm
-        $sendCustomerToCrm->SendCustomerToCrm($customer);
-
-        return $this->json(
-            [
-                'status' => true,
-                'message' => 'Cuenta de correo verificada con éxito.'
-            ],
-            Response::HTTP_ACCEPTED,
-            ['Content-Type' => 'application/json']
-        );
-    }
 
     private function getErrorsFromForm(FormInterface $form)
     {
@@ -943,6 +1121,11 @@ class FrontApiController extends AbstractController
             if ($childForm instanceof FormInterface) {
                 if ($childErrors = $this->getErrorsFromForm($childForm)) {
                     $errors[$childForm->getName()] = $childErrors;
+                    if (isset($errors['email'][0]) && count($errors['email']) > 1) {
+                        unset($errors['email'][0]);
+                        // Reindexar el array si es necesario
+                        $errors['email'] = array_values($errors['email']);
+                    }
                 }
             }
         }

@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Entity\Model\User as BaseUser;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -80,8 +81,11 @@ class Customer extends BaseUser
     #[ORM\Column(length: 15, nullable: true)]
     private ?string $floor_apartment = null;
 
-    #[ORM\Column(nullable: false, options: ['default' => true])]
-    private bool $policies_agree = true;
+    #[ORM\Column(nullable: false)]
+    private bool $policies_agree;
+
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $datetime_verification_code = null;
 
 
     public function __construct()
@@ -96,7 +100,6 @@ class Customer extends BaseUser
         $this->orders = new ArrayCollection();
         $this->favoriteProducts = new ArrayCollection();
         $this->shoppingCarts = new ArrayCollection();
-        $this->policies_agree = true;
     }
 
 
@@ -272,7 +275,11 @@ class Customer extends BaseUser
 
     public function setVerificationCode($verification_code): self
     {
-        $this->verification_code = $verification_code;
+        if($verification_code){
+            $this->verification_code = password_hash($verification_code, PASSWORD_BCRYPT);
+        }else{
+            $this->verification_code = null;
+        }
 
         return $this;
     }
@@ -486,6 +493,18 @@ class Customer extends BaseUser
     public function setPoliciesAgree(bool $policies_agree): static
     {
         $this->policies_agree = $policies_agree;
+
+        return $this;
+    }
+
+    public function getDatetimeVerificationCode(): ?\DateTimeInterface
+    {
+        return $this->datetime_verification_code;
+    }
+
+    public function setDatetimeVerificationCode(?\DateTimeInterface $datetime_verification_code): static
+    {
+        $this->datetime_verification_code = $datetime_verification_code;
 
         return $this;
     }
