@@ -44,6 +44,7 @@ use Symfony\Component\Uid\Uuid;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use App\Service\AwsSnsClient;
 use DateTime;
+use ReCaptcha\ReCaptcha;
 
 #[Route("/api/front")]
 class FrontApiController extends AbstractController
@@ -152,17 +153,29 @@ class FrontApiController extends AbstractController
         $data = json_decode($body, true);
 
         //get Customer data
-        if (!@$data['email'] || !@$data['validation_code']) {
+        if (!@$data['email'] || !@$data['validation_code'] || !@$data['recaptcha_token']) {
             return $this->json(
                 [
                     'status' => false,
-                    'message' => 'Los campos email y validation_code son obligatorios'
+                    'message' => 'Los campos email, validation_code, y recaptcha_token son obligatorios'
                 ],
                 Response::HTTP_BAD_REQUEST,
                 ['Content-Type' => 'application/json']
             );
         }
+        $recaptcha = new ReCaptcha($_ENV['GOOGLE_RECAPTCHA_SECRET']);
+        $recaptchaResponse = $recaptcha->verify($data['recaptcha_token']);
 
+        if (!$recaptchaResponse->isSuccess()) {
+            return $this->json(
+                [
+                    'status' => false,
+                    'message' => 'Token reCAPTCHA no válido.'
+                ],
+                Response::HTTP_BAD_REQUEST,
+                ['Content-Type' => 'application/json']
+            );
+        }
         $customer = $customerRepository->findOneBy(['email' => @$data['email']]);
         if (!$customer || !($customer->getStatus()->getId() === Constants::CUSTOMER_STATUS_PENDING)) {
             return $this->json(
@@ -185,6 +198,7 @@ class FrontApiController extends AbstractController
                 ['Content-Type' => 'application/json']
             );
         }
+        
         try {
 
             //find relational objects
@@ -246,6 +260,24 @@ class FrontApiController extends AbstractController
         }
         if ((@$data['code_area'] && !@$data['cel_phone']) || (@$data['cel_phone'] && !@$data['code_area'])) {
             $errors[] = 'Si desea modificar el numero destinatario del sms son requeridos los campos code_area y cel_phone';
+        }
+
+        if (!@$data['recaptcha_token']) {
+            $errors[] = 'Token reCAPTCHA es obligatorio.';
+        }
+        
+        $recaptcha = new ReCaptcha($_ENV['GOOGLE_RECAPTCHA_SECRET']);
+        $recaptchaResponse = $recaptcha->verify($data['recaptcha_token']);
+
+        if (!$recaptchaResponse->isSuccess()) {
+            return $this->json(
+                [
+                    'status' => false,
+                    'message' => 'Token reCAPTCHA no válido.'
+                ],
+                Response::HTTP_BAD_REQUEST,
+                ['Content-Type' => 'application/json']
+            );
         }
         if ($errors) {
             return $this->json(
@@ -337,6 +369,10 @@ class FrontApiController extends AbstractController
             if (!@$data['password']) {
                 $validation["password"] =  "El campo password es obligatorio.";
             }
+            if (!@$data['recaptcha_token']) {
+                $validation["recaptcha_token"] = 'Token reCAPTCHA es obligatorio.';
+            }
+            
             return $this->json(
                 [
                     "status" => false,
@@ -346,6 +382,20 @@ class FrontApiController extends AbstractController
                 Response::HTTP_BAD_REQUEST,
                 ['Content-Type' => 'application/json']
             );
+            
+            $recaptcha = new ReCaptcha($_ENV['GOOGLE_RECAPTCHA_SECRET']);
+            $recaptchaResponse = $recaptcha->verify($data['recaptcha_token']);
+    
+            if (!$recaptchaResponse->isSuccess()) {
+                return $this->json(
+                    [
+                        'status' => false,
+                        'message' => 'Token reCAPTCHA no válido.'
+                    ],
+                    Response::HTTP_BAD_REQUEST,
+                    ['Content-Type' => 'application/json']
+                );
+            }
         }
 
         try {
