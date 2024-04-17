@@ -73,7 +73,6 @@ class FrontApiController extends AbstractController
         //set Customer data
         $customer = new Customer();
         // AGREGO NULO A LOS VALORES QUE NO VINIERON EN EL JSON
-        @$data['policies_agree'] ?? $data['policies_agree'] = false;
         @$data['name'] ?? $data['name'] = null;
         @$data['email'] ?? $data['email'] = null;
         @$data['password'] ?? $data['password'] = null;
@@ -86,6 +85,7 @@ class FrontApiController extends AbstractController
         @$data['floor_apartment'] ?? $data['floor_apartment'] = null;
         @$data['identity_number'] ?? $data['identity_number'] = null;
         @$data['policies_agree'] ?? $data['policies_agree'] = null;
+        @$data['recaptcha_token'] ?? $data['recaptcha_token'] = null;
 
 
         $verification_code = mt_rand(100000, 999999);

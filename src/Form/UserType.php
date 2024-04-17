@@ -26,7 +26,7 @@ class UserType extends AbstractType
         $user = $builder->getData();
         $builder
             ->add('email', EmailType::class, ['label' => 'Correo',])
-            ->add('name', TextType::class, ['label' => 'Nombre','attr' => ['placeholder'=>'Nombre de la sucursal']])
+            ->add('name', TextType::class, ['label' => 'Nombre','attr' => ['placeholder'=>'Nombre del punto de venta']])
             ->add('state', EntityType::class, [
                 'placeholder' => 'Seleccione una provincia',
                 'label' => 'Provincia',

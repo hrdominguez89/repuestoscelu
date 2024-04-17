@@ -21,6 +21,7 @@ use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use ReCaptcha\ReCaptcha;
 
 class RegisterCustomerApiType extends AbstractType
 
@@ -48,6 +49,15 @@ class RegisterCustomerApiType extends AbstractType
                 'constraints' => [
                     // Agregar un validador Callback para manejar la validación del correo electrónico basado en el estado del cliente
                     new Callback([$this, 'validateEmailBasedOnStatus'])
+                ]
+            ])
+            ->add('recaptcha_token', TextType::class, [
+                'mapped' => false, // No mapear este campo a una propiedad de la entidad
+                'required' => true,
+                'constraints' => [
+                    new NotNull(),
+                    new NotBlank(),
+                    new Callback([$this, 'validateRecaptchaToken'])
                 ]
             ])
             ->add('password', PasswordType::class, [
@@ -164,6 +174,16 @@ class RegisterCustomerApiType extends AbstractType
                     $context->buildViolation('Esta cuenta se encuentra deshabilitada, pongase en contacto con atención al cliente.')->addViolation();
                     break;
             }
+        }
+    }
+
+    public function validateRecaptchaToken($value, ExecutionContextInterface $context): void
+    {
+        $recaptcha = new ReCaptcha($_ENV['GOOGLE_RECAPTCHA_SECRET']);
+        $recaptchaResponse = $recaptcha->verify($value);
+
+        if (!$recaptchaResponse->isSuccess()) {
+            $context->buildViolation('Token reCAPTCHA no válido')->addViolation();
         }
     }
 }

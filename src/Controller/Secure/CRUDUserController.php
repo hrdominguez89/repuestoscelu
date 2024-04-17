@@ -36,7 +36,7 @@ class CRUDUserController extends AbstractController
         $data['users'] =  $userRepository->findBy(['role' => 2]);
         $data['files_js'] = array('table_full_buttons.js?v=' . rand());
 
-        $data['title'] = 'Sucursales';
+        $data['title'] = 'Puntos de venta';
 
         $data['breadcrumbs'] = array(
             array('active' => true, 'title' => $data['title'])
@@ -98,7 +98,7 @@ class CRUDUserController extends AbstractController
                 $message['type'] = 'modal';
                 $message['alert'] = 'danger';
                 $message['title'] = 'Error';
-                $message['message'] = 'Error al crear la sucursal: .' . $e->getMessage();
+                $message['message'] = 'Error al crear el punto de venta: .' . $e->getMessage();
                 $this->addFlash('message', $message);
                 return $this->redirectToRoute('secure_crud_user_index');
             }
@@ -107,9 +107,9 @@ class CRUDUserController extends AbstractController
         $data['files_js'] = array('../uppy.min.js', '../select2.min.js', 'user/user.js?v=' . rand());
         $data['files_css'] = array('uppy.min.css', 'select2.min.css', 'select2-bootstrap4.min.css');
         $data['user'] = $data['user'];
-        $data['title'] = 'Nueva sucursal';
+        $data['title'] = 'Nuevo punto de venta';
         $data['breadcrumbs'] = array(
-            array('path' => 'secure_crud_user_index', 'title' => 'Sucursales'),
+            array('path' => 'secure_crud_user_index', 'title' => 'Puntos de venta'),
             array('active' => true, 'title' => $data['title'])
         );
 
@@ -146,9 +146,9 @@ class CRUDUserController extends AbstractController
                         $data['user']->setPassword($password);
                         $data['user']->setChangePassword(true);
                         $data['user']->setChangePasswordDate(null);
-                        $message['message'] = 'Sucursal editada correctamente. Se envio un e-mail a la cuenta de correo con las nuevas credenciales';
+                        $message['message'] = 'punto de venta editado correctamente. Se envio un e-mail a la cuenta de correo con las nuevas credenciales';
                     } else {
-                        $message['message'] = 'Sucursal editada correctamente.';
+                        $message['message'] = 'punto de venta editado correctamente.';
                     }
                     $data['user']->setCity($citiesRepository->find($request->get('user')['city']));
                     $entityManager->persist($data['user']);
@@ -180,15 +180,15 @@ class CRUDUserController extends AbstractController
                 $message['type'] = 'modal';
                 $message['alert'] = 'danger';
                 $message['title'] = 'Error';
-                $message['message'] = 'Error al editar la sucursal: .' . $e->getMessage();
+                $message['message'] = 'Error al editar el punto de venta: .' . $e->getMessage();
                 $this->addFlash('message', $message);
                 return $this->redirectToRoute('secure_crud_user_index');
             }
         }
 
-        $data['title'] = 'Editar sucursal';
+        $data['title'] = 'Editar punto de venta';
         $data['breadcrumbs'] = array(
-            array('path' => 'secure_crud_user_index', 'title' => 'Sucursales'),
+            array('path' => 'secure_crud_user_index', 'title' => 'Puntos de venta'),
             array('active' => true, 'title' => $data['title'])
         );
 
