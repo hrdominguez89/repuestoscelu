@@ -4,12 +4,7 @@ namespace App\Controller\Api\Front;
 
 use App\Entity\Customer;
 use App\Form\RegisterCustomerApiType;
-use App\Repository\AboutUsRepository;
 use App\Repository\CountriesRepository;
-use App\Repository\CoverImageRepository;
-use App\Repository\CustomersTypesRolesRepository;
-use App\Repository\FaqsRepository;
-use App\Repository\TopicsRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;
@@ -19,28 +14,21 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Helpers\EnqueueEmail;
 use App\Constants\Constants;
 use App\Entity\Product;
-use App\Form\ContactType;
-use App\Form\ListPriceType;
-use App\Helpers\SendCustomerToCrm;
-use App\Repository\AdvertisementsRepository;
 use App\Repository\BrandRepository;
-use App\Repository\BrandsSectionsRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\CitiesRepository;
-use App\Repository\CommunicationStatesBetweenPlatformsRepository;
 use App\Repository\CustomerRepository;
 use App\Repository\CustomerStatusTypeRepository;
 use App\Repository\FavoriteProductRepository;
 use App\Repository\ProductRepository;
 use App\Repository\RegistrationTypeRepository;
-use App\Repository\SectionsHomeRepository;
 use App\Repository\ShoppingCartRepository;
 use App\Repository\StatesRepository;
+use App\Repository\SubcategoryRepository;
 use App\Repository\TagRepository;
 use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
-use Symfony\Component\Uid\Uuid;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use App\Service\AwsSnsClient;
 use DateTime;
@@ -198,7 +186,7 @@ class FrontApiController extends AbstractController
                 ['Content-Type' => 'application/json']
             );
         }
-        
+
         try {
 
             //find relational objects
@@ -265,7 +253,18 @@ class FrontApiController extends AbstractController
         if (!@$data['recaptcha_token']) {
             $errors[] = 'Token reCAPTCHA es obligatorio.';
         }
-        
+
+        if ($errors) {
+            return $this->json(
+                [
+                    'status' => false,
+                    'message' => $errors
+                ],
+                Response::HTTP_BAD_REQUEST,
+                ['Content-Type' => 'application/json']
+            );
+        }
+
         $recaptcha = new ReCaptcha($_ENV['GOOGLE_RECAPTCHA_SECRET']);
         $recaptchaResponse = $recaptcha->verify($data['recaptcha_token']);
 
@@ -279,17 +278,6 @@ class FrontApiController extends AbstractController
                 ['Content-Type' => 'application/json']
             );
         }
-        if ($errors) {
-            return $this->json(
-                [
-                    'status' => false,
-                    'message' => $errors
-                ],
-                Response::HTTP_BAD_REQUEST,
-                ['Content-Type' => 'application/json']
-            );
-        }
-
         $customer = $customerRepository->findOneBy(['email' => @$data['email']]);
 
         if (!$customer || !($customer->getStatus()->getId() === Constants::CUSTOMER_STATUS_PENDING)) {
@@ -361,7 +349,7 @@ class FrontApiController extends AbstractController
         $body = $request->getContent();
         $data = json_decode($body, true);
 
-        if (!(@$data['email'] && @$data['password'])) {
+        if (!(@$data['email'] && @$data['password'] && @$data['recaptcha_token'])) {
             $validation = [];
             if (!@$data['email']) {
                 $validation["email"] =  "Debe ingresar una dirección de correo.";
@@ -370,9 +358,10 @@ class FrontApiController extends AbstractController
                 $validation["password"] =  "El campo password es obligatorio.";
             }
             if (!@$data['recaptcha_token']) {
+                var_dump('aca');
                 $validation["recaptcha_token"] = 'Token reCAPTCHA es obligatorio.';
             }
-            
+
             return $this->json(
                 [
                     "status" => false,
@@ -382,10 +371,10 @@ class FrontApiController extends AbstractController
                 Response::HTTP_BAD_REQUEST,
                 ['Content-Type' => 'application/json']
             );
-            
+
             $recaptcha = new ReCaptcha($_ENV['GOOGLE_RECAPTCHA_SECRET']);
             $recaptchaResponse = $recaptcha->verify($data['recaptcha_token']);
-    
+
             if (!$recaptchaResponse->isSuccess()) {
                 return $this->json(
                     [
@@ -516,146 +505,33 @@ class FrontApiController extends AbstractController
     }
 
 
-    //DE ACA PARA ABAJO SIN REVISAR
-
-    #[Route("/searchTypeList", name: "api_search_type_list", methods: ["GET"])]
-    public function searchTypeList(CategoryRepository $categoryRepository, TagRepository $tagRepository, BrandRepository $brandRepository): Response
+    #[Route("/menu_categories", name: "api_menu_categories", methods: ["GET"])]
+    public function menuCategories(CategoryRepository $categoryRepository, SubcategoryRepository $subcategoryRepository): Response
     {
 
-        $principalCategories = $categoryRepository->getPrincipalCategories();
-        $principalBrands = $brandRepository->getPrincipalBrands();
-        $principalTags = $tagRepository->getPrincipalTags();
-
-        $searchList = [
-            [
-                "title" => 'Todos',
-                "slug" => '',
-                "items" => [],
-            ],
-            [
-                "title" => 'Categorías',
-                "slug" => "c=",
-                "items" => $principalCategories
-            ],
-            [
-                "title" => 'Marcas',
-                "slug" => "b=",
-                "items" => $principalBrands
-            ],
-            [
-                "title" => 'Otros',
-                "slug" => "t=",
-                "items" => $principalTags
-            ],
-        ];
+        $categories = $categoryRepository->findBy(['visible' => true], ['name' => 'ASC']);
+        $categoriesArray = [];
+        foreach ($categories as $category) {
+            $categoriesArray[] = [
+                'id' => $category->getId(),
+                'search_parameter' =>'c=',
+                'slug'=> $category->getSlug(),
+                'name' => $category->getName(),
+                'subcategories' => $subcategoryRepository->getSubcategoriesVisiblesByCategory($category),
+            ];
+        }
 
         return $this->json(
-            $searchList,
+            [
+                'status'=>true,
+                'categories'=> $categoriesArray
+            ],
             Response::HTTP_OK,
             ['Content-Type' => 'application/json']
         );
     }
 
-    #[Route("/contact", name: "api_contanct", methods: ["POST"])]
-    public function contact(EnqueueEmail $queue, Request $request, CountriesRepository $countriesRepository): Response
-    {
-        $body = $request->getContent();
-        $data = json_decode($body, true);
-
-
-        try {
-            $data['country'] = $countriesRepository->findOneBy(["id" => @$data['country_id']]);
-        } catch (\Exception $e) {
-            return $this->json(
-                [
-                    'message' => 'Error de validación',
-                    'validation' => ['country_id' => 'No fue posible encontrar un pais con el codigo indicado.']
-                ],
-                Response::HTTP_BAD_REQUEST,
-                ['Content-Type' => 'application/json']
-            );
-        }
-
-
-        $form = $this->createForm(ContactType::class);
-        $form->submit($data, false);
-
-        if (!$form->isValid()) {
-            $error_forms = $this->getErrorsFromForm($form);
-            return $this->json(
-                [
-                    'message' => 'Error de validación',
-                    'validation' => $error_forms
-                ],
-                Response::HTTP_BAD_REQUEST,
-                ['Content-Type' => 'application/json']
-            );
-        }
-
-        //queue the email
-        $id_email = $queue->enqueue(
-            Constants::EMAIL_TYPE_CONTACT, //tipo de email
-            $_ENV['EMAIL_FROM'],
-            [ //parametros
-                "name" => $data['name'],
-                "phone" => $data['country']->getPhonecode() . $data['phone'],
-                'email' => $data['email'],
-                "message" => $data['message'],
-            ]
-        );
-
-        //Intento enviar el correo encolado
-        $queue->sendEnqueue($id_email);
-
-
-        return $this->json(
-            ['message' => 'Formulario de contacto enviado correctamente.'],
-            Response::HTTP_CREATED,
-            ['Content-Type' => 'application/json']
-        );
-    }
-
-    #[Route("/listPrice", name: "api_list_price", methods: ["POST"])]
-    public function listPrice(EnqueueEmail $queue, Request $request): Response
-    {
-        $body = $request->getContent();
-        $data = json_decode($body, true);
-
-        $form = $this->createForm(ListPriceType::class);
-        $form->submit($data, false);
-
-        if (!$form->isValid()) {
-            $error_forms = $this->getErrorsFromForm($form);
-            return $this->json(
-                [
-                    'message' => 'Error de validación',
-                    'validation' => $error_forms
-                ],
-                Response::HTTP_BAD_REQUEST,
-                ['Content-Type' => 'application/json']
-            );
-        }
-
-        //queue the email
-        $id_email = $queue->enqueue(
-            Constants::EMAIL_TYPE_PRICE_LIST, //tipo de email
-            $_ENV['EMAIL_FROM'],
-            [ //parametros
-                'email' => $data['email'],
-            ]
-        );
-
-        //Intento enviar el correo encolado
-        $queue->sendEnqueue($id_email);
-
-
-        return $this->json(
-            ['message' => 'Solicitud enviada con exito.'],
-            Response::HTTP_CREATED,
-            ['Content-Type' => 'application/json']
-        );
-    }
-
+    //falta terminar con productos para habilitar esta seccion
     #[Route("/products/searchaaaa", name: "api_products_searchaaaa", methods: ["GET"])]
     public function search(Request $request, CategoryRepository $categoryRepository, TagRepository $tagRepository, ProductRepository $productRepository): Response
     {
@@ -876,66 +752,6 @@ class FrontApiController extends AbstractController
     }
 
 
-    #[Route("/products/sections", name: "api_products_sections", methods: ["GET"])]
-    public function sections(Request $request, ProductRepository $productRepository, SectionsHomeRepository $sectionsHomeRepository): Response
-    {
-        //traigo la linea 1 de secciones.
-        $sections = $sectionsHomeRepository->findAll()[0];
-
-        if ($sections) {
-
-            $products_by_sections = [];
-
-            $limit = $request->query->getInt('l', 4);
-            $index = $request->query->getInt('i', 0) * $limit;
-
-            for ($i = 1; $i <= 4; $i++) {
-                //creo variables para luego utilizarlas como funciones para poder traerme los datos de cada seccion
-                $getTitleSectionN = "getTitleSection" . $i;
-                $getTagSectionN = "getTagSection" . $i;
-
-                //genero un array con cada seccion con las categorias de cada seccion
-                $products_by_sections[] =
-                    [
-                        "title" => $sections->$getTitleSectionN(),
-                        "categories" => []
-                    ];
-
-                for ($j = 1; $j <= 3; $j++) {
-                    //genero variable para utilizarla luego como funcion
-                    $getCategoryNSectionN = "getCategory" . $j . "Section" . $i;
-
-                    $products = $productRepository->findProductsVisibleByTag($sections->$getTagSectionN(), $sections->$getCategoryNSectionN(), $limit, $index);
-
-                    $productsByCategory = [];
-
-                    foreach ($products as $product) {
-                        $productsByCategory[] = $product->getBasicDataProduct();
-                    }
-                    if ($sections->$getCategoryNSectionN()) {
-                        $products_by_sections[$i - 1]['categories'][] =
-                            [
-                                "category" => $sections->$getCategoryNSectionN()->getName(),
-                                "products" => $productsByCategory
-                            ];
-                    }
-                }
-            }
-
-            return $this->json(
-                $products_by_sections,
-                Response::HTTP_OK,
-                ['Content-Type' => 'application/json']
-            );
-        } else {
-            return $this->json(
-                ['message' => 'Not found'],
-                Response::HTTP_NOT_FOUND,
-                ['Content-Type' => 'application/json']
-            );
-        }
-    }
-
     #[Route("/product/{product_id}", name: "api_product_detail", methods: ["GET"])]
     public function productDetail(Request $request, ProductRepository $productRepository, $product_id): Response
     {
@@ -1038,124 +854,6 @@ class FrontApiController extends AbstractController
         return $this->json(
             ['message' => 'Not found'],
             Response::HTTP_NOT_FOUND,
-            ['Content-Type' => 'application/json']
-        );
-    }
-
-    #[Route("/sliders", name: "api_sliders", methods: ["GET"])]
-    public function sliders(CoverImageRepository $coverImageRepository): Response
-    {
-
-        $sliders = $coverImageRepository->findCoverImage();
-
-        return $this->json(
-            $sliders,
-            Response::HTTP_OK,
-            ['Content-Type' => 'application/json']
-        );
-    }
-
-    #[Route("/banners", name: "api_banners", methods: ["GET"])]
-    public function banners(AdvertisementsRepository $advertisementsRepository): Response
-    {
-
-        $banners = $advertisementsRepository->find(1);
-
-        return $this->json(
-            $banners->getBanners(),
-            Response::HTTP_OK,
-            ['Content-Type' => 'application/json']
-        );
-    }
-
-    #[Route("/brands", name: "api_brands", methods: ["GET"])]
-    public function brands(BrandsSectionsRepository $brandsSectionsRepository): Response
-    {
-
-        $brands = $brandsSectionsRepository->find(1);
-
-        return $this->json(
-            $brands->getBrands(),
-            Response::HTTP_OK,
-            ['Content-Type' => 'application/json']
-        );
-    }
-
-    #[Route("/about-us", name: "api_about_us", methods: ["GET"])]
-    public function aboutUs(AboutUsRepository $aboutUsRepository): Response
-    {
-
-        $aboutUs = $aboutUsRepository->findAboutUsDescription();
-        return $this->json(
-            $aboutUs,
-            Response::HTTP_OK,
-            ['Content-Type' => 'application/json']
-        );
-    }
-
-    #[Route("/faqs", name: "api_faqs", methods: ["GET"])]
-    public function faqs(FaqsRepository $faqsRepository, TopicsRepository $topicsRepository): Response
-    {
-        $topics = $topicsRepository->getTopics();
-        for ($i = 0; $i < count($topics); $i++) {
-            $topics[$i]['faqs'] = $faqsRepository->getFaqsByTopic($topics[$i]['topic_id']);
-        }
-        return $this->json(
-            $topics,
-            Response::HTTP_OK,
-            ['Content-Type' => 'application/json']
-        );
-    }
-
-    #[Route("/customer-type", name: "api_customer_type", methods: ["GET"])]
-    public function customerType(CustomersTypesRolesRepository $customersTypesRolesRepository): Response
-    {
-
-        $customersTypeRoles = $customersTypesRolesRepository->findCustomerTypesRole();
-        return $this->json(
-            $customersTypeRoles,
-            Response::HTTP_OK,
-            ['Content-Type' => 'application/json']
-        );
-    }
-
-    #[Route("/country-code", name: "api_country_code", methods: ["GET"])]
-    public function countryCode(CountriesRepository $countriesRepository): Response
-    {
-
-        $countries = $countriesRepository->getCountries();
-        return $this->json(
-            $countries,
-            Response::HTTP_OK,
-            ['Content-Type' => 'application/json']
-        );
-    }
-
-    #[Route("/categoriesList", name: "api_categories_list", methods: ["GET"])]
-    public function categoriesList(CategoryRepository $categoryRepository): Response
-    {
-
-        $categories = $categoryRepository->getVisibleCategories();
-
-        $categoryObject = [];
-
-        foreach ($categories as $category) {
-            array_push(
-                $categoryObject,
-                [
-                    "id" => $category->getId(),
-                    "name" => $category->getName(),
-                    "description_es" => $category->getDescriptionEs(),
-                    "description_en" => $category->getDescriptionEn(),
-                    "principal" => $category->getPrincipal(),
-                    "image" => $category->getImage(),
-                    "slug" => 'c=' . $category->getId(),
-                ]
-            );
-        }
-        return $this->json(
-            $categoryObject,
-            Response::HTTP_OK,
             ['Content-Type' => 'application/json']
         );
     }

@@ -37,29 +37,15 @@ class SubcategoryRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function findSubcategoriesToSendTo3pl(array $statuses, array $orders = null, int $limit = null): array
+    public function getSubcategoriesVisiblesByCategory($category)
     {
-        $categories = $this->createQueryBuilder('sc');
-        if ($orders) {
-            foreach ($orders as $orderKey => $orderValue) {
-                $categories->orderBy('sc.' . $orderKey, $orderValue);
-            }
-        }
-        if ($limit) {
-            $categories->setMaxResults($limit);
-        }
-        return $categories->getQuery()
-            ->getResult();
-    }
 
-    public function findSubcategoriesWithId3plByCategoryId($category_id): array
-    {
-        $subcategories = $this->createQueryBuilder('sc')
-            ->select('sc.name,sc.id')
-            ->where('sc.category = :category_id')
-            ->setParameter('category_id', $category_id)
-            ->orderBy('sc.name', 'ASC');
-        return $subcategories->getQuery()
+        return $this->createQueryBuilder('sc')
+            ->select('sc.id', 'sc.name', 'sc.slug', "'sc=' as search_parameter")
+            ->where('sc.visible = true')
+            ->andWhere('sc.category = :category')
+            ->setParameter('category', $category)
+            ->getQuery()
             ->getResult();
     }
 }
