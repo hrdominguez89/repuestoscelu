@@ -116,6 +116,70 @@ class CRUDUserController extends AbstractController
         return $this->renderForm('secure/crud_user/form_user.html.twig', $data);
     }
 
+
+    #[Route("/updateVisible/user", name: "secure_user_update_visible", methods: ["post"])]
+    public function updateVisible(Request $request, UserRepository $userRepository, EntityManagerInterface $em): Response
+    {
+        $id = (int)$request->get('id');
+        $visible = $request->get('visible');
+
+
+        $entity_object = $userRepository->find($id);
+
+        if ($visible == 'on') {
+            $entity_object->setVisible(false);
+            $data['visible'] = false;
+        } else {
+            $entity_object->setVisible(true);
+            $data['visible'] = true;
+        }
+
+        try {
+            $entityManager = $em;
+            $entityManager->persist($entity_object);
+            $entityManager->flush();
+
+            $data['status'] = true;
+        } catch (Exception $e) {
+            $data['status'] = false;
+        }
+
+        return new JsonResponse($data);
+    }
+
+    #[Route("/active/user", name: "secure_user_active", methods: ["post"])]
+    public function active(Request $request, UserRepository $userRepository, EntityManagerInterface $em): Response
+    {
+        $id = (int)$request->get('id');
+        $visible = $request->get('visible');
+
+
+        $entity_object = $userRepository->find($id);
+
+        if ($visible == 'on') {
+            $entity_object->setActive(false);
+            $data['visible'] = false;
+            $data['color'] = 'danger';
+        } else {
+            $entity_object->setActive(true);
+            $data['visible'] = true;
+        }
+
+        try {
+            $entityManager = $em;
+            $entityManager->persist($entity_object);
+            $entityManager->flush();
+
+            $data['status'] = true;
+        } catch (Exception $e) {
+            $data['visible'] = $visible == 'on' ? true : false; //devuelvo el mismo valor.
+            $data['color'] = $visible == 'on'? 'success':'danger';
+            $data['status'] = false;
+        }
+
+        return new JsonResponse($data);
+    }
+
     #[Route("/{id}/edit", name: "secure_crud_user_edit", methods: ["GET", "POST"])]
     public function edit(
         $id,

@@ -26,6 +26,7 @@ use App\Repository\ShoppingCartRepository;
 use App\Repository\StatesRepository;
 use App\Repository\SubcategoryRepository;
 use App\Repository\TagRepository;
+use App\Repository\UserRepository;
 use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
@@ -514,8 +515,8 @@ class FrontApiController extends AbstractController
         foreach ($categories as $category) {
             $categoriesArray[] = [
                 'id' => $category->getId(),
-                'search_parameter' =>'c=',
-                'slug'=> $category->getSlug(),
+                'search_parameter' => 'c=',
+                'slug' => $category->getSlug(),
                 'name' => $category->getName(),
                 'subcategories' => $subcategoryRepository->getSubcategoriesVisiblesByCategory($category),
             ];
@@ -523,8 +524,54 @@ class FrontApiController extends AbstractController
 
         return $this->json(
             [
-                'status'=>true,
-                'categories'=> $categoriesArray
+                'status' => true,
+                'categories' => $categoriesArray
+            ],
+            Response::HTTP_OK,
+            ['Content-Type' => 'application/json']
+        );
+    }
+
+    #[Route("/sales_points", name: "api_sales_points", methods: ["GET"])]
+    public function salesPoints(UserRepository $userRepository): Response
+    {
+
+        $salesPoints = $userRepository->findStatesAndCities();
+
+        $states = [];
+
+        foreach ($salesPoints as $salePoint) {
+            $stateId = $salePoint['state_id'];
+            $stateName = $salePoint['state_name'];
+            $cityId = $salePoint['city_id'];
+            $cityName = $salePoint['city_name'];
+
+            $stateFound = false;
+            foreach ($states as &$state) {
+                if ($state['id'] == $stateId) {
+                    $stateFound = true;
+                    $city = ['id' => $cityId, 'name' => $cityName];
+                    $state['cities'][] = $city;
+                    break;
+                }
+            }
+
+            if (!$stateFound) {
+                $newState = [
+                    'name' => $stateName,
+                    'id' => $stateId,
+                    'cities' => [
+                        ['id' => $cityId, 'name' => $cityName]
+                    ]
+                ];
+                $states[] = $newState;
+            }
+        }
+
+        return $this->json(
+            [
+                'status' => true,
+                'sales_points' => $states
             ],
             Response::HTTP_OK,
             ['Content-Type' => 'application/json']

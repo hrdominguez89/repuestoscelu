@@ -14,6 +14,10 @@
 			<a class="btn btn-success" href="{{ path('secure_crud_user_new') }}">Nuevo punto de venta</a>
 		</div>
 	</div>
+	<div class="row">
+		<small><b>Activo:</b> Indica si el usuario puede operar desde el backend, si el usuario esta desactivado tampoco aparece en el frontend</small>
+		<small><b>Visible:</b> El usuario puede operar desde el backend pero no es visible desde el frontend</small>
+	</div>
 	<div class="row mt-5">
 		<div class="col-12">
 			<div class="table-responsive">
@@ -21,20 +25,36 @@
 				<table id="table_full_buttons" class="table table-sm" data-order="[[ 2, &quot;asc&quot; ],[ 3, &quot;asc&quot; ]]">
 					<thead>
 						<tr>
+							<th class="text-center">Activo</th>
+							<th class="text-center">Visible</th>
 							<th>Correo</th>
 							<th>Nombre</th>
 							<th>Provincia</th>
 							<th>Localidad/Ciudad</th>
+							<th>Dirección</th>
 							<th data-orderable="false">Acciones</th>
 						</tr>
 					</thead>
 					<tbody>
 						{% for user in users %}
 							<tr>
+								<td class="text-center">
+									<a style="font-size:16px" data-status="{{user.active ? 'on':'off'}}" data-slug="/secure/crud-user/active/user" data-id="{{user.id}}" class="text-{{user.active ? 'success':'danger'}} m-2 toggle-on-off" href="javascript:void(0);">
+										<i class="fas fa-toggle-{{user.active ? 'on':'off'}}"></i>
+									</a>
+								</td>
+								<td class="text-center">
+									<a style="font-size:16px" data-status="{{user.visible ? 'on':'off'}}" data-slug="/secure/crud-user/updateVisible/user" data-id="{{user.id}}" class="text-{{user.visible ? 'success':'secondary'}} m-2 toggle-on-off" href="javascript:void(0);">
+										<i class="fas fa-toggle-{{user.visible ? 'on':'off'}}"></i>
+									</a>
+								</td>
 								<td>{{ user.email }}</td>
 								<td>{{ user.name }}</td>
 								<td>{{ user.state.name }}</td>
 								<td>{{ user.city.name }}</td>
+								<td>
+									{{user.streetAddress}}
+									{{ user.numberAddress }}</td>
 								<td class="text-center">
 									<a class="btn" href="{{ path('secure_crud_user_edit', {'id': user.id}) }}" title="Editar operador">
 										<i class="fas fa-edit text-warning"></i>

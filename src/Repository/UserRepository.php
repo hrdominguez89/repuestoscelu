@@ -30,4 +30,21 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         // 1. persist the new password in the user storage
         // 2. update the $user object with $user->setPassword($newEncodedPassword);
     }
+
+    public function findStatesAndCities()
+    {
+        return $this->createQueryBuilder('u')
+            ->select('DISTINCT s.id AS state_id, s.name AS state_name, c.id AS city_id, c.name AS city_name')
+            ->join('u.city', 'c')
+            ->join('u.state', 's')
+            ->where('u.active = :active')
+            ->andWhere('u.visible = :visible')
+            //->andWhere('u.role = 2') //role 2 = sucursal, 1=superadmin
+            ->setParameter('active', true)
+            ->setParameter('visible', true)
+            ->orderBy('s.name,c.name','ASC')
+            ->getQuery()
+            ->getResult();
+    }
+    
 }

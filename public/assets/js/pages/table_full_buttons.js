@@ -76,6 +76,7 @@ const listenToggleOnOff = async () => {
         method: "POST",
         data: { id: id, visible: status },
         success: (res) => {
+          const color = res.color? res.color:'secondary';
           if (res.visible) {
             rowData[
               columnNumber
@@ -85,7 +86,7 @@ const listenToggleOnOff = async () => {
           } else {
             rowData[
               columnNumber
-            ] = `<a style="font-size:16px" data-status="off" data-slug="${slug}" data-id="${id}" class="text-secondary m-2 toggle-on-off" href="javascript:void(0);">
+            ] = `<a style="font-size:16px" data-status="off" data-slug="${slug}" data-id="${id}" class="text-${color} m-2 toggle-on-off" href="javascript:void(0);">
             <i class="fas fa-toggle-off"></i>
           </a>`;
           }

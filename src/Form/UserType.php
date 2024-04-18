@@ -25,8 +25,8 @@ class UserType extends AbstractType
     {
         $user = $builder->getData();
         $builder
-            ->add('email', EmailType::class, ['label' => 'Correo',])
-            ->add('name', TextType::class, ['label' => 'Nombre','attr' => ['placeholder'=>'Nombre del punto de venta']])
+            ->add('email', EmailType::class, ['label' => 'Correo *','required' => true])
+            ->add('name', TextType::class, ['label' => 'Nombre *','attr' => ['placeholder'=>'Nombre del punto de venta','required' => true]])
             ->add('state', EntityType::class, [
                 'placeholder' => 'Seleccione una provincia',
                 'label' => 'Provincia',
@@ -40,6 +40,8 @@ class UserType extends AbstractType
                         ->setParameter('visible', true);
                 },
             ])
+            ->add('street_address',TextType::class,['label'=>'Dirección *','required' => true])
+            ->add('number_address',TextType::class,['label'=>'Altura N° *','required' => true])
             ->add('city', ChoiceType::class, [
                 'placeholder' => 'Seleccione una localidad/ciudad',
                 'label' => 'Localicad/Ciudad',

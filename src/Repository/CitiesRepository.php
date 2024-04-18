@@ -59,5 +59,4 @@ class CitiesRepository extends ServiceEntityRepository
             ->setParameter('visible', true)
             ->getResult();
     }
-    
 }

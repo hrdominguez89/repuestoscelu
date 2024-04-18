@@ -41,11 +41,23 @@ class User extends BaseUser
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $verification_code = null;
 
+    #[ORM\Column(length: 255, options: ['default' => ''])]
+    private ?string $street_address = '';
+
+    #[ORM\Column(length: 20, options: ['default' => ''])]
+    private ?string $number_address = '';
+
+    #[ORM\Column(options: ['default' => true])]
+    private ?bool $visible = true;
+
     public function __construct()
     {
         parent::__construct();
         $this->change_password = false;
         $this->active = true;
+        $this->visible = true;
+        $this->street_address = '';
+        $this->number_address = '';
     }
 
     public function getRoles(): array
@@ -152,6 +164,42 @@ class User extends BaseUser
     public function setVerificationCode(?string $verification_code): static
     {
         $this->verification_code = $verification_code;
+
+        return $this;
+    }
+
+    public function getStreetAddress(): ?string
+    {
+        return $this->street_address;
+    }
+
+    public function setStreetAddress(string $street_address): static
+    {
+        $this->street_address = $street_address;
+
+        return $this;
+    }
+
+    public function getNumberAddress(): ?string
+    {
+        return $this->number_address;
+    }
+
+    public function setNumberAddress(string $number_address): static
+    {
+        $this->number_address = $number_address;
+
+        return $this;
+    }
+
+    public function isVisible(): ?bool
+    {
+        return $this->visible;
+    }
+
+    public function setVisible(bool $visible): static
+    {
+        $this->visible = $visible;
 
         return $this;
     }
