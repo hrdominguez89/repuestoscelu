@@ -39,7 +39,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->join('u.state', 's')
             ->where('u.active = :active')
             ->andWhere('u.visible = :visible')
-            //->andWhere('u.role = 2') //role 2 = sucursal, 1=superadmin
+            ->andWhere('u.role = 2') //role 2 = sucursal, 1=superadmin
             ->setParameter('active', true)
             ->setParameter('visible', true)
             ->orderBy('s.name,c.name','ASC')
