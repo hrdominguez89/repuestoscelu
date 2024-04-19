@@ -12,7 +12,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: "App\Repository\ProductRepository")]
 #[ORM\Table(name: "mia_product")]
-#[UniqueEntity(fields: ['sale_point', 'cod'])]
+#[UniqueEntity(fields: ['sale_point', 'cod'], message: "Ya se encuentra registrado este código")]
 class Product
 {
 
@@ -62,7 +62,7 @@ class Product
     private $model;
 
     #[ORM\ManyToOne(targetEntity: Specification::class, inversedBy: "products_color")]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private $color;
 
     #[ORM\ManyToOne(targetEntity: Specification::class, inversedBy: "products_screen_resolution")]

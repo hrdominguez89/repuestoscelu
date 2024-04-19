@@ -130,16 +130,17 @@
 
 		<div class="row my-2">
 
+
+			<div class="col-4">
+				{{ form_label (form.conditium) }}
+				{{ form_widget (form.conditium) }}
+				{{ form_errors (form.conditium)}}
+			</div>
+
 			<div class="col-4">
 				{{ form_label (form.color) }}
 				{{ form_widget (form.color) }}
 				{{ form_errors (form.color)}}
-			</div>
-
-			<div class="col-4">
-				{{ form_label (form.screen_resolution) }}
-				{{ form_widget (form.screen_resolution) }}
-				{{ form_errors (form.screen_resolution)}}
 			</div>
 
 			<div class="col-4">
@@ -149,6 +150,12 @@
 			</div>
 		</div>
 		<div class="row my-2">
+			<div class="col-4">
+				{{ form_label (form.screen_resolution) }}
+				{{ form_widget (form.screen_resolution) }}
+				{{ form_errors (form.screen_resolution)}}
+			</div>
+
 			<div class="col-4">
 				{{ form_label (form.cpu) }}
 				{{ form_widget (form.cpu) }}
@@ -160,15 +167,15 @@
 				{{ form_errors (form.gpu)}}
 			</div>
 
+
+		</div>
+
+		<div class="row mt-2 mb-4">
 			<div class="col-4">
 				{{ form_label (form.memory) }}
 				{{ form_widget (form.memory) }}
 				{{ form_errors (form.memory)}}
 			</div>
-		</div>
-
-		<div class="row mt-2 mb-4">
-
 			<div class="col-4">
 				{{ form_label (form.storage) }}
 				{{ form_widget (form.storage) }}
@@ -180,11 +187,6 @@
 				{{ form_errors (form.op_sys)}}
 			</div>
 
-			<div class="col-4">
-				{{ form_label (form.conditium) }}
-				{{ form_widget (form.conditium) }}
-				{{ form_errors (form.conditium)}}
-			</div>
 		</div>
 	</div>
 	{# FIN CARACTERISTICAS #}

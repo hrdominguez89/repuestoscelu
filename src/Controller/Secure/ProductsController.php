@@ -89,12 +89,12 @@ class ProductsController extends AbstractController
         $data['files_js'] = array('../uppy.min.js', '../select2.min.js', 'product/upload_files.js?v=' . rand(), 'product/product.js?v=' . rand());
         $data['files_css'] = array('uppy.min.css', 'select2.min.css', 'select2-bootstrap4.min.css');
         $data['product'] = new Product;
+        $data['product']->setSalePoint($data['user']);
         $form = $this->createForm(ProductType::class, $data['product']);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
 
             $data['product']->setSubcategory($subcategoryRepository->findOneBy(['id' => (int)$request->get('product')['subcategory']]));
-            $data['product']->setSalePoint($data['user']);
             $em->persist($data['product']);
 
 
@@ -103,49 +103,71 @@ class ProductsController extends AbstractController
             $imagesFiles = explode('*,*', $imagesFilesBase64);
 
             if ($imagesFiles[0]) {
-                try {
-                    $indexImage = 0;
-                    foreach ($imagesFiles as $imageFile) {
-                        $images = new ProductImages;
-                        if ($indexImage == 0) {
-                            $images->setPrincipal(true);
-                            $indexImage++;
-                        }
+                if ($imagesFiles[0]) {
+                    try {
+                        $indexImage = !$data['product']->getImage()[0] ? 0 : 1;
+                        foreach ($imagesFiles as $imageFile) {
+                            $images = new ProductImages;
+                            if ($indexImage == 0) {
+                                $images->setPrincipal(true);
+                                $indexImage++;
+                            }
+                            $file = base64_decode(explode(',', $imageFile)[1]);
 
-                        $file = base64_decode(explode(',', $imageFile)[1]);
-                        // Generar un nombre de archivo único (puedes personalizar esto según tus necesidades)
-                        $fileName = uniqid() . '.jpg';
+                            // Crear instancia de UploadedFile a partir del contenido base64
+                            $uploadedFile = new UploadedFile(tempnam(sys_get_temp_dir(), ''), 'filename.jpg');
+                            file_put_contents($uploadedFile->getPathname(), $file);
 
-                        // Ruta temporal donde deseas guardar el archivo
-                        $tmpImagePath = sys_get_temp_dir() . '/' . $fileName;
-
-                        // Guardar el archivo temporal en el sistema de archivos
-                        if (file_put_contents($tmpImagePath, $file)) {
-                            $uploadedFile = new UploadedFile($tmpImagePath, 'original.jpg', 'image/jpeg', null, true);
+                            // Llamar al método upload del servicio FileUploader para la imagen original
                             $imageFileName = $fileUploader->upload($uploadedFile, $productNameSlug, $this->pathImg);
                             $images->setImage($_ENV['AWS_S3_URL'] . $imageFileName);
-                            // El archivo se guardó correctamente
-                        } else {
-                            // Ocurrió un error al guardar el archivo
+
+                            /**
+                             * 
+                             * ARREGLAR SUBIDA DE IMAGEN EN MINIATURA.
+                             * 
+                             */
+
+                            // // Escalar la imagen proporcionalmente
+                            // // Instancia directa de ImageManager
+                            // // $imageManager = new ImageManager();
+                            // $tmpImage = $this->imageManager->make($file);
+                            // $scaledImage = $tmpImage->resize(200, null, function ($constraint) {
+                            //     $constraint->aspectRatio();
+                            //     $constraint->upsize();
+                            // });
+
+                            // // Guardar la imagen redimensionada en un archivo temporal
+                            // $tmpImagePath = sys_get_temp_dir() . '/' . uniqid() . '.jpg';
+                            // $scaledImage->save($tmpImagePath);
+
+                            // // Crear instancia de UploadedFile a partir del archivo temporal
+                            // $uploadedScaledImage = new UploadedFile($tmpImagePath, 'filename.jpg');
+
+                            // // Llamar al método upload del servicio FileUploader para la imagen redimensionada
+                            // $scaledImageFileName = $fileUploader->upload($uploadedScaledImage, $productNameSlug, $this->pathImg);
+                            // $images->setImgThumbnail($_ENV['AWS_S3_URL'] . $scaledImageFileName);
+
+                            // // Eliminar el archivo temporal
+                            // unlink($tmpImagePath);
+
+
+                            /**
+                             * 
+                             * FIN DE SUBIDA IMAGEN MINIATURA
+                             * 
+                             */
+
+                            // Eliminar el archivo temporal de la imagen original
+                            unlink($uploadedFile->getPathname());
+
+                            $images->setProduct($data['product']);
+                            $em->persist($images);
                         }
-                        // $tmpImage = $this->imageManager->make($file);
-                        // $tmpImagePath = sys_get_temp_dir() . '/' . uniqid() . '.jpg';
-                        // $tmpImage->save($tmpImagePath);
-
-
-
-
-                        $scaledImageFileName = $fileUploader->upload($scaledImage, $productNameSlug, $this->pathImg);
-                        $images->setImgThumbnail($_ENV['AWS_S3_URL'] . $scaledImageFileName);
-
-                        // Eliminar el archivo temporal
-                        unlink($tmpImagePath);
-
-                        $images->setProduct($data['product']);
-                        $em->persist($images);
+                    } catch (Exception $e) {
+                        var_dump($e->getMessage());
+                        die();
                     }
-                } catch (\Exception $e) {
-                    var_dump($e->getMessage());
                 }
             }
             $em->flush();
@@ -190,49 +212,61 @@ class ProductsController extends AbstractController
                             $indexImage++;
                         }
                         $file = base64_decode(explode(',', $imageFile)[1]);
-                
+
                         // Crear instancia de UploadedFile a partir del contenido base64
                         $uploadedFile = new UploadedFile(tempnam(sys_get_temp_dir(), ''), 'filename.jpg');
                         file_put_contents($uploadedFile->getPathname(), $file);
-                
+
                         // Llamar al método upload del servicio FileUploader para la imagen original
                         $imageFileName = $fileUploader->upload($uploadedFile, $productNameSlug, $this->pathImg);
                         $images->setImage($_ENV['AWS_S3_URL'] . $imageFileName);
-                
-                        // Escalar la imagen proporcionalmente
-                        // Instancia directa de ImageManager
-                        $imageManager = new ImageManager();
-                        $tmpImage = $imageManager->make($file);
-                        $scaledImage = $tmpImage->resize(200, null, function ($constraint) {
-                            $constraint->aspectRatio();
-                            $constraint->upsize();
-                        });
-                
-                        // Guardar la imagen redimensionada en un archivo temporal
-                        $tmpImagePath = sys_get_temp_dir() . '/' . uniqid() . '.jpg';
-                        $scaledImage->save($tmpImagePath);
-                
-                        // Crear instancia de UploadedFile a partir del archivo temporal
-                        $uploadedScaledImage = new UploadedFile($tmpImagePath, 'filename.jpg');
-                
-                        // Llamar al método upload del servicio FileUploader para la imagen redimensionada
-                        $scaledImageFileName = $fileUploader->upload($uploadedScaledImage, $productNameSlug, $this->pathImg);
-                        $images->setImgThumbnail($_ENV['AWS_S3_URL'] . $scaledImageFileName);
-                
-                        // Eliminar el archivo temporal
-                        unlink($tmpImagePath);
-                
+
+                        /**
+                         * 
+                         * ARREGLAR SUBIDA DE IMAGEN EN MINIATURA.
+                         * 
+                         */
+
+                        // // Escalar la imagen proporcionalmente
+                        // // Instancia directa de ImageManager
+                        // // $imageManager = new ImageManager();
+                        // $tmpImage = $this->imageManager->make($file);
+                        // $scaledImage = $tmpImage->resize(200, null, function ($constraint) {
+                        //     $constraint->aspectRatio();
+                        //     $constraint->upsize();
+                        // });
+
+                        // // Guardar la imagen redimensionada en un archivo temporal
+                        // $tmpImagePath = sys_get_temp_dir() . '/' . uniqid() . '.jpg';
+                        // $scaledImage->save($tmpImagePath);
+
+                        // // Crear instancia de UploadedFile a partir del archivo temporal
+                        // $uploadedScaledImage = new UploadedFile($tmpImagePath, 'filename.jpg');
+
+                        // // Llamar al método upload del servicio FileUploader para la imagen redimensionada
+                        // $scaledImageFileName = $fileUploader->upload($uploadedScaledImage, $productNameSlug, $this->pathImg);
+                        // $images->setImgThumbnail($_ENV['AWS_S3_URL'] . $scaledImageFileName);
+
+                        // // Eliminar el archivo temporal
+                        // unlink($tmpImagePath);
+
+
+                        /**
+                         * 
+                         * FIN DE SUBIDA IMAGEN MINIATURA
+                         * 
+                         */
+
                         // Eliminar el archivo temporal de la imagen original
                         unlink($uploadedFile->getPathname());
-                
+
                         $images->setProduct($data['product']);
                         $em->persist($images);
                     }
                 } catch (Exception $e) {
                     var_dump($e->getMessage());
-                    // Manejar el error apropiadamente
+                    die();
                 }
-                
             }
             $em->flush();
             return $this->redirectToRoute('secure_product_index');

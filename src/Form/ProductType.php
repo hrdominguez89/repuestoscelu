@@ -86,6 +86,7 @@ class ProductType extends AbstractType
                 },
                 'placeholder' => 'Seleccione Color.',
                 'label' => 'Color',
+                'required' => false,
                 'choice_label' => 'name',
             ])
             ->add('cod', TextType::class, ['label' => 'Cod.', 'required' => false, 'attr' => ['style' => 'text-transform: uppercase']])
