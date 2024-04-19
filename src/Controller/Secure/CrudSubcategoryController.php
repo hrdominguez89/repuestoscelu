@@ -87,7 +87,7 @@ class CrudSubcategoryController extends AbstractController
     #[Route("/getSubcategories/{category_id}", name: "secure_get_categories", methods: ["GET"])]
     public function getSubcategories($category_id, SubcategoryRepository $subcategoryRepository): Response
     {
-        $data['data'] = $subcategoryRepository->findSubcategoriesWithId3plByCategoryId($category_id);
+        $data['data'] = $subcategoryRepository->getSubcategoriesVisiblesByCategory($category_id);
         if ($data['data']) {
             $data['status'] = true;
         } else {

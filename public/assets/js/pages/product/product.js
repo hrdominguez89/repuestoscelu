@@ -24,15 +24,8 @@ let totalImages;
 
 $(document).ready(() => {
   initSelect2();
-  initSku();
   initInputs();
   listenSelectCategories();
-  listenBrand();
-  listenSelectModel();
-  listenColor();
-  listenVp1();
-  listenVp2();
-  listenVp3();
   loadGalery();
 });
 
@@ -124,55 +117,6 @@ const initInputs = () => {
   subcategoryId = $('#label-subcategory').data('subcategory-id')
   categoryId = $('#label-category').data('category-id')
   getSubcategories();
-  productId = $('#label-sku').data('product-id') ? parseInt($('#label-sku').data("product-id")) : false;
-
-
-  if (vp1.length == 4) {
-    $('#product_vp2').prop('disabled', false);
-  }
-  if (vp2.length == 4) {
-    $('#product_vp3').prop('disabled', false);
-  }
-  updateSku();
-}
-
-const initSku = async () => {
-  categoryNomenclature = $("#product_category option:selected").text().split(" - ")[1] ? $("#product_category option:selected").text().split(" - ")[1] : '';
-  brandNomenclature = $("#product_brand option:selected").text().split(" - ")[1] ? '-' + $("#product_brand option:selected").text().split(" - ")[1] : '';
-  modelNomenclature = $("#product_model option:selected").val() ? '-' + addZeros($("#product_model option:selected").text().substring($("#product_model option:selected").text().length - 12).replace(/\s|-/g, ""), 12) : '';
-  colorNomenclature = $("#product_color option:selected").val() ? '-' + addZeros($("#product_color option:selected").text().substring(0, 3), 3) : '';
-  vp1 = $('#product_vp1').val() ? '-' + $('#product_vp1').val() : '';
-  vp2 = $('#product_vp2').val() ? '-' + $('#product_vp2').val() : '';
-  vp3 = $('#product_vp3').val() ? '-' + $('#product_vp3').val() : '';
-}
-
-const updateSku = () => {
-  sku = (categoryNomenclature + brandNomenclature + modelNomenclature + colorNomenclature + vp1 + vp2 + vp3).toUpperCase();
-  if (categoryNomenclature && brandNomenclature && modelNomenclature && colorNomenclature && vp1.length == 4) {
-    consultFreeSku();
-  } else {
-    changeBorderColor('warning');
-  }
-  $('#product_sku').val(sku);
-}
-
-const changeBorderColor = (status, message = false) => {
-  let color;
-  switch (status) {
-    case 'warning':
-      color = '#ffc107';
-      $('#message_sku').html('Complete todos los campos para verificar la disponibilidad del SKU.');
-      break;
-    case 'success':
-      color = '#198754';
-      $('#message_sku').html('El SKU se encuentra disponible.');
-      break;
-    case 'danger':
-      color = '#dc3545';
-      $('#message_sku').html(message);
-      break
-  }
-  $('#product_sku').css('border-color', color)
 }
 
 const listenSelectCategories = () => {
@@ -187,100 +131,14 @@ const listenSelectCategories = () => {
       await getSubcategories();
     }
     $("#product_subcategory").trigger("chosen:updated");
-    updateSku();
   });
 };
 
-const listenBrand = () => {
-  $('#product_brand').on("change", () => {
-    brandNomenclature = $("#product_brand option:selected").text().split(" - ")[1] ? '-' + $("#product_brand option:selected").text().split(" - ")[1] : '';
-    updateSku();
-  });
-
-}
 function addZeros(text, zerosQuantity) {
   while (text.length < zerosQuantity) {
     text = "0" + text;
   }
   return text;
-}
-
-const listenSelectModel = () => {
-  $("#product_model").change(function () {
-    if (parseInt($("#product_model").val())) {
-      modelNomenclature = $("#product_model option:selected").text().substring($("#product_model option:selected").text().length - 12).replace(/\s|-/g, "");
-      modelNomenclature = addZeros(modelNomenclature, 12);
-      modelNomenclature = '-' + modelNomenclature;
-      if (modelNomenclature == '-') {
-        modelNomenclature = '';
-      }
-    } else {
-      modelNomenclature = '';
-    }
-    updateSku();
-  });
-}
-const listenColor = () => {
-  $("#product_color").change(function () {
-    if (parseInt($("#product_color").val())) {
-      colorNomenclature = $("#product_color option:selected").text().substring(0, 3);
-      colorNomenclature = addZeros(colorNomenclature, 3);
-      colorNomenclature = '-' + colorNomenclature;
-      if (colorNomenclature == '-') {
-        colorNomenclature = '';
-      }
-    } else {
-      colorNomenclature = '';
-    }
-    updateSku();
-  });
-}
-const listenVp1 = () => {
-  $("#product_vp1").keyup(function () {
-    vp1 = '-' + $(this).val();
-    if (vp1 == '-' || vp1.length <= 3) {
-      vp1 = '';
-
-      vp2 = '';
-      $("#product_vp2").prop("disabled", true);
-      $("#product_vp2").val('');
-
-      vp3 = '';
-      $("#product_vp3").prop("disabled", true);
-      $("#product_vp3").val('');
-
-    } else {
-      $("#product_vp2").prop("disabled", false);
-    }
-
-    updateSku();
-  });
-}
-const listenVp2 = () => {
-  $("#product_vp2").keyup(function () {
-    vp2 = '-' + $(this).val();
-    if (vp2 == '-' || vp2.length <= 3) {
-      vp2 = '';
-
-      vp3 = '';
-      $("#product_vp3").prop("disabled", true);
-      $("#product_vp3").val('');
-
-    } else {
-      $("#product_vp3").prop("disabled", false);
-    }
-
-    updateSku();
-  });
-}
-const listenVp3 = () => {
-  $("#product_vp3").keyup(function () {
-    vp3 = '-' + $(this).val();
-    if (vp3 == '-' || vp3.length <= 3) {
-      vp3 = '';
-    }
-    updateSku();
-  });
 }
 
 const getSubcategories = () => {
@@ -307,26 +165,6 @@ const getSubcategories = () => {
     },
   });
 };
-
-const consultFreeSku = () => {
-  let query_string = '';
-  if (productId) {
-    query_string = '?product_id=' + productId
-  }
-  $.ajax({
-    url: `/secure/product/consultFreeSku/${sku}${query_string}`,
-    method: "GET",
-    success: async (res) => {
-      if (res.status) {
-        changeBorderColor('success');
-        $("#product_subcategory").prop("disabled", false);
-      } else {
-        changeBorderColor('danger', res.message);
-      }
-    },
-  });
-}
-
 
 const cleanSelects = (disable = false) => {
   const defaultOptionSelect = $("<option></option>").text(

@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Entity\Model\User as BaseUser;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
@@ -50,6 +52,9 @@ class User extends BaseUser
     #[ORM\Column(options: ['default' => true])]
     private ?bool $visible = true;
 
+    #[ORM\OneToMany(mappedBy: 'sale_point', targetEntity: Product::class)]
+    private Collection $products;
+
     public function __construct()
     {
         parent::__construct();
@@ -58,6 +63,7 @@ class User extends BaseUser
         $this->visible = true;
         $this->street_address = '';
         $this->number_address = '';
+        $this->products = new ArrayCollection();
     }
 
     public function getRoles(): array
@@ -200,6 +206,36 @@ class User extends BaseUser
     public function setVisible(bool $visible): static
     {
         $this->visible = $visible;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Product>
+     */
+    public function getProducts(): Collection
+    {
+        return $this->products;
+    }
+
+    public function addProduct(Product $product): static
+    {
+        if (!$this->products->contains($product)) {
+            $this->products->add($product);
+            $product->setSalePoint($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProduct(Product $product): static
+    {
+        if ($this->products->removeElement($product)) {
+            // set the owning side to null (unless already changed)
+            if ($product->getSalePoint() === $this) {
+                $product->setSalePoint(null);
+            }
+        }
 
         return $this;
     }

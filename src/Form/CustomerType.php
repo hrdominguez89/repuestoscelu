@@ -57,7 +57,7 @@ class CustomerType extends AbstractType
             ])
             ->add('street_address', TextType::class, ['label' => 'Dirección *', 'required' => true])
             ->add('number_address', TextType::class, ['label' => 'Altura *', 'required' => true])
-            ->add('floor_apartment', TextType::class, ['label' => 'Piso/Depto', 'required' => true]);
+            ->add('floor_apartment', TextType::class, ['label' => 'Piso/Depto']);
         if ($customer && $customer->getId()) {
             $builder->add('reset_password', CheckboxType::class, [
                 'label'    => 'Reiniciar contraseña',

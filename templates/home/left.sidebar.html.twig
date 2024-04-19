@@ -129,7 +129,7 @@
 
 					</ul>
 				</li> #}
-
+				{% if is_granted('ROLE_SUPER_ADMIN') %}
 				<li>
 					<a href="{{ path('secure_crud_user_index') }}">
 						<i class="fas fa-warehouse"></i>
@@ -137,26 +137,21 @@
 					</a>
 				</li>
 
-				{# <li>
-					<a href="{{ path('api_clients') }}">
-						<i class="fas fa-user-lock"></i>
-						<span>Usuarios API</span>
-					</a>
-				</li> #}
-
 				<li>
 					<a href="{{ path('secure_crud_customer_index') }}">
 						<i class="fas fa-user-tie"></i>
 						<span data-key="t-customers">Clientes</span>
 					</a>
 				</li>
-
+				
 				<li>
 					<a href="{{ path('secure_crud_world_index') }}">
 						<i class="fas fa-map-marked-alt"></i>
 						<span>Provincias/Ciudades</span>
 					</a>
 				</li>
+				{% endif %}
+
 				<li>
 					<a href="javascript: void(0);" class="has-arrow water-green-background">
 						<i class="bx bxs-spreadsheet"></i>
@@ -193,7 +188,7 @@
 						<li>
 							<a href="{{ path('secure_product_index') }}">
 								<i class="fas fa-tv"></i>
-								<span data-key="t-products">Productos</span>
+								<span>Mis productos</span>
 							</a>
 						</li>
 						<li>

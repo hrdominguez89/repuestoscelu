@@ -14,11 +14,7 @@ class TagType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('name', TextType::class, ['label' => 'Nombre', 'attr' => ['style' => 'text-transform: uppercase', 'required' => true]])
-            ->add('principal', CheckboxType::class, [
-                'label'    => 'Establecer como etiqueta principal',
-                'required' => false,
-            ]);
+            ->add('name', TextType::class, ['label' => 'Nombre', 'attr' => ['style' => 'text-transform: uppercase', 'required' => true]]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

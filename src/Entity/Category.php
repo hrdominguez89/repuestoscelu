@@ -43,11 +43,8 @@ class Category
     private $created_at;
 
 
-    #[ORM\Column(type: "boolean", nullable: false, options: ["default" => true])]
-    private $visible = true;
-
     #[ORM\Column(type: "boolean", nullable: false, options: ["default" => false])]
-    private $principal = false;
+    private $visible = false;
 
     #[ORM\Column(name: "description_en", type: "text", nullable: true)]
     private $descriptionEn;
@@ -59,8 +56,7 @@ class Category
     {
         $this->products = new ArrayCollection();
         $this->created_at = new \DateTime();
-        $this->visible = true;
-        $this->principal = false;
+        $this->visible = false;
         $this->subcategories = new ArrayCollection();
     }
 
@@ -246,18 +242,6 @@ class Category
     public function setSlug(string $slug): self
     {
         $this->slug = $slug;
-
-        return $this;
-    }
-
-    public function getPrincipal(): ?bool
-    {
-        return $this->principal;
-    }
-
-    public function setPrincipal(bool $principal): self
-    {
-        $this->principal = $principal;
 
         return $this;
     }

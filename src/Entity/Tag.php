@@ -33,18 +33,10 @@ class Tag
     #[ORM\Column(type: "datetime", nullable: false)]
     private $created_at;
 
-    #[ORM\OneToMany(targetEntity: Product::class, mappedBy: "tag")]
-    private $products;
-
-    #[ORM\Column(type: "boolean", nullable: false, options: ["default" => false])]
-    private $principal;
-
     public function __construct()
     {
         $this->visible = false;
         $this->created_at = new \DateTime();
-        $this->products = new ArrayCollection();
-        $this->principal = false;
     }
 
     /**
@@ -113,48 +105,6 @@ class Tag
     public function setCreatedAt(?\DateTimeInterface $created_at): self
     {
         $this->created_at = $created_at;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Product>
-     */
-    public function getProducts(): Collection
-    {
-        return $this->products;
-    }
-
-    public function addProduct(Product $product): self
-    {
-        if (!$this->products->contains($product)) {
-            $this->products[] = $product;
-            $product->setTag($this);
-        }
-
-        return $this;
-    }
-
-    public function removeProduct(Product $product): self
-    {
-        if ($this->products->removeElement($product)) {
-            // set the owning side to null (unless already changed)
-            if ($product->getTag() === $this) {
-                $product->setTag(null);
-            }
-        }
-
-        return $this;
-    }
-
-    public function getPrincipal(): ?bool
-    {
-        return $this->principal;
-    }
-
-    public function setPrincipal(bool $principal): self
-    {
-        $this->principal = $principal;
 
         return $this;
     }

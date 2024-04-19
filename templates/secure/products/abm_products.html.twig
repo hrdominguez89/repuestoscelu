@@ -33,11 +33,7 @@
 								Visible &nbsp;
 							</th>
 
-							<th>SKU &nbsp;</th>
-
 							<th>COD &nbsp;</th>
-
-							<th>Part number / UPC &nbsp;</th>
 
 							<th>Nombre &nbsp;</th>
 
@@ -48,24 +44,6 @@
 							<th>Categoría &nbsp;</th>
 
 							<th>Subcategoría &nbsp;</th>
-
-							<th>Costo &nbsp;</th>
-							
-							{# <th>Precio &nbsp;</th> #}
-
-							<th>Descuento activo &nbsp;</th>
-
-							<th>Etiqueta &nbsp;</th>
-
-							<th>Estado etiqueta &nbsp;</th>
-
-							<th>Etiqueta expira en &nbsp;</th>
-
-							<th>Cant. Disponible&nbsp;</th>
-
-							<th>Cant. Reservado &nbsp;</th>
-
-							{# <th>Cant. Por llegar&nbsp;</th> #}
 
 							<th>Condición &nbsp;</th>
 
@@ -98,11 +76,7 @@
 									</a>
 								</td>
 
-								<td>{{product.sku}}</td>
-
 								<td>{{product.cod}}</td>
-
-								<td>{{product.partNumber}}</td>
 
 								<td>{{product.name}}</td>
 
@@ -113,63 +87,6 @@
 								<td>{{product.category.name}}</td>
 
 								<td>{{product.subcategory ? product.subcategory.name:''}}</td>
-
-								<td class="text-center">$
-									{{product.cost|number_format(2, ',','.')}}</td>
-
-								{# <td class="text-center">$
-									{{product.price|number_format(2, ',','.')}}</td> #}
-
-								<td class="text-center">{{product.getDiscountActive ? '% ' ~ product.getDiscountActive :''}}</td>
-
-								<td class="text-center">{{ product.tag ? product.tag.name:'' }}</td>
-
-								{# creo mensajes de fecha y mensaje de activo. #}
-
-								{% set mensaje_etiqueta_activo = '' %}
-								
-								{% set mensaje_etiqueta_fecha = '' %}
-
-
-								{% if product.tag %}
-
-									{% set mensaje_etiqueta_activo = 'Activo' %}
-									{% set mensaje_etiqueta_fecha = 'No expira' %}
-
-									{% if product.getTagExpires %}
-
-										{% set mensaje_etiqueta_fecha = 'Expira el ' ~ product.getTagExpirationDate|date('d/m/Y') %}
-
-
-										{% set fecha_entidad = date(product.getTagExpirationDate) %}
-										{# Suponiendo que la fecha está almacenada en el campo 'fecha' de la entidad #}
-
-										{% set fecha_actual = date() %}
-										{# Obteniendo la fecha actual #}
-
-										{% if fecha_entidad < fecha_actual %}
-											{% set mensaje_etiqueta_activo = 'Inactivo' %}
-											{% set mensaje_etiqueta_fecha = 'Expiró el ' ~ fecha_entidad|date('d/m/Y') %}
-										{% endif %}
-										{# fin comparacion de fechas #}
-
-									{% endif %}
-									{# fin product.tag_expires #}
-
-								{% endif %}
-								{# fin product.tag #}
-
-
-								<td class="text-center">{{ mensaje_etiqueta_activo }}</td>
-
-
-								<td class="text-center">{{ mensaje_etiqueta_fecha }}</td>
-
-								<td class="text-center">{{product.available}}</td>
-								
-								<td class="text-center">{{product.commited}}</td>
-
-								{# <td class="text-center">{{product.incomming}}</td> #}
 
 								<td class="text-center">{{ product.conditium.name }}</td>
 

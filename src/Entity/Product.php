@@ -7,11 +7,12 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 
 #[ORM\Entity(repositoryClass: "App\Repository\ProductRepository")]
 #[ORM\Table(name: "mia_product")]
+#[UniqueEntity(fields: ['sale_point', 'cod'])]
 class Product
 {
 
@@ -19,19 +20,6 @@ class Product
     #[ORM\GeneratedValue]
     #[ORM\Column(type: "bigint")]
     protected $id;
-
-    #[ORM\Column(name: "sku", type: "string", length: 255, nullable: false, unique: true)]
-    #[Assert\Length(
-        min: 28,
-        max: 36,
-        minMessage: "El valor es demasiado corto. Debe tener 28 caracteres o más.",
-        maxMessage: "El valor es demasiado largo. Debe tener 36 caracteres o menos."
-    )]
-    #[Assert\Regex(
-        pattern: "/^[A-Za-z0-9]{3}-[A-Za-z0-9]{3}-[A-Za-z0-9]{12}-[A-Za-z0-9]{3}-[A-Za-z0-9]{3}(?:-[A-Za-z0-9]{3}(?:-[A-Za-z0-9]{3})?)?$/",
-        message: "El sku no cumple con el formato requerido"
-    )]
-    protected $sku;
 
     #[ORM\Column(name: "name", type: "string", nullable: false, length: 255)]
     protected $name;
@@ -48,21 +36,6 @@ class Product
     #[ORM\Column(type: "string", length: 100, nullable: "true")]
     private $cod;
 
-    #[ORM\Column(type: "string", length: 15, nullable: "true")]
-    private $part_number;
-
-    #[ORM\Column(type: "integer", nullable: false, options: ["default" => 0])]
-    private $onhand;
-
-    #[ORM\Column(type: "integer", nullable: false, options: ["default" => 0])]
-    private $commited;
-
-    #[ORM\Column(type: "integer", nullable: false, options: ["default" => 0])]
-    private $incomming;
-
-    #[ORM\Column(type: "integer", nullable: false, options: ["default" => 0])]
-    private $available;
-
     #[ORM\ManyToOne(targetEntity: Category::class, inversedBy: "products")]
     private $category;
 
@@ -75,29 +48,14 @@ class Product
     #[ORM\OneToMany(targetEntity: ProductImages::class, mappedBy: "product", orphanRemoval: true)]
     private $image;
 
-    #[ORM\Column(name: "description_en", nullable: true, type: "text")]
-    private $descriptionEn;
-
     #[ORM\ManyToOne(targetEntity: Subcategory::class, inversedBy: "products")]
     private $subcategory;
-
-    #[ORM\OneToMany(targetEntity: HistoryProductStockUpdated::class, mappedBy: "product")]
-    private $historyProductStockUpdateds;
-
-    #[ORM\OneToMany(targetEntity: ItemsGuideNumber::class, mappedBy: "product")]
-    private $itemsGuideNumbers;
 
     #[ORM\OneToMany(targetEntity: OrdersProducts::class, mappedBy: "product")]
     private $ordersProducts;
 
     #[ORM\Column(type: "text", nullable: true)]
     private $long_description_es;
-
-    #[ORM\Column(type: "text", nullable: true)]
-    private $long_description_en;
-
-    #[ORM\Column(type: "float", nullable: true)]
-    private $weight;
 
     #[ORM\ManyToOne(targetEntity: Specification::class, inversedBy: "products_model")]
     #[ORM\JoinColumn(nullable: false)]
@@ -132,53 +90,22 @@ class Product
     #[ORM\JoinColumn(nullable: false)]
     private $conditium;
 
-    #[ORM\Column(type: "boolean", nullable: true)]
-    private $tag_expires;
-
-    #[ORM\ManyToOne(targetEntity: Tag::class, inversedBy: "products")]
-    private $tag;
-
-    #[ORM\Column(type: "date", nullable: true)]
-    private $tag_expiration_date;
-
-    #[ORM\OneToMany(targetEntity: HistoricalPriceCost::class, mappedBy: "product", cascade: ["persist"])]
-    private $historicalPriceCosts;
-
-    private $price;
-
-    private $cost;
-
-    #[ORM\Column(type: "smallint", options: ["default" => 5])]
-    private $rating;
-
-    #[ORM\Column(type: "bigint")]
-    private $reviews;
-
-    #[ORM\OneToMany(targetEntity: ProductDiscount::class, mappedBy: "product")]
-    private $productDiscounts;
-
     #[ORM\OneToMany(targetEntity: FavoriteProduct::class, mappedBy: "product")]
     private $favoriteProducts;
 
     #[ORM\OneToMany(targetEntity: ShoppingCart::class, mappedBy: "product")]
     private $shoppingCarts;
 
+    #[ORM\ManyToOne(inversedBy: 'products')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?user $sale_point = null;
+
     public function __construct()
     {
         $this->created_at = new \DateTime();
         $this->visible = false;
         $this->image = new ArrayCollection();
-        $this->onhand = 0;
-        $this->commited = 0;
-        $this->incomming = 0;
-        $this->available = 0;
-        $this->historyProductStockUpdateds = new ArrayCollection();
-        $this->itemsGuideNumbers = new ArrayCollection();
         $this->ordersProducts = new ArrayCollection();
-        $this->historicalPriceCosts = new ArrayCollection();
-        $this->rating = 5;
-        $this->reviews = rand(0, 100);
-        $this->productDiscounts = new ArrayCollection();
         $this->favoriteProducts = new ArrayCollection();
         $this->shoppingCarts = new ArrayCollection();
     }
@@ -190,26 +117,6 @@ class Product
     {
         return $this->id;
     }
-
-    /**
-     * @return string|null
-     */
-    public function getSku(): ?string
-    {
-        return $this->sku;
-    }
-
-    /**
-     * @param string|null $sku
-     * @return $this
-     */
-    public function setSku(?string $sku): self
-    {
-        $this->sku = $sku;
-
-        return $this;
-    }
-
 
     /**
      * @return string|null
@@ -290,66 +197,6 @@ class Product
     public function setCod(?string $cod): self
     {
         $this->cod = $cod;
-
-        return $this;
-    }
-
-    public function getPartNumber(): ?string
-    {
-        return $this->part_number;
-    }
-
-    public function setPartNumber(?string $part_number): self
-    {
-        $this->part_number = $part_number;
-
-        return $this;
-    }
-
-    public function getOnhand(): ?int
-    {
-        return $this->onhand;
-    }
-
-    public function setOnhand(int $onhand): self
-    {
-        $this->onhand = $onhand;
-
-        return $this;
-    }
-
-    public function getCommited(): ?int
-    {
-        return $this->commited;
-    }
-
-    public function setCommited(int $commited): self
-    {
-        $this->commited = $commited;
-
-        return $this;
-    }
-
-    public function getIncomming(): ?int
-    {
-        return $this->incomming;
-    }
-
-    public function setIncomming(int $incomming): self
-    {
-        $this->incomming = $incomming;
-
-        return $this;
-    }
-
-    public function getAvailable(): ?int
-    {
-        return $this->available;
-    }
-
-    public function setAvailable(int $available): self
-    {
-        $this->available = $available;
 
         return $this;
     }
@@ -436,22 +283,6 @@ class Product
         return $this;
     }
 
-    public function getDescriptionEn(): ?string
-    {
-        return $this->descriptionEn;
-    }
-
-    /**
-     * @param string|null $descriptionEn
-     * @return $this
-     */
-    public function setDescriptionEn(?string $descriptionEn): self
-    {
-        $this->descriptionEn = $descriptionEn;
-
-        return $this;
-    }
-
     public function getSubcategory(): ?Subcategory
     {
         return $this->subcategory;
@@ -471,81 +302,13 @@ class Product
             'category_id' => $this->getCategory()->getId(),
             'subcategory_id' => $this->getSubcategory() ? $this->getSubcategory()->getId() : '',
             'brand_id' => $this->getBrand()->getId(),
-            'sku' => $this->getSku(),
             'cod' => $this->getCod(),
-            'part_number' => $this->getPartNumber(),
             'name' => $this->getName(),
             'description' => $this->getDescriptionEs(),
-            'weight' => $this->getWeight(),
             'conditium' => $this->getConditium()->getName(),
-            'cost' => $this->getCost(),
-            'price' => $this->getPrice(),
-            'onhand' => $this->getOnhand(),
-            'commited' => $this->getCommited(),
-            'incomming' => $this->getIncomming(),
-            'available' => $this->getAvailable()
         ];
     }
 
-    /**
-     * @return Collection<int, HistoryProductStockUpdated>
-     */
-    public function getHistoryProductStockUpdateds(): Collection
-    {
-        return $this->historyProductStockUpdateds;
-    }
-
-    public function addHistoryProductStockUpdated(HistoryProductStockUpdated $historyProductStockUpdated): self
-    {
-        if (!$this->historyProductStockUpdateds->contains($historyProductStockUpdated)) {
-            $this->historyProductStockUpdateds[] = $historyProductStockUpdated;
-            $historyProductStockUpdated->setProduct($this);
-        }
-
-        return $this;
-    }
-
-    public function removeHistoryProductStockUpdated(HistoryProductStockUpdated $historyProductStockUpdated): self
-    {
-        if ($this->historyProductStockUpdateds->removeElement($historyProductStockUpdated)) {
-            // set the owning side to null (unless already changed)
-            if ($historyProductStockUpdated->getProduct() === $this) {
-                $historyProductStockUpdated->setProduct(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, ItemsGuideNumber>
-     */
-    public function getItemsGuideNumbers(): Collection
-    {
-        return $this->itemsGuideNumbers;
-    }
-
-    public function addItemsGuideNumber(ItemsGuideNumber $itemsGuideNumber): self
-    {
-        if (!$this->itemsGuideNumbers->contains($itemsGuideNumber)) {
-            $this->itemsGuideNumbers[] = $itemsGuideNumber;
-            $itemsGuideNumber->setProduct($this);
-        }
-
-        return $this;
-    }
-
-    public function removeItemsGuideNumber(ItemsGuideNumber $itemsGuideNumber): self
-    {
-        if ($this->itemsGuideNumbers->removeElement($itemsGuideNumber)) {
-            // set the owning side to null (unless already changed)
-            if ($itemsGuideNumber->getProduct() === $this) {
-                $itemsGuideNumber->setProduct(null);
-            }
-        }
-
-        return $this;
-    }
 
     /**
      * @return Collection<int, OrdersProducts>
@@ -585,30 +348,6 @@ class Product
     public function setLongDescriptionEs(?string $long_description_es): self
     {
         $this->long_description_es = $long_description_es;
-
-        return $this;
-    }
-
-    public function getLongDescriptionEn(): ?string
-    {
-        return $this->long_description_en;
-    }
-
-    public function setLongDescriptionEn(?string $long_description_en): self
-    {
-        $this->long_description_en = $long_description_en;
-
-        return $this;
-    }
-
-    public function getWeight(): ?float
-    {
-        return $this->weight;
-    }
-
-    public function setWeight(float $weight): self
-    {
-        $this->weight = $weight;
 
         return $this;
     }
@@ -733,173 +472,12 @@ class Product
         return $this;
     }
 
-    public function getTagExpires(): ?bool
-    {
-        return $this->tag_expires;
-    }
-
-    public function setTagExpires(?bool $tag_expires): self
-    {
-        $this->tag_expires = $tag_expires;
-
-        return $this;
-    }
-
-    public function getTag(): ?Tag
-    {
-        return $this->tag;
-    }
-
-    public function setTag(?Tag $tag): self
-    {
-        $this->tag = $tag;
-
-        return $this;
-    }
-
-    public function getTagExpirationDate(): ?\DateTimeInterface
-    {
-        return $this->tag_expiration_date;
-    }
-
-    public function setTagExpirationDate(?\DateTimeInterface $tag_expiration_date): self
-    {
-        $this->tag_expiration_date = $tag_expiration_date;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, HistoricalPriceCost>
-     */
-    public function getHistoricalPriceCosts(): Collection
-    {
-        return $this->historicalPriceCosts;
-    }
-
-    public function addHistoricalPriceCost(HistoricalPriceCost $historicalPriceCost): self
-    {
-        if (!$this->historicalPriceCosts->contains($historicalPriceCost)) {
-            $this->historicalPriceCosts[] = $historicalPriceCost;
-            $historicalPriceCost->setProduct($this);
-        }
-
-        return $this;
-    }
-
-    public function removeHistoricalPriceCost(HistoricalPriceCost $historicalPriceCost): self
-    {
-        if ($this->historicalPriceCosts->removeElement($historicalPriceCost)) {
-            // set the owning side to null (unless already changed)
-            if ($historicalPriceCost->getProduct() === $this) {
-                $historicalPriceCost->setProduct(null);
-            }
-        }
-
-        return $this;
-    }
-
-    public function getPrice()
-    {
-        $price = $this->getHistoricalPriceCosts()->filter(function (HistoricalPriceCost $historicalPriceCost) {
-            return $historicalPriceCost->getPrice();
-        });
-        return $price->last() ? $price->last()->getPrice() : null;
-    }
-
-    public function setPrice(float $price): self
-    {
-        $this->price = $price;
-        return $this;
-    }
-
-    public function getCost()
-    {
-        $cost = $this->getHistoricalPriceCosts()->filter(function (HistoricalPriceCost $historicalPriceCost) {
-            return $historicalPriceCost->getCost();
-        });
-        return $cost->last() ? $cost->last()->getCost() : null;
-    }
-
-    public function setCost(float $cost): self
-    {
-        $this->cost = $cost;
-        return $this;
-    }
-
-    public function getRating(): ?int
-    {
-        return $this->rating;
-    }
-
-    public function setRating(int $rating): self
-    {
-        $this->rating = $rating;
-
-        return $this;
-    }
-
-    public function getReviews(): ?string
-    {
-        return $this->reviews;
-    }
-
-    public function setReviews(string $reviews): self
-    {
-        $this->reviews = $reviews;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, ProductDiscount>
-     */
-    public function getProductDiscounts(): Collection
-    {
-        return $this->productDiscounts;
-    }
-
-    public function addProductDiscount(ProductDiscount $productDiscount): self
-    {
-        if (!$this->productDiscounts->contains($productDiscount)) {
-            $this->productDiscounts[] = $productDiscount;
-            $productDiscount->setProduct($this);
-        }
-
-        return $this;
-    }
-
-    public function removeProductDiscount(ProductDiscount $productDiscount): self
-    {
-        if ($this->productDiscounts->removeElement($productDiscount)) {
-            // set the owning side to null (unless already changed)
-            if ($productDiscount->getProduct() === $this) {
-                $productDiscount->setProduct(null);
-            }
-        }
-
-        return $this;
-    }
-
-    public function getDiscountActive()
-    {
-        $discountActive = $this->getProductDiscounts()->filter(function (ProductDiscount $productDiscount) {
-            return $productDiscount->getActive();
-        });
-        return $discountActive->first() ? $discountActive->first()->getPercentageDiscount() : null;
-    }
-
     public function getBasicDataProduct()
     {
         return [
             "id" => (int)$this->getId(),
             "name" => $this->getName(),
             "image" => $this->getPrincipalImage(),
-            "rating" => (int)$this->getRating(),
-            "reviews" => (int)$this->getReviews(),
-            "old_price" => $this->getDiscountActive() ? $this->getPrice() : null,
-            "price" => $this->getDiscountActive() ?  ($this->getPrice() - (($this->getPrice() / 100) * $this->getDiscountActive())) : $this->getPrice(),
-            "available" => $this->getAvailable(),
         ];
     }
 
@@ -959,6 +537,18 @@ class Product
                 $shoppingCart->setProduct(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getSalePoint(): ?user
+    {
+        return $this->sale_point;
+    }
+
+    public function setSalePoint(?user $sale_point): static
+    {
+        $this->sale_point = $sale_point;
 
         return $this;
     }

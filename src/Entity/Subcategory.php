@@ -29,8 +29,8 @@ class Subcategory
     #[ORM\Column(name: "slug", type: "string", length: 255, nullable: false)]
     protected $slug;
 
-    #[ORM\Column(type: "boolean", nullable: true, options: ["default" => true])]
-    private $visible = true;
+    #[ORM\Column(type: "boolean", nullable: true, options: ["default" => false])]
+    private $visible = false;
 
     #[ORM\Column(type: "datetime", nullable: false)]
     private $created_at;
@@ -46,7 +46,7 @@ class Subcategory
     public function __construct()
     {
         $this->created_at = new \DateTime();
-        $this->visible = true;
+        $this->visible = false;
         $this->products = new ArrayCollection();
     }
 

@@ -13,10 +13,6 @@ class HistoricalPriceCost
      #[ORM\Column(type:"integer")]
     private $id;
 
-     #[ORM\ManyToOne(targetEntity:Product::class, inversedBy:"historicalPriceCosts")]
-     #[ORM\JoinColumn(nullable:false)]
-    private $product;
-
      #[ORM\Column(type:"float")]
     private $cost;
 
@@ -34,18 +30,6 @@ class HistoricalPriceCost
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getProduct(): ?Product
-    {
-        return $this->product;
-    }
-
-    public function setProduct(?Product $product): self
-    {
-        $this->product = $product;
-
-        return $this;
     }
 
     public function getCost(): ?float

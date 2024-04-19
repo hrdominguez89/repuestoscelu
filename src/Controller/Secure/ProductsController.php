@@ -2,7 +2,6 @@
 
 namespace App\Controller\Secure;
 
-use App\Entity\HistoricalPriceCost;
 use App\Entity\Product;
 use App\Entity\ProductDiscount;
 use App\Entity\ProductImages;
@@ -18,6 +17,7 @@ use App\Repository\ProductTagRepository;
 use App\Repository\SpecificationRepository;
 use App\Repository\SubcategoryRepository;
 use App\Repository\TagRepository;
+use App\Service\FileUploader;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -25,10 +25,14 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Intervention\Image\ImageManager;
 use Aws\S3\S3Client;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
+use Intervention\Image\ImageManager;
 use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+
+
 
 #[Route("/product")]
 class ProductsController extends AbstractController
@@ -42,7 +46,6 @@ class ProductsController extends AbstractController
      */
     public function __construct(
         ProductRepository $productRepository,
-        ParameterBagInterface $parameterBag,
         BrandRepository $brandRepository,
         SpecificationRepository $specificacionRepository,
         ProductTagRepository $productTagRepository,
@@ -50,7 +53,6 @@ class ProductsController extends AbstractController
         SubcategoryRepository $subcategoryRepository,
         ProductSubcategoryRepository $productSubcategoryRepository,
         ProductImagesRepository $productImagesRepository,
-        ImageManager $imageManager
     ) {
         $this->productRepository = $productRepository;
         $this->brandRepository = $brandRepository;
@@ -59,16 +61,14 @@ class ProductsController extends AbstractController
         $this->specificacionRepository = $specificacionRepository;
         $this->productSubcategoryRepository = $productSubcategoryRepository;
         $this->productTagRepository = $productTagRepository;
-        $this->parameterBag = $parameterBag;
         $this->productImagesRepository = $productImagesRepository;
-        $this->imageManager = $imageManager;
     }
 
     #[Route("/", name: "secure_product_index", methods: ["GET"])]
     public function index(ProductRepository $productRepository): Response
     {
         $data['products'] = $productRepository->findAll();
-        $data['title'] = 'Productos';
+        $data['title'] = 'Mis productos';
         $data['files_js'] = array('table_full_buttons.js?v=' . rand());
         $data['breadcrumbs'] = array(
             array('active' => true, 'title' => $data['title'])
@@ -78,8 +78,9 @@ class ProductsController extends AbstractController
     }
 
     #[Route("/new", name: "secure_product_new", methods: ["GET", "POST"])]
-    public function new(EntityManagerInterface $em, Request $request, SluggerInterface $slugger, SubcategoryRepository $subcategoryRepository): Response
+    public function new(EntityManagerInterface $em, Request $request, SluggerInterface $slugger, SubcategoryRepository $subcategoryRepository, FileUploader $fileUploader): Response
     {
+        $data['user'] = $this->getUser();
         $data['title'] = 'Nuevo producto';
         $data['breadcrumbs'] = array(
             array('path' => 'secure_product_index', 'title' => 'Productos'),
@@ -93,32 +94,16 @@ class ProductsController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
 
             $data['product']->setSubcategory($subcategoryRepository->findOneBy(['id' => (int)$request->get('product')['subcategory']]));
-
-            $entityManager = $em;
-            $entityManager->persist($data['product']);
+            $data['product']->setSalePoint($data['user']);
+            $em->persist($data['product']);
 
 
             $productNameSlug = $slugger->slug($form->get('name')->getData());
             $imagesFilesBase64 = $form->get('images')->getData();
             $imagesFiles = explode('*,*', $imagesFilesBase64);
 
-            $historicalPriceCost = new HistoricalPriceCost;
-            $historicalPriceCost->setProduct($data['product']);
-            // $historicalPriceCost->setPrice($form->get('price')?$form->get('price')->getData():null);
-            $historicalPriceCost->setCost($form->get('cost')->getData());
-            // $historicalPriceCost->setCreatedByUser($this->getUser());
-            $entityManager->persist($historicalPriceCost);
-
             if ($imagesFiles[0]) {
                 try {
-                    $s3 = new S3Client([
-                        'region' => $_ENV['AWS_S3_BUCKET_REGION'],
-                        'version' => 'latest',
-                        'credentials' => [
-                            'key' => $_ENV['AWS_S3_ACCESS_ID'],
-                            'secret' => $_ENV['AWS_S3_ACCESS_SECRET'],
-                        ],
-                    ]);
                     $indexImage = 0;
                     foreach ($imagesFiles as $imageFile) {
                         $images = new ProductImages;
@@ -128,50 +113,43 @@ class ProductsController extends AbstractController
                         }
 
                         $file = base64_decode(explode(',', $imageFile)[1]);
-                        $tmpImage = $this->imageManager->make($file);
-                        $tmpImagePath = sys_get_temp_dir() . '/' . uniqid() . '.jpg';
-                        $tmpImage->save($tmpImagePath);
+                        // Generar un nombre de archivo único (puedes personalizar esto según tus necesidades)
+                        $fileName = uniqid() . '.jpg';
 
-                        $originalImagePath = $_ENV['APP_ENV'] === 'prod' ? 'prod/' . $this->pathImg . '/' . $productNameSlug . '-' . uniqid() . '.jpg' : 'test/' . $this->pathImg . '/' . $productNameSlug . '-' . uniqid() . '.jpg';
-                        $scaledImagePath = $_ENV['APP_ENV'] === 'prod' ? 'prod/' . $this->pathImg . '/thumbnails' . '/' . $productNameSlug . '-' . uniqid() . '.jpg' : 'test/' . $this->pathImg . '/' . $productNameSlug . '-' . uniqid() . '.jpg';
+                        // Ruta temporal donde deseas guardar el archivo
+                        $tmpImagePath = sys_get_temp_dir() . '/' . $fileName;
 
-                        // Subir la imagen original al S3
-                        $s3->putObject([
-                            'Bucket' => $_ENV['AWS_S3_BUCKET_NAME'],
-                            'Key' => $originalImagePath,
-                            'Body' => file_get_contents($tmpImagePath),
-                            'ACL' => 'public-read',
-                        ]);
+                        // Guardar el archivo temporal en el sistema de archivos
+                        if (file_put_contents($tmpImagePath, $file)) {
+                            $uploadedFile = new UploadedFile($tmpImagePath, 'original.jpg', 'image/jpeg', null, true);
+                            $imageFileName = $fileUploader->upload($uploadedFile, $productNameSlug, $this->pathImg);
+                            $images->setImage($_ENV['AWS_S3_URL'] . $imageFileName);
+                            // El archivo se guardó correctamente
+                        } else {
+                            // Ocurrió un error al guardar el archivo
+                        }
+                        // $tmpImage = $this->imageManager->make($file);
+                        // $tmpImagePath = sys_get_temp_dir() . '/' . uniqid() . '.jpg';
+                        // $tmpImage->save($tmpImagePath);
 
-                        // Escalar la imagen proporcionalmente
-                        $scaledImage = $tmpImage->resize(200, null, function ($constraint) {
-                            $constraint->aspectRatio();
-                            $constraint->upsize();
-                        });
 
-                        // Subir la imagen escalada al S3
-                        $s3->putObject([
-                            'Bucket' => $_ENV['AWS_S3_BUCKET_NAME'],
-                            'Key' => $scaledImagePath,
-                            'Body' => $scaledImage->encode('jpg'),
-                            'ACL' => 'public-read',
-                        ]);
+
+
+                        $scaledImageFileName = $fileUploader->upload($scaledImage, $productNameSlug, $this->pathImg);
+                        $images->setImgThumbnail($_ENV['AWS_S3_URL'] . $scaledImageFileName);
 
                         // Eliminar el archivo temporal
                         unlink($tmpImagePath);
 
-                        $images->setImage($_ENV['AWS_S3_URL'] . '/' . $originalImagePath);
-                        // Guardar la ruta de la imagen escalada en la entidad de imágenes si es necesario
-                        $images->setImgThumbnail($_ENV['AWS_S3_URL'] . '/' . $scaledImagePath);
                         $images->setProduct($data['product']);
-                        $entityManager->persist($images);
+                        $em->persist($images);
                     }
                 } catch (\Exception $e) {
-                    // Manejar el error
+                    var_dump($e->getMessage());
                 }
             }
-            $entityManager->flush();
-            $entityManager->refresh($data['product']);
+            $em->flush();
+            $em->refresh($data['product']);
 
             return $this->redirectToRoute('secure_product_index');
         }
@@ -181,7 +159,7 @@ class ProductsController extends AbstractController
     }
 
     #[Route("/{id}/edit", name: "secure_product_edit", methods: ["GET", "POST"])]
-    public function edit(EntityManagerInterface $em, $id, Request $request, SluggerInterface $slugger, ProductRepository $productRepository, SubcategoryRepository $subcategoryRepository): Response
+    public function edit(EntityManagerInterface $em, $id, Request $request, SluggerInterface $slugger, ProductRepository $productRepository, SubcategoryRepository $subcategoryRepository, FileUploader $fileUploader): Response
     {
         $data['title'] = 'Editar producto';
         $data['breadcrumbs'] = array(
@@ -193,32 +171,10 @@ class ProductsController extends AbstractController
         $data['product'] = $productRepository->find($id);
         $form = $this->createForm(ProductType::class, $data['product']);
 
-
-        $skuArray = explode('-', $data['product']->getSku());
-        $form->get('vp1')->setData($skuArray[4]);
-        $form->get('vp2')->setData(@$skuArray[5] ? $skuArray[5] : '');
-        $form->get('vp3')->setData(@$skuArray[6] ? $skuArray[6] : '');
-
-
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager = $em;
             $data['product']->setSubcategory($subcategoryRepository->findOneBy(['id' => (int)@$request->get('product')['subcategory']]));
-            //si precio o costo no son iguales a los ultimos valores registrados, guardo los nuevos valores de costo y precio,
-            if (
-                // $form->get('price')->getData() !== $data['product']->getPrice() 
-                // || 
-                $form->get('cost')->getData() !== $data['product']->getCost()
-                ) {
-                $historicalPriceCost = new HistoricalPriceCost;
-                $historicalPriceCost->setProduct($data['product']);
-                // $historicalPriceCost->setPrice($form->get('price')->getData());
-                $historicalPriceCost->setCost($form->get('cost')->getData());
-                // $historicalPriceCost->setCreatedByUser($this->getUser());
-                $entityManager->persist($historicalPriceCost);
-            }
-
-            $entityManager->persist($data['product']);
+            $em->persist($data['product']);
 
             $productNameSlug = $slugger->slug($form->get('name')->getData());
             $imagesFilesBase64 = $form->get('images')->getData();
@@ -226,66 +182,59 @@ class ProductsController extends AbstractController
 
             if ($imagesFiles[0]) {
                 try {
-                    $s3 = new S3Client([
-                        'region' => $_ENV['AWS_S3_BUCKET_REGION'],
-                        'version' => 'latest',
-                        'credentials' => [
-                            'key' => $_ENV['AWS_S3_ACCESS_ID'],
-                            'secret' => $_ENV['AWS_S3_ACCESS_SECRET'],
-                        ],
-                    ]);
                     $indexImage = !$data['product']->getImage()[0] ? 0 : 1;
                     foreach ($imagesFiles as $imageFile) {
                         $images = new ProductImages;
                         if ($indexImage == 0) {
                             $images->setPrincipal(true);
+                            $indexImage++;
                         }
-                        $indexImage++;
                         $file = base64_decode(explode(',', $imageFile)[1]);
-                        $tmpImage = $this->imageManager->make($file);
-                        $tmpImagePath = sys_get_temp_dir() . '/' . uniqid() . '.jpg';
-                        $tmpImage->save($tmpImagePath);
-
-                        
-                        $originalImagePath = $_ENV['APP_ENV'] === 'prod' ? 'prod/' . $this->pathImg . '/' . $productNameSlug . '-' . uniqid() . '.jpg' :'test/'. $this->pathImg . '/' . $productNameSlug . '-' . uniqid() . '.jpg';
-                        $scaledImagePath = $_ENV['APP_ENV'] === 'prod' ? 'prod/' . $this->pathImg . '/thumbnails' . '/' . $productNameSlug . '-' . uniqid() . '.jpg' :'test/'. $this->pathImg . '/' . $productNameSlug . '-' . uniqid() . '.jpg';
-
-                        // Subir la imagen original al S3
-                        $s3->putObject([
-                            'Bucket' => $_ENV['AWS_S3_BUCKET_NAME'],
-                            'Key' => $originalImagePath,
-                            'Body' => file_get_contents($tmpImagePath),
-                            'ACL' => 'public-read',
-                        ]);
-
+                
+                        // Crear instancia de UploadedFile a partir del contenido base64
+                        $uploadedFile = new UploadedFile(tempnam(sys_get_temp_dir(), ''), 'filename.jpg');
+                        file_put_contents($uploadedFile->getPathname(), $file);
+                
+                        // Llamar al método upload del servicio FileUploader para la imagen original
+                        $imageFileName = $fileUploader->upload($uploadedFile, $productNameSlug, $this->pathImg);
+                        $images->setImage($_ENV['AWS_S3_URL'] . $imageFileName);
+                
                         // Escalar la imagen proporcionalmente
+                        // Instancia directa de ImageManager
+                        $imageManager = new ImageManager();
+                        $tmpImage = $imageManager->make($file);
                         $scaledImage = $tmpImage->resize(200, null, function ($constraint) {
                             $constraint->aspectRatio();
                             $constraint->upsize();
                         });
-
-                        // Subir la imagen escalada al S3
-                        $s3->putObject([
-                            'Bucket' => $_ENV['AWS_S3_BUCKET_NAME'],
-                            'Key' => $scaledImagePath,
-                            'Body' => $scaledImage->encode('jpg'),
-                            'ACL' => 'public-read',
-                        ]);
-
+                
+                        // Guardar la imagen redimensionada en un archivo temporal
+                        $tmpImagePath = sys_get_temp_dir() . '/' . uniqid() . '.jpg';
+                        $scaledImage->save($tmpImagePath);
+                
+                        // Crear instancia de UploadedFile a partir del archivo temporal
+                        $uploadedScaledImage = new UploadedFile($tmpImagePath, 'filename.jpg');
+                
+                        // Llamar al método upload del servicio FileUploader para la imagen redimensionada
+                        $scaledImageFileName = $fileUploader->upload($uploadedScaledImage, $productNameSlug, $this->pathImg);
+                        $images->setImgThumbnail($_ENV['AWS_S3_URL'] . $scaledImageFileName);
+                
                         // Eliminar el archivo temporal
                         unlink($tmpImagePath);
-
-                        $images->setImage($_ENV['AWS_S3_URL'] . '/' . $originalImagePath);
-                        // Guardar la ruta de la imagen escalada en la entidad de imágenes si es necesario
-                        $images->setImgThumbnail($_ENV['AWS_S3_URL'] . '/' . $scaledImagePath);
+                
+                        // Eliminar el archivo temporal de la imagen original
+                        unlink($uploadedFile->getPathname());
+                
                         $images->setProduct($data['product']);
-                        $entityManager->persist($images);
+                        $em->persist($images);
                     }
-                } catch (\Exception $e) {
-                    //ver como manejar este error
+                } catch (Exception $e) {
+                    var_dump($e->getMessage());
+                    // Manejar el error apropiadamente
                 }
+                
             }
-            $entityManager->flush();
+            $em->flush();
             return $this->redirectToRoute('secure_product_index');
         }
 

@@ -35,8 +35,8 @@ class Brand
     #[ORM\OneToMany(targetEntity: Product::class, mappedBy: "brand")]
     private $products;
 
-    #[ORM\Column(type: "boolean", nullable: false, options: ["default" => true])]
-    private $visible = true;
+    #[ORM\Column(type: "boolean", nullable: false, options: ["default" => false])]
+    private $visible = false;
 
     #[ORM\Column(type: "datetime", nullable: false)]
     private $created_at;
@@ -47,15 +47,11 @@ class Brand
     #[ORM\Column(name: "description_en", type: "text", nullable: true)]
     private $descriptionEn;
 
-    #[ORM\Column(type: "boolean", nullable: false, options: ["default" => false])]
-    private $principal = false;
-
     public function __construct()
     {
         $this->products = new ArrayCollection();
         $this->created_at = new \DateTime();
-        $this->visible = true;
-        $this->principal = false;
+        $this->visible = false;
     }
 
     /**
@@ -219,18 +215,6 @@ class Brand
     public function setDescriptionEn(string $descriptionEn): self
     {
         $this->descriptionEn = $descriptionEn;
-
-        return $this;
-    }
-
-    public function getPrincipal(): ?bool
-    {
-        return $this->principal;
-    }
-
-    public function setPrincipal(bool $principal): self
-    {
-        $this->principal = $principal;
 
         return $this;
     }

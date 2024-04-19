@@ -49,9 +49,7 @@ class TagRepository extends ServiceEntityRepository
         return  $this->createQueryBuilder('t')
             ->select('t.id,t.name')
             ->where('t.visible = :visible')
-            ->andWhere('t.principal = :principal')
             ->setParameter('visible', true)
-            ->setParameter('principal', true)
             ->addOrderBy('t.name', 'ASC')
             ->getQuery()
             ->getArrayResult();

@@ -13,10 +13,6 @@ class ItemsGuideNumber
     #[ORM\Column(type: "integer")]
     private $id;
 
-    #[ORM\ManyToOne(targetEntity: Product::class, inversedBy: "itemsGuideNumbers")]
-    #[ORM\JoinColumn(nullable: false)]
-    private $product;
-
     #[ORM\Column(type: "integer")]
     private $quantity;
 
@@ -27,18 +23,6 @@ class ItemsGuideNumber
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getProduct(): ?Product
-    {
-        return $this->product;
-    }
-
-    public function setProduct(?Product $product): self
-    {
-        $this->product = $product;
-
-        return $this;
     }
 
     public function getQuantity(): ?int

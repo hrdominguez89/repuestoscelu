@@ -83,9 +83,7 @@ class BrandRepository extends ServiceEntityRepository
         return  $this->createQueryBuilder('b')
             ->select('b.id,b.name')
             ->andWhere('b.visible = :visible')
-            ->andWhere('b.principal = :principal')
             ->setParameter('visible', true)
-            ->setParameter('principal', true)
             ->addOrderBy('b.name', 'ASC')
             ->getQuery()
             ->getArrayResult();
