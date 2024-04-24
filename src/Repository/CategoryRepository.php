@@ -92,11 +92,7 @@ class CategoryRepository extends ServiceEntityRepository
             SELECT
             c.id,
             c.name,
-            c.descriptionEn,
-            c.descriptionEs,
             c.slug,
-            c.image,
-            c.nomenclature,
             c.visible,
             c.created_at
 

@@ -31,81 +31,62 @@
 							</th>
 
 							<th>
-								Nomenclatura &nbsp;
-							</th>
-
-							<th>
 								Slug &nbsp;
 							</th>
 
-							<th data-orderable="false">
-								Imagen &nbsp;
-							</th>
+							{% if is_granted('ROLE_SUPER_ADMIN') %}
 
-							<th class="text-center">
-								Visible &nbsp;
-							</th>
+								<th class="text-center">
+									Visible &nbsp;
+								</th>
 
-							<th class="text-center" data-orderable="false">
-								Acciones &nbsp;
-							</th>
-
+								<th class="text-center" data-orderable="false">
+									Acciones &nbsp;
+								</th>
+							{% endif %}
 						</tr>
 					</thead>
-					<tbody>
-						{% for brand in brands %}
+				</tr>
+			</thead>
+			<tbody>
+				{% for brand in brands %}
 
-							<tr>
+					<tr>
 
-								<td class="text-center">
-									{{brand.id}}
-								</td>
+						<td class="text-center">
+							{{brand.id}}
+						</td>
 
-								<td>
-									{{brand.name}}
-								</td>
+						<td>
+							{{brand.name}}
+						</td>
 
-								<td>
-									{{brand.nomenclature|upper }}
-								</td>
+						<td>
+							{{brand.slug}}
+						</td>
 
-								<td>
-									{{brand.slug}}
-								</td>
+						{% if is_granted('ROLE_SUPER_ADMIN') %}
 
-								<td>
-									{% if brand.image %}
-										<img class="img-fluid" style="width:100px" alt="Imagen" src="{{ asset(brand.image) }}"/>
-									{% else %}
-										<img class="img-fluid" style="width:100px" alt="Imagen" src="{{ asset('uploads/images/default.jpg') }}"/>
-									{% endif %}
-								</td>
-
-								<td class="text-center">
-									<a style="font-size:16px" data-status="{{brand.visible ? 'on':'off'}}" data-slug="/secure/brand/updateVisible/brand" data-id="{{brand.id}}" class="text-{{brand.visible ? 'success':'secondary'}} m-2 toggle-on-off" href="javascript:void(0);">
-										<i class="fas fa-toggle-{{brand.visible ? 'on':'off'}}"></i>
-									</a>
-								</td>
+							<td class="text-center">
+								<a style="font-size:16px" data-status="{{brand.visible ? 'on':'off'}}" data-slug="/secure/brand/updateVisible/brand" data-id="{{brand.id}}" class="text-{{brand.visible ? 'success':'secondary'}} m-2 toggle-on-off" href="javascript:void(0);">
+									<i class="fas fa-toggle-{{brand.visible ? 'on':'off'}}"></i>
+								</a>
+							</td>
 
 
-								<td class="text-center">
-									<a style="font-size:16px" class="text-warning m-2" href="{{ path('secure_crud_brand_edit', {'id': brand.id}) }}" title="Editar marca">
-										<i class="fas fa-edit"></i>
-									</a>
-								</td>
-							</tr>
-						{% endfor %}
-					</tbody>
-				</table>
-			</div>
-		</div>
+							<td class="text-center">
+								<a style="font-size:16px" class="text-warning m-2" href="{{ path('secure_crud_brand_edit', {'id': brand.id}) }}" title="Editar marca">
+									<i class="fas fa-edit"></i>
+								</a>
+							</td>
+						{% endif %}
+
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
 	</div>
-	<div class="row mt-5 mb-5">
-		<div class="col-12 text-end">
-			<a class="btn btn-secondary" href="{{ path('app_homepage') }}">Regresar</a>
-		</div>
-	</div>
-{% endblock %}
-{% block javascripts %}
-	{{ parent() }}
-{% endblock %}
+</div></div><div class="row mt-5 mb-5">
+<div class="col-12 text-end">
+	<a class="btn btn-secondary" href="{{ path('app_homepage') }}">Regresar</a>
+</div></div>{% endblock %}{% block javascripts %}{{ parent() }}{% endblock %}

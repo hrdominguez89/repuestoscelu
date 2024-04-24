@@ -27,7 +27,7 @@ class BrandRepository extends ServiceEntityRepository
         $entityManager = $this->getEntityManager();
 
         return $entityManager->createQuery(
-            'SELECT e.id, e.name, e.slug, e.image
+            'SELECT e.id, e.name, e.slug
             FROM App\Entity\Brand e
             ORDER BY e.name ASC'
         )->getArrayResult();

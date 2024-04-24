@@ -12,7 +12,11 @@
 
 
 		<div class="col-6 text-end">
-			<a class="btn btn-success" href="{{ path('secure_product_new') }}">Nuevo producto</a>
+			{% if sale_point is defined %}
+				<a class="btn btn-success" href="{{ path('secure_product_new',{"sale_point":"sale_point"}) }}">Nuevo producto</a>
+			{% else %}
+				<a class="btn btn-success" href="{{ path('secure_product_new') }}">Nuevo producto</a>
+			{% endif %}
 		</div>
 	</div>
 	<div class="row mt-5">
@@ -24,14 +28,21 @@
 							<th data-type="num" class="text-center">
 								Id. &nbsp;
 							</th>
-
+							<th class="text-center">Fecha&nbsp;</th>
 							<th class="text-center" data-orderable="false">
 								Acciones &nbsp;
 							</th>
+							{% if is_granted('ROLE_SUPER_ADMIN') %}
+								<th class="text-center" data-orderable="false">
+									Visible &nbsp;
+								</th>
+							{% endif %}
 
-							<th class="text-center" data-orderable="false">
-								Visible &nbsp;
-							</th>
+							{% if sale_point is defined %}
+								<th>
+									Punto de venta
+								</th>
+							{% endif %}
 
 							<th>COD &nbsp;</th>
 
@@ -47,7 +58,6 @@
 
 							<th>Condición &nbsp;</th>
 
-							<th>Alta&nbsp;</th>
 
 						</tr>
 					</thead>
@@ -58,6 +68,8 @@
 									{{product.id}}
 								</td>
 
+								<td data-order="{{product.createdAt ? product.createdAt|date('U'):0}}" class="text-center">{{product.createdAt ? product.createdAt|date("d/m/Y"):'-'}}</td>
+
 								<td class="text-center">
 									<a style="font-size:16px" class="text-danger m-2" href="{{ path('secure_product_discount',{"product_id":product.id}) }}" title="Descuento de producto.">
 										<i class="fas fa-percent"></i>
@@ -65,18 +77,37 @@
 									<a style="font-size:16px" class="text-primary m-2" href="{{ path('secure_product_tag',{"product_id":product.id}) }}" title="Etiqueta de producto.">
 										<i class="fas fa-tag"></i>
 									</a>
-									<a style="font-size:16px" class="text-warning m-2" href="{{ path('secure_product_edit',{"id":product.id}) }}" title="Editar producto.">
-										<i class="fas fa-edit"></i>
-									</a>
-								</td>
-								
-								<td class="text-center">
-									<a style="font-size:16px" data-status="{{product.visible ? 'on':'off'}}" data-slug="/secure/product/updateVisible/product" data-id="{{product.id}}" class="text-{{product.visible ? 'success':'secondary'}} m-2 toggle-on-off" href="javascript:void(0);">
-										<i class="fas fa-toggle-{{product.visible ? 'on':'off'}}"></i>
-									</a>
+									{% if sale_point is defined %}
+										
+										<a style="font-size:16px" class="text-warning m-2" href="{{ path('secure_product_edit',{"sale_point":"sale_point","id":product.id}) }}" title="Editar producto.">
+											<i class="fas fa-edit"></i>
+										</a>
+									{% else %}
+										<a style="font-size:16px" class="text-warning m-2" href="{{ path('secure_product_edit',{"id":product.id}) }}" title="Editar producto.">
+											<i class="fas fa-edit"></i>
+										</a>
+									{% endif %}
 								</td>
 
-								<td>{{product.cod}}</td>
+								{% if is_granted('ROLE_SUPER_ADMIN') %}
+									<td class="text-center">
+										<a style="font-size:16px" data-status="{{product.visible ? 'on':'off'}}" data-slug="/secure/product/updateVisible/product" data-id="{{product.id}}" class="text-{{product.visible ? 'success':'secondary'}} m-2 toggle-on-off" href="javascript:void(0);">
+											<i class="fas fa-toggle-{{product.visible ? 'on':'off'}}"></i>
+										</a>
+									</td>
+								{% endif %}
+
+								{% if sale_point is defined %}
+									<td>
+										{{product.salePoint.name}}
+										-
+										{{product.salePoint.state.name}}
+										-
+										{{product.salePoint.city.name}}
+									</td>
+								{% endif %}
+
+								<td>{{product.salePoint.role.id == 1? 'A':product.salePoint.id}}-{{product.cod}}</td>
 
 								<td>{{product.name}}</td>
 
@@ -90,8 +121,6 @@
 
 								<td class="text-center">{{ product.conditium.name }}</td>
 
-								<td data-order="{{product.createdAt ? product.createdAt|date('U'):0}}" class="text-center">{{product.createdAt ? product.createdAt|date("d/m/Y"):'-'}}</td>
-								
 							</tr>
 						{% endfor %}
 					</tbody>

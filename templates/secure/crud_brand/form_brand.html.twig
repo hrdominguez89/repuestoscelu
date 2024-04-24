@@ -23,40 +23,17 @@
 		</div>
 	{% endif %}
 	<div class="row my-2">
-		<div class="col-8">
-			{{ form_row(form.name) }}
-		</div>
-		<div class="col-4">
-			{{ form_row(form.nomenclature) }}
-		</div>
-	</div>
-	<div class="row my-2">
 		<div class="col-12">
-			{{ form_row(form.descriptionEs) }}
+			{{ form_row(form.name) }}
 		</div>
 	</div>
 
 	{# <div class="row my-2">
-		<div class="col-12">
-			{{ form_row(form.descriptionEn) }}
-		</div>
-	</div> #}
-
-	{% if (brand.image) %}
-		<div class="row">
-			<div class="col-xs-12 col-md-4">
-				<img class="img-fluid" style="width:100%" alt="Imagen" src="{{ asset(brand.image) }}"/>
+			<div class="col-12">
+				{{ form_row(form.descriptionEn) }}
 			</div>
-		</div>
-	{% endif %}
+		</div> #}
 
-
-	<div class="row my-2">
-		<div class="col-12">
-			{{ form_row(form.image) }}
-		</div>
-	</div>
-	
 	<div>
 		<div class="row my-2">
 

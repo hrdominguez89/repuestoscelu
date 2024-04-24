@@ -55,6 +55,9 @@ class User extends BaseUser
     #[ORM\OneToMany(mappedBy: 'sale_point', targetEntity: Product::class)]
     private Collection $products;
 
+    #[ORM\OneToMany(mappedBy: 'sale_point', targetEntity: ProductsSalesPoints::class)]
+    private Collection $productsSalesPoints;
+
     public function __construct()
     {
         parent::__construct();
@@ -64,6 +67,7 @@ class User extends BaseUser
         $this->street_address = '';
         $this->number_address = '';
         $this->products = new ArrayCollection();
+        $this->productsSalesPoints = new ArrayCollection();
     }
 
     public function getRoles(): array
@@ -234,6 +238,36 @@ class User extends BaseUser
             // set the owning side to null (unless already changed)
             if ($product->getSalePoint() === $this) {
                 $product->setSalePoint(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ProductsSalesPoints>
+     */
+    public function getProductsSalesPoints(): Collection
+    {
+        return $this->productsSalesPoints;
+    }
+
+    public function addProductsSalesPoint(ProductsSalesPoints $productsSalesPoint): static
+    {
+        if (!$this->productsSalesPoints->contains($productsSalesPoint)) {
+            $this->productsSalesPoints->add($productsSalesPoint);
+            $productsSalesPoint->setSalePoint($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProductsSalesPoint(ProductsSalesPoints $productsSalesPoint): static
+    {
+        if ($this->productsSalesPoints->removeElement($productsSalesPoint)) {
+            // set the owning side to null (unless already changed)
+            if ($productsSalesPoint->getSalePoint() === $this) {
+                $productsSalesPoint->setSalePoint(null);
             }
         }
 

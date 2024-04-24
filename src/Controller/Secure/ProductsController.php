@@ -2,9 +2,14 @@
 
 namespace App\Controller\Secure;
 
+use App\Constants\Constants;
+use App\Entity\Brand;
 use App\Entity\Product;
 use App\Entity\ProductDiscount;
 use App\Entity\ProductImages;
+use App\Entity\ProductsSalesPoints;
+use App\Entity\Specification;
+use App\Entity\SpecificationTypes;
 use App\Form\ProductDiscountType;
 use App\Form\ProductTagType;
 use App\Form\ProductType;
@@ -15,8 +20,10 @@ use App\Repository\ProductRepository;
 use App\Repository\ProductSubcategoryRepository;
 use App\Repository\ProductTagRepository;
 use App\Repository\SpecificationRepository;
+use App\Repository\SpecificationTypesRepository;
 use App\Repository\SubcategoryRepository;
 use App\Repository\TagRepository;
+use App\Repository\UserRepository;
 use App\Service\FileUploader;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -47,7 +54,7 @@ class ProductsController extends AbstractController
     public function __construct(
         ProductRepository $productRepository,
         BrandRepository $brandRepository,
-        SpecificationRepository $specificacionRepository,
+        SpecificationRepository $specificationRepository,
         ProductTagRepository $productTagRepository,
         TagRepository $tagRepository,
         SubcategoryRepository $subcategoryRepository,
@@ -58,7 +65,7 @@ class ProductsController extends AbstractController
         $this->brandRepository = $brandRepository;
         $this->tagRepository = $tagRepository;
         $this->subcategoryRepository = $subcategoryRepository;
-        $this->specificacionRepository = $specificacionRepository;
+        $this->specificationRepository = $specificationRepository;
         $this->productSubcategoryRepository = $productSubcategoryRepository;
         $this->productTagRepository = $productTagRepository;
         $this->productImagesRepository = $productImagesRepository;
@@ -67,7 +74,7 @@ class ProductsController extends AbstractController
     #[Route("/", name: "secure_product_index", methods: ["GET"])]
     public function index(ProductRepository $productRepository): Response
     {
-        $data['products'] = $productRepository->findAll();
+        $data['products'] = $productRepository->findBy(['sale_point' => $this->getUser()]);
         $data['title'] = 'Mis productos';
         $data['files_js'] = array('table_full_buttons.js?v=' . rand());
         $data['breadcrumbs'] = array(
@@ -77,27 +84,72 @@ class ProductsController extends AbstractController
         return $this->render('secure/products/abm_products.html.twig', $data);
     }
 
-    #[Route("/new", name: "secure_product_new", methods: ["GET", "POST"])]
-    public function new(EntityManagerInterface $em, Request $request, SluggerInterface $slugger, SubcategoryRepository $subcategoryRepository, FileUploader $fileUploader): Response
+    #[Route("/sale_point", name: "secure_product_sale_point", methods: ["GET"])]
+    public function salePoint(ProductRepository $productRepository): Response
+    {
+        $data['sale_point'] = true;
+        $data['products'] = $productRepository->findSalePointsProducts();
+        $data['title'] = 'Productos de los puntos de venta';
+        $data['files_js'] = array('table_full_buttons.js?v=' . rand());
+        $data['breadcrumbs'] = array(
+            array('active' => true, 'title' => $data['title'])
+        );
+
+        return $this->render('secure/products/abm_products.html.twig', $data);
+    }
+
+    #[Route("/new/{sale_point?}", name: "secure_product_new", methods: ["GET", "POST"])]
+    public function new(EntityManagerInterface $em, UserRepository $userRepository, Request $request, SpecificationRepository $specificationRepository, BrandRepository $brandRepository, SpecificationTypesRepository $specificationTypesRepository, SluggerInterface $slugger, SubcategoryRepository $subcategoryRepository, FileUploader $fileUploader, $sale_point = null): Response
     {
         $data['user'] = $this->getUser();
         $data['title'] = 'Nuevo producto';
         $data['breadcrumbs'] = array(
-            array('path' => 'secure_product_index', 'title' => 'Productos'),
+            @$sale_point ? array('path' => 'secure_product_sale_point', 'title' => 'Productos de los puntos de venta') : array('path' => 'secure_product_index', 'title' => 'Mis productos'),
             array('active' => true, 'title' => $data['title'])
         );
+
+        $data['models'] = $specificationRepository->findBy(['specification_type' => Constants::SPECIFICATION_MODEL]);
+        $data['brands'] = $brandRepository->findAll();
         $data['files_js'] = array('../uppy.min.js', '../select2.min.js', 'product/upload_files.js?v=' . rand(), 'product/product.js?v=' . rand());
         $data['files_css'] = array('uppy.min.css', 'select2.min.css', 'select2-bootstrap4.min.css');
         $data['product'] = new Product;
-        $data['product']->setSalePoint($data['user']);
-        $form = $this->createForm(ProductType::class, $data['product']);
+        if (!$sale_point) {
+            $data['product']->setSalePoint($data['user']);
+        }
+        $form = $this->createForm(ProductType::class, $data['product'], ['user_role' => $sale_point ? $data['user']->getRole()->getId() : null]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-
+            $model = $specificationRepository->findOneBy(['name' => @$request->get('product')['model'], 'specification_type' => Constants::SPECIFICATION_MODEL]);
+            if (!$model) {
+                $model = new Specification();
+                $model->setName($request->get('product')['model']);
+                $model->setSpecificationType($specificationTypesRepository->find(Constants::SPECIFICATION_MODEL));
+                $em->persist($model);
+            }
+            $data['product']->setModel($model);
             $data['product']->setSubcategory($subcategoryRepository->findOneBy(['id' => (int)$request->get('product')['subcategory']]));
+            $brand = $brandRepository->findOneBy(['name' => @$request->get('product')['brand']]);
+            if (!$brand) {
+                $brand = new Brand();
+                $brand->setName($request->get('product')['brand']);
+                $em->persist($brand);
+            }
+            $data['product']->setBrand($brand);
+            if ($data['user']->getRole()->getId() === Constants::ROLE_SUPER_ADMIN && !$sale_point) {
+                $sales_points = $userRepository->findBy(['role' => Constants::ROLE_SUCURSAL]);
+                foreach ($sales_points as $sale_point_object) {
+                    $product_sale_point = new ProductsSalesPoints();
+                    $product_sale_point->setProduct($data['product']);
+                    $product_sale_point->setSalePoint($sale_point_object);
+                    $em->persist($product_sale_point);
+                }
+            } else {
+                $product_sale_point = new ProductsSalesPoints();
+                $product_sale_point->setProduct($data['product']);
+                $product_sale_point->setSalePoint($data['product']->getSalePoint());
+                $em->persist($product_sale_point);
+            }
             $em->persist($data['product']);
-
-
             $productNameSlug = $slugger->slug($form->get('name')->getData());
             $imagesFilesBase64 = $form->get('images')->getData();
             $imagesFiles = explode('*,*', $imagesFilesBase64);
@@ -172,7 +224,9 @@ class ProductsController extends AbstractController
             }
             $em->flush();
             $em->refresh($data['product']);
-
+            if (@$sale_point) {
+                return $this->redirectToRoute('secure_product_sale_point');
+            }
             return $this->redirectToRoute('secure_product_index');
         }
 
@@ -180,21 +234,37 @@ class ProductsController extends AbstractController
         return $this->renderForm('secure/products/form_products.html.twig', $data);
     }
 
-    #[Route("/{id}/edit", name: "secure_product_edit", methods: ["GET", "POST"])]
-    public function edit(EntityManagerInterface $em, $id, Request $request, SluggerInterface $slugger, ProductRepository $productRepository, SubcategoryRepository $subcategoryRepository, FileUploader $fileUploader): Response
+    #[Route("/{id}/edit/{sale_point?}", name: "secure_product_edit", methods: ["GET", "POST"])]
+    public function edit(EntityManagerInterface $em, $id, SpecificationRepository $specificationRepository, BrandRepository $brandRepository, SpecificationTypesRepository $specificationTypesRepository, Request $request, SluggerInterface $slugger, ProductRepository $productRepository, SubcategoryRepository $subcategoryRepository, FileUploader $fileUploader, $sale_point = null): Response
     {
         $data['title'] = 'Editar producto';
         $data['breadcrumbs'] = array(
-            array('path' => 'secure_product_index', 'title' => 'Productos'),
+            @$sale_point ? array('path' => 'secure_product_sale_point', 'title' => 'Productos de los puntos de venta') : array('path' => 'secure_product_index', 'title' => 'Mis productos'),
             array('active' => true, 'title' => $data['title'])
         );
+        $data['models'] = $specificationRepository->findBy(['specification_type' => Constants::SPECIFICATION_MODEL]);
+        $data['brands'] = $brandRepository->findAll();
         $data['files_js'] = array('../uppy.min.js', '../pgwslideshow.min.js', '../select2.min.js', 'product/upload_files.js?v=' . rand(), 'product/product.js?v=' . rand());
         $data['files_css'] = array('uppy.min.css', 'pgwslideshow.min.css', 'select2.min.css', 'select2-bootstrap4.min.css');
         $data['product'] = $productRepository->find($id);
         $form = $this->createForm(ProductType::class, $data['product']);
-
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
+            $model = $specificationRepository->findOneBy(['name' => @$request->get('product')['model'], 'specification_type' => Constants::SPECIFICATION_MODEL]);
+            if (!$model) {
+                $model = new Specification();
+                $model->setName($request->get('product')['model']);
+                $model->setSpecificationType($specificationTypesRepository->find(Constants::SPECIFICATION_MODEL));
+                $em->persist($model);
+            }
+            $data['product']->setModel($model);
+            $brand = $brandRepository->findOneBy(['name' => @$request->get('product')['brand']]);
+            if (!$brand) {
+                $brand = new Brand();
+                $brand->setName($request->get('product')['brand']);
+                $em->persist($brand);
+            }
+            $data['product']->setBrand($brand);
             $data['product']->setSubcategory($subcategoryRepository->findOneBy(['id' => (int)@$request->get('product')['subcategory']]));
             $em->persist($data['product']);
 
@@ -269,6 +339,9 @@ class ProductsController extends AbstractController
                 }
             }
             $em->flush();
+            if (@$sale_point) {
+                return $this->redirectToRoute('secure_product_sale_point');
+            }
             return $this->redirectToRoute('secure_product_index');
         }
 

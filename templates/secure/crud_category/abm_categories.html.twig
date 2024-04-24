@@ -29,16 +29,8 @@
 								Nombre &nbsp;
 							</th>
 
-							<th class="text-center">
-								Nomenclatura &nbsp;
-							</th>
-
 							<th>
 								Slug &nbsp;
-							</th>
-
-							<th class="text-center" data-orderable="false">
-								Imagen &nbsp;
 							</th>
 
 							<th class="text-center">
@@ -64,20 +56,8 @@
 									{{category.name}}
 								</td>
 
-								<td class="text-center">
-									{{category.nomenclature}}
-								</td>
-
 								<td>
 									{{category.slug}}
-								</td>
-
-								<td class="text-center">
-									{% if category.image %}
-										<img class="img-fluid" style="width:100px;max-height:100px;" alt="Imagen" src="{{ asset(category.image) }}"/>
-									{% else %}
-										<img class="img-fluid" style="width:100px;max-height:100px;" alt="Imagen" src="{{ asset('uploads/images/default.jpg') }}"/>
-									{% endif %}
 								</td>
 
 								<td class="text-center">

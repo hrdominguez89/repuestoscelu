@@ -49,15 +49,8 @@ class CrudBrandController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $imageFile = $form->get('image')->getData();
-            if ($imageFile) {
-                $imageFileName = $fileUploader->upload($imageFile, $form->get('name')->getData(), $this->pathImg);
-                $data['brand']->setImage($_ENV['AWS_S3_URL'] . $imageFileName);
-            }
-            $entityManager = $em;
-            $entityManager->persist($data['brand']);
-            $entityManager->flush();
-
+            $em->persist($data['brand']);
+            $em->flush();
             return $this->redirectToRoute('secure_crud_brand_index');
         }
         $data['form'] = $form;
@@ -78,12 +71,6 @@ class CrudBrandController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $imageFile = $form->get('image')->getData();
-            if ($imageFile) {
-                $imageFileName = $fileUploader->upload($imageFile, $form->get('name')->getData(), $this->pathImg);
-                $data['brand']->setImage($_ENV['AWS_S3_URL'] . $imageFileName);
-            }
-
             $em->flush();
 
             return $this->redirectToRoute('secure_crud_brand_index');
@@ -98,9 +85,8 @@ class CrudBrandController extends AbstractController
     {
         $brand = $brandRepository->find($id);
         if ($this->isCsrfTokenValid('delete' . $brand->getId(), $request->request->get('_token'))) {
-            $entityManager = $em;
-            $entityManager->remove($brand);
-            $entityManager->flush();
+            $em->remove($brand);
+            $em->flush();
         }
 
         return $this->redirectToRoute('secure_crud_brand_index', [], Response::HTTP_SEE_OTHER);
@@ -123,9 +109,8 @@ class CrudBrandController extends AbstractController
             $data['visible'] = true;
         }
 
-        $entityManager = $em;
-        $entityManager->persist($entity_object);
-        $entityManager->flush();
+        $em->persist($entity_object);
+        $em->flush();
 
         $data['status'] = true;
 

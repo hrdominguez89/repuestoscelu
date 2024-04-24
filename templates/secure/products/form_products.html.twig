@@ -45,6 +45,16 @@
 
 	{# DATOS PRODUCTO #}
 
+	{% if form.sale_point is defined %}
+		<div class="row my-2">
+			<div class="col-12">
+				{{ form_label (form.sale_point) }}
+				{{ form_widget (form.sale_point) }}
+				{{ form_errors (form.sale_point)}}
+			</div>
+		</div>
+	{% endif %}
+
 	<div class="row my-2">
 		<div class="col-8">
 			{{ form_label (form.name) }}
@@ -102,15 +112,22 @@
 		</div>
 
 		<div class="col-3">
-			{{ form_label (form.brand) }}
-			{{ form_widget (form.brand) }}
-			{{ form_errors (form.brand)}}
+			{{ form_row(form.brand, {'attr': {'list': 'brands'}}) }}
+			<datalist id="brands">
+				{% for brand in brands %}
+					<option value="{{ brand.name }}">{{ brand.name }}</option>
+				{% endfor %}
+			</datalist>
 		</div>
 
 		<div class="col-3">
-			{{ form_label (form.model) }}
-			{{ form_widget (form.model) }}
-			{{ form_errors (form.model)}}
+
+			{{ form_row(form.model, {'attr': {'list': 'models'}}) }}
+			<datalist id="models">
+				{% for model in models %}
+					<option value="{{ model.name }}">{{ model.name }}</option>
+				{% endfor %}
+			</datalist>
 		</div>
 	</div>
 	<div class="row my-3"></div>

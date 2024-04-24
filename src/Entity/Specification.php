@@ -91,7 +91,7 @@ class Specification
      */
     public function getName(): string
     {
-        return $this->name;
+        return strtoupper($this->name);
     }
 
     /**
@@ -100,7 +100,7 @@ class Specification
      */
     public function setName(string $name): Specification
     {
-        $this->name = $name;
+        $this->name = strtoupper($name);
 
         $slugify = new Slugify();
 

@@ -5,33 +5,45 @@ namespace App\Form;
 use App\Constants\Constants;
 use App\Entity\Brand;
 use App\Entity\Category;
-use App\Entity\Inventory;
 use App\Entity\Product;
 use App\Entity\Specification;
-use App\Entity\Tag;
-use App\Repository\BrandRepository;
-use App\Repository\CategoryRepository;
+use App\Entity\User;
 use App\Repository\SpecificationRepository;
-use App\Repository\TagRepository;
+use App\Repository\UserRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use Symfony\Component\Form\Extension\Core\Type\MoneyType;
-use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\Length;
-use Symfony\Component\Validator\Constraints\Regex;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class ProductType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $userRole = $options['user_role'];
+        $product = $builder->getData();
+
+        if ($userRole === Constants::ROLE_SUPER_ADMIN) {
+            $builder->add('sale_point', EntityType::class, [
+                'class'  => User::class,
+                'query_builder' => function (UserRepository $u) {
+                    return $u->createQueryBuilder('u')
+                        ->where('u.role = :role')
+                        ->setParameter('role', Constants::ROLE_SUCURSAL)
+                        ->orderBy('u.name');
+                },
+                'placeholder' => 'Seleccione un punto de venta.',
+                'label' => 'Punto de venta *',
+                'required' => true,
+                'choice_label' => 'name',
+            ]);
+        }
+
         $builder
             ->add('name', TextType::class, ['label' => 'Nombre *', 'attr' => ['required' => true]])
             ->add('descriptionEs', TextType::class, ['label' => 'Descripción corta español *', 'required' => true])
@@ -40,8 +52,8 @@ class ProductType extends AbstractType
                 'class'  => Category::class,
                 'placeholder' => 'Seleccione una categoría',
                 'label' => 'Categoría *',
-                'choice_label' => function ($category, $key, $index) {
-                    return $category->getName() . ' - ' . $category->getNomenclature();
+                'choice_label' => function ($category) {
+                    return $category->getName();
                 },
                 'required' => true,
             ])
@@ -52,28 +64,26 @@ class ProductType extends AbstractType
                 'mapped' => false,
                 'required' => false,
             ])
-            ->add('brand', EntityType::class, [
-                'class'  => Brand::class,
-                'placeholder' => 'Seleccione una marca',
-                'label' => 'Marca *',
-                'choice_label' => function ($brand, $key, $index) {
-                    return $brand->getName() . ' - ' . $brand->getNomenclature();
-                },
-                'required' => true,
-            ])
-            ->add('model', EntityType::class, [
-                'class'  => Specification::class,
-                'query_builder' => function (SpecificationRepository $br) {
-                    return $br->createQueryBuilder('s')
-                        ->where('st.id = :id')
-                        ->setParameter('id', Constants::SPECIFICATION_MODEL)
-                        ->leftJoin('App:SpecificationTypes', 'st', 'WITH', 's.specification_type = st.id')
-                        ->orderBy('s.name');
-                },
-                'placeholder' => 'Seleccione un modelo.',
+            ->add('model', TextType::class, [
+                'attr' => ['list' => 'model_names', 'required' => 'required', 'autocomplete' => 'off', 'style' => 'text-transform: uppercase'],
                 'label' => 'Modelo *',
+                // 'autocomplete'=>'off',
                 'required' => true,
-                'choice_label' => 'name',
+                'mapped' => false,
+                'constraints' => [
+                    new NotBlank(),
+                ],
+                'data' => @$product->getModel() ? $product->getModel()->getName() : '',
+            ])
+            ->add('brand', TextType::class, [
+                'attr' => ['list' => 'brand_names', 'required' => 'required', 'autocomplete' => 'off', 'style' => 'text-transform: uppercase'],
+                'label' => 'Marca *',
+                'required' => true,
+                'mapped' => false,
+                'constraints' => [
+                    new NotBlank(),
+                ],
+                'data' => @$product->getBrand() ? $product->getBrand()->getName() : '',
             ])
             ->add('color', EntityType::class, [
                 'class'  => Specification::class,
@@ -216,6 +226,7 @@ class ProductType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Product::class,
+            'user_role' => null
         ]);
     }
 }

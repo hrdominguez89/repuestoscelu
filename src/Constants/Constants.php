@@ -24,7 +24,7 @@ class Constants
     const EMAIL_TYPE_CONTACT = 6;
     const EMAIL_TYPE_PRICE_LIST = 7;
     const EMAIL_TYPE_WELCOME_BACKOFFICE = 8;
-    
+
 
 
 
@@ -109,5 +109,12 @@ class Constants
     const STATUS_ORDER_PENDING = 8;
 
     //FIN STATUS ORDERS
+
+    // ROLES
+
+    const ROLE_SUPER_ADMIN = 1;
+    const ROLE_SUCURSAL = 2;
+
+    // FIN ROLES
 
 }

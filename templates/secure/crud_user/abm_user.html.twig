@@ -25,6 +25,7 @@
 				<table id="table_full_buttons" class="table table-sm" data-order="[[ 2, &quot;asc&quot; ],[ 3, &quot;asc&quot; ]]">
 					<thead>
 						<tr>
+							<th class="text-center">Id</th>
 							<th class="text-center">Activo</th>
 							<th class="text-center">Visible</th>
 							<th>Correo</th>
@@ -38,6 +39,7 @@
 					<tbody>
 						{% for user in users %}
 							<tr>
+								<td class="text-center">{{ user.id }}</td>
 								<td class="text-center">
 									<a style="font-size:16px" data-status="{{user.active ? 'on':'off'}}" data-slug="/secure/crud-user/active/user" data-id="{{user.id}}" class="text-{{user.active ? 'success':'danger'}} m-2 toggle-on-off" href="javascript:void(0);">
 										<i class="fas fa-toggle-{{user.active ? 'on':'off'}}"></i>

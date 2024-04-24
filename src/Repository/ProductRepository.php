@@ -76,6 +76,28 @@ class ProductRepository extends ServiceEntityRepository
         return null;
     }
 
+    public function findSalePointsProducts()
+    {
+        return $this->createQueryBuilder('p')
+            ->join('p.sale_point', 'u')
+            ->andWhere('u.role = :role')
+            ->setParameter('role', Constants::ROLE_SUCURSAL)
+            ->orderBy('p.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findAdminProducts()
+    {
+        return $this->createQueryBuilder('p')
+            ->join('p.sale_point', 'u')
+            ->andWhere('u.role = :role')
+            ->setParameter('role', Constants::ROLE_SUPER_ADMIN)
+            ->orderBy('p.name', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
     /**
      * @param $slug
      * @param $pId
@@ -439,7 +461,7 @@ class ProductRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function findProductByFilters($filters, $limit = 4, $index = 0, $keywords)
+    public function findProductByFilters($filters, $keywords, $limit = 4, $index = 0)
     {
 
         $today = new DateTime();
@@ -525,7 +547,7 @@ class ProductRepository extends ServiceEntityRepository
             ->setParameter('visible', true)
             // ->setParameter('product_id', $product_id)
             ->setParameter('sku_recortado', $sku_recortado . '%')
-            ->orderBy('msp.name','asc')
+            ->orderBy('msp.name', 'asc')
             ->getQuery()
             ->getResult();
     }

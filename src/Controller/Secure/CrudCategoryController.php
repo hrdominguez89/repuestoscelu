@@ -47,14 +47,9 @@ class CrudCategoryController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $imageFile = $form->get('image')->getData();
-            if ($imageFile) {
-                $imageFileName = $fileUploader->upload($imageFile, $form->get('name')->getData(), $this->pathImg);
-                $data['category']->setImage($_ENV['AWS_S3_URL'] . $imageFileName);
-            }
-            $entityManager = $em;
-            $entityManager->persist($data['category']);
-            $entityManager->flush();
+
+            $em->persist($data['category']);
+            $em->flush();
 
             return $this->redirectToRoute('secure_crud_category_index');
         }
@@ -77,17 +72,7 @@ class CrudCategoryController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $imageFile = $form->get('image')->getData();
-            if ($imageFile) {
-                $imageFileName = $fileUploader->upload($imageFile, $form->get('name')->getData(), $this->pathImg);
-                $data['category']->setImage($_ENV['AWS_S3_URL'] . $imageFileName);
-            }
-            if ($data['old_name'] !== $data['category']->getName()) {
-                $em->flush();
-            } else {
-                $em->flush();
-            }
-
+            $em->flush();
             return $this->redirectToRoute('secure_crud_category_index');
         }
         $data['form'] = $form;
@@ -112,9 +97,8 @@ class CrudCategoryController extends AbstractController
             $data['visible'] = true;
         }
 
-        $entityManager = $em;
-        $entityManager->persist($entity_object);
-        $entityManager->flush();
+        $em->persist($entity_object);
+        $em->flush();
 
         $data['status'] = true;
 

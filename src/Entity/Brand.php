@@ -11,7 +11,6 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 #[ORM\Entity(repositoryClass: "App\Repository\BrandRepository")]
 #[ORM\Table(name: "mia_brand")]
 #[UniqueEntity(fields: "name", message: "El nombre indicado ya se encuentra registrado.")]
-#[UniqueEntity(fields: "nomenclature", message: "La nomenclatura indicada ya se encuentra registrada, por favor intente con otra.")]
 class Brand
 {
     #[ORM\Id]
@@ -25,13 +24,6 @@ class Brand
     #[ORM\Column(name: "slug", type: "string", length: 255, nullable: false)]
     private $slug;
 
-    #[ORM\Column(name: "image", type: "text", nullable: true)]
-    private $image;
-
-    #[ORM\Column(name: "description_es", type: "text", nullable: true)]
-
-    private $descriptionEs;
-
     #[ORM\OneToMany(targetEntity: Product::class, mappedBy: "brand")]
     private $products;
 
@@ -40,12 +32,6 @@ class Brand
 
     #[ORM\Column(type: "datetime", nullable: false)]
     private $created_at;
-
-    #[ORM\Column(type: "string", length: 3, nullable: false, unique: true)]
-    private $nomenclature;
-
-    #[ORM\Column(name: "description_en", type: "text", nullable: true)]
-    private $descriptionEn;
 
     public function __construct()
     {
@@ -94,25 +80,6 @@ class Brand
     }
 
     /**
-     * @return string|null
-     */
-    public function getImage(): ?string
-    {
-        return $this->image;
-    }
-
-    /**
-     * @param string|null $image
-     * @return $this
-     */
-    public function setImage(?string $image): Brand
-    {
-        $this->image = $image;
-
-        return $this;
-    }
-
-    /**
      * @return array
      */
     public function asArray(): array
@@ -121,25 +88,12 @@ class Brand
             "id" => $this->getId(),
             "name" => $this->getName(),
             "slug" => $this->getSlug(),
-            "image" => $this->getImage(),
         ];
     }
 
     public function setSlug(string $slug): self
     {
         $this->slug = $slug;
-
-        return $this;
-    }
-
-    public function getDescriptionEs(): ?string
-    {
-        return $this->descriptionEs;
-    }
-
-    public function setDescriptionEs(?string $descriptionEs): self
-    {
-        $this->descriptionEs = $descriptionEs;
 
         return $this;
     }
@@ -191,30 +145,6 @@ class Brand
     public function setCreatedAt(\DateTimeInterface $created_at): self
     {
         $this->created_at = $created_at;
-
-        return $this;
-    }
-
-    public function getNomenclature(): ?string
-    {
-        return strtoupper($this->nomenclature);
-    }
-
-    public function setNomenclature(string $nomenclature): self
-    {
-        $this->nomenclature = strtoupper($nomenclature);
-
-        return $this;
-    }
-
-    public function getDescriptionEn(): ?string
-    {
-        return $this->descriptionEn;
-    }
-
-    public function setDescriptionEn(string $descriptionEn): self
-    {
-        $this->descriptionEn = $descriptionEn;
 
         return $this;
     }

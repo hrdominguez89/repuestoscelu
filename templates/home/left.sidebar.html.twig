@@ -172,6 +172,8 @@
 							</a>
 						</li>
 
+						{% if is_granted('ROLE_SUPER_ADMIN') %}
+
 						<li>
 							<a href="{{ path('secure_crud_category_index') }}">
 								<i class="fas fa-share-alt"></i>
@@ -185,12 +187,24 @@
 								<span>Subcategorías</span>
 							</a>
 						</li>
+						
+						{% endif %}
 						<li>
 							<a href="{{ path('secure_product_index') }}">
 								<i class="fas fa-tv"></i>
 								<span>Mis productos</span>
 							</a>
 						</li>
+						{% if is_granted('ROLE_SUPER_ADMIN') %}
+						
+						<li>
+							<a href="{{ path('secure_product_sale_point') }}">
+								<i class="fas fa-tv"></i>
+								<span>Productos de los puntos de venta</span>
+							</a>
+						</li>
+
+						{% endif %}
 						<li>
 							<a href="{{ path('secure_crud_tag_index') }}">
 								<i class="fas fa-tag"></i>

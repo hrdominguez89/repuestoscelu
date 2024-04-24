@@ -13,7 +13,6 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 #[ORM\Entity(repositoryClass: "App\Repository\CategoryRepository")]
 #[ORM\Table(name: "mia_category")]
 #[UniqueEntity(fields: "name", message: "La categoría indicada ya se encuentra registrada.")]
-#[UniqueEntity(fields: "nomenclature", message: "La nomenclatura indicada ya se encuentra registrada, por favor intente con otra.")]
 class Category
 {
     #[ORM\Id]
@@ -27,17 +26,8 @@ class Category
     #[ORM\Column(name: "slug", type: "string", length: 255, nullable: false)]
     protected $slug;
 
-    #[ORM\Column(name: "image", type: "text", nullable: true)]
-    protected $image;
-
     #[ORM\OneToMany(targetEntity: Product::class, mappedBy: "category")]
     private $products;
-
-    #[ORM\Column(name: "description_es", type: "text", nullable: true)]
-    private $descriptionEs;
-
-    #[ORM\Column(type: "string", length: 3, nullable: true, unique: true)]
-    private $nomenclature;
 
     #[ORM\Column(type: "datetime", nullable: false)]
     private $created_at;
@@ -45,9 +35,6 @@ class Category
 
     #[ORM\Column(type: "boolean", nullable: false, options: ["default" => false])]
     private $visible = false;
-
-    #[ORM\Column(name: "description_en", type: "text", nullable: true)]
-    private $descriptionEn;
 
     #[ORM\OneToMany(targetEntity: Subcategory::class, mappedBy: "category")]
     private $subcategories;
@@ -99,27 +86,6 @@ class Category
         return $this->slug;
     }
 
-
-    /**
-     * @return string|null
-     */
-    public function getImage(): ?string
-    {
-        return $this->image;
-    }
-
-    /**
-     * @param string|null $image
-     * @return $this
-     */
-    public function setImage(?string $image): self
-    {
-        $this->image = $image;
-
-        return $this;
-    }
-
-
     /**
      * @return array
      */
@@ -129,7 +95,6 @@ class Category
             "id" => $this->getId(),
             "name" => $this->getName(),
             "slug" => $this->getSlug(),
-            "image" => $this->getImage(),
             "customFields" => "",
         ];
     }
@@ -147,7 +112,6 @@ class Category
                 "id" => $this->getId(),
                 "name" => $this->getName(),
                 "slug" => $this->getSlug(),
-                "image" => $this->getImage(),
                 "customFields" => [],
                 "parents" => null,
                 "children" => null,
@@ -191,30 +155,6 @@ class Category
         return $this;
     }
 
-    public function getDescriptionEs(): ?string
-    {
-        return $this->descriptionEs;
-    }
-
-    public function setDescriptionEs(?string $descriptionEs): self
-    {
-        $this->descriptionEs = $descriptionEs;
-
-        return $this;
-    }
-
-    public function getNomenclature(): ?string
-    {
-        return strtoupper($this->nomenclature);
-    }
-
-    public function setNomenclature(?string $nomenclature): self
-    {
-        $this->nomenclature = strtoupper($nomenclature);
-
-        return $this;
-    }
-
     public function getCreatedAt(): ?\DateTimeInterface
     {
         return $this->created_at;
@@ -242,18 +182,6 @@ class Category
     public function setSlug(string $slug): self
     {
         $this->slug = $slug;
-
-        return $this;
-    }
-
-    public function getDescriptionEn(): ?string
-    {
-        return $this->descriptionEn;
-    }
-
-    public function setDescriptionEn(string $descriptionEn): self
-    {
-        $this->descriptionEn = $descriptionEn;
 
         return $this;
     }

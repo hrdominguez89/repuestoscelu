@@ -100,6 +100,9 @@ class Product
     #[ORM\JoinColumn(nullable: false)]
     private ?user $sale_point = null;
 
+    #[ORM\OneToMany(mappedBy: 'product', targetEntity: ProductsSalesPoints::class)]
+    private Collection $productsSalesPoints;
+
     public function __construct()
     {
         $this->created_at = new \DateTime();
@@ -108,6 +111,7 @@ class Product
         $this->ordersProducts = new ArrayCollection();
         $this->favoriteProducts = new ArrayCollection();
         $this->shoppingCarts = new ArrayCollection();
+        $this->productsSalesPoints = new ArrayCollection();
     }
 
     /**
@@ -191,12 +195,12 @@ class Product
 
     public function getCod(): ?string
     {
-        return $this->cod;
+        return strtoupper($this->cod);
     }
 
     public function setCod(?string $cod): self
     {
-        $this->cod = $cod;
+        $this->cod = strtoupper($cod);
 
         return $this;
     }
@@ -549,6 +553,36 @@ class Product
     public function setSalePoint(?user $sale_point): static
     {
         $this->sale_point = $sale_point;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ProductsSalesPoints>
+     */
+    public function getProductsSalesPoints(): Collection
+    {
+        return $this->productsSalesPoints;
+    }
+
+    public function addProductsSalesPoint(ProductsSalesPoints $productsSalesPoint): static
+    {
+        if (!$this->productsSalesPoints->contains($productsSalesPoint)) {
+            $this->productsSalesPoints->add($productsSalesPoint);
+            $productsSalesPoint->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProductsSalesPoint(ProductsSalesPoints $productsSalesPoint): static
+    {
+        if ($this->productsSalesPoints->removeElement($productsSalesPoint)) {
+            // set the owning side to null (unless already changed)
+            if ($productsSalesPoint->getProduct() === $this) {
+                $productsSalesPoint->setProduct(null);
+            }
+        }
 
         return $this;
     }

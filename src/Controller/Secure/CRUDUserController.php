@@ -3,6 +3,7 @@
 namespace App\Controller\Secure;
 
 use App\Constants\Constants;
+use App\Entity\ProductsSalesPoints;
 use App\Entity\User;
 use App\Form\UserType;
 use App\Helpers\EnqueueEmail;
@@ -15,6 +16,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Helpers\FileUploader;
 use App\Helpers\SendMail;
 use App\Repository\CitiesRepository;
+use App\Repository\ProductRepository;
 use App\Repository\RolesRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -51,7 +53,8 @@ class CRUDUserController extends AbstractController
         EnqueueEmail $queue,
         RolesRepository $rolesRepository,
         CitiesRepository $citiesRepository,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        ProductRepository $productRepository,
     ): Response {
         $data['user'] = new User();
         $data['form'] = $this->createForm(UserType::class, $data['user']);
@@ -69,6 +72,13 @@ class CRUDUserController extends AbstractController
                     $data['user']->setRole($rolesRepository->find(2));
                     $data['user']->setCity($citiesRepository->find($city));
 
+                    $products = $productRepository->findAdminProducts();
+                    foreach ($products as $product) {
+                        $product_sale_point = new ProductsSalesPoints();
+                        $product_sale_point->setProduct($product);
+                        $product_sale_point->setSalePoint($data['user']);
+                        $entityManager->persist($product_sale_point);
+                    }
                     $entityManager->persist($data['user']);
                     $entityManager->flush();
 
@@ -173,7 +183,7 @@ class CRUDUserController extends AbstractController
             $data['status'] = true;
         } catch (Exception $e) {
             $data['visible'] = $visible == 'on' ? true : false; //devuelvo el mismo valor.
-            $data['color'] = $visible == 'on'? 'success':'danger';
+            $data['color'] = $visible == 'on' ? 'success' : 'danger';
             $data['status'] = false;
         }
 

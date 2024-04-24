@@ -7,16 +7,6 @@ let subcategoryId;
 
 let subcategories;
 
-let sku = '';
-let categoryNomenclature = '';
-let brandNomenclature = '';
-let modelNomenclature = '';
-let colorNomenclature = '';
-let vp1 = '';
-let vp2 = '';
-let vp3 = '';
-
-
 let imagenId;
 let slider;
 let totalImages;
@@ -123,13 +113,7 @@ const listenSelectCategories = () => {
   selectCategory = $('#product_category');
   selectCategory.on("change", async () => {
     categoryId = parseInt(selectCategory.val());
-    categoryNomenclature = $("#product_category option:selected").text().split(" - ")[1];
-    if (!categoryNomenclature) {
-      categoryNomenclature = '';
-      cleanSelects(true);
-    } else {
-      await getSubcategories();
-    }
+    await getSubcategories();
     $("#product_subcategory").trigger("chosen:updated");
   });
 };
