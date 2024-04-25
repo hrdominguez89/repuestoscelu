@@ -6,7 +6,6 @@ use Cocur\Slugify\Slugify;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 
@@ -27,8 +26,8 @@ class Product
     #[ORM\Column(name: "slug", type: "string", nullable: false, length: 255)]
     protected $slug;
 
-    #[ORM\Column(name: "description_es", type: "text", nullable: true)]
-    protected $descriptionEs;
+    #[ORM\Column(name: "description", type: "text", nullable: true)]
+    protected $description;
 
     #[ORM\Column(name: "created_at", type: "datetime", nullable: false)]
     protected $created_at;
@@ -55,40 +54,7 @@ class Product
     private $ordersProducts;
 
     #[ORM\Column(type: "text", nullable: true)]
-    private $long_description_es;
-
-    #[ORM\ManyToOne(targetEntity: Specification::class, inversedBy: "products_model")]
-    #[ORM\JoinColumn(nullable: false)]
-    private $model;
-
-    #[ORM\ManyToOne(targetEntity: Specification::class, inversedBy: "products_color")]
-    #[ORM\JoinColumn(nullable: true)]
-    private $color;
-
-    #[ORM\ManyToOne(targetEntity: Specification::class, inversedBy: "products_screen_resolution")]
-    private $screen_resolution;
-
-    #[ORM\ManyToOne(targetEntity: Specification::class, inversedBy: "products_screen_size")]
-    private $screen_size;
-
-    #[ORM\ManyToOne(targetEntity: Specification::class, inversedBy: "products_cpu")]
-    private $cpu;
-
-    #[ORM\ManyToOne(targetEntity: Specification::class, inversedBy: "products_gpu")]
-    private $gpu;
-
-    #[ORM\ManyToOne(targetEntity: Specification::class, inversedBy: "products_memory")]
-    private $memory;
-
-    #[ORM\ManyToOne(targetEntity: Specification::class, inversedBy: "products_storage")]
-    private $storage;
-
-    #[ORM\ManyToOne(targetEntity: Specification::class, inversedBy: "products_op_sys")]
-    private $op_sys;
-
-    #[ORM\ManyToOne(targetEntity: Specification::class, inversedBy: "products_conditium")]
-    #[ORM\JoinColumn(nullable: false)]
-    private $conditium;
+    private $long_description;
 
     #[ORM\OneToMany(targetEntity: FavoriteProduct::class, mappedBy: "product")]
     private $favoriteProducts;
@@ -102,6 +68,33 @@ class Product
 
     #[ORM\OneToMany(mappedBy: 'product', targetEntity: ProductsSalesPoints::class)]
     private Collection $productsSalesPoints;
+
+    #[ORM\ManyToOne(inversedBy: 'product')]
+    private ?Colors $colors = null;
+
+    #[ORM\ManyToOne(inversedBy: 'product')]
+    private ?Models $models = null;
+
+    #[ORM\ManyToOne(inversedBy: 'product')]
+    private ?ScreenSize $screenSize = null;
+
+    #[ORM\ManyToOne(inversedBy: 'product')]
+    private ?ScreenResolution $screenResolution = null;
+
+    #[ORM\ManyToOne(inversedBy: 'product')]
+    private ?CPU $cPU = null;
+
+    #[ORM\ManyToOne(inversedBy: 'product')]
+    private ?GPU $gPU = null;
+
+    #[ORM\ManyToOne(inversedBy: 'product')]
+    private ?Memory $memory = null;
+
+    #[ORM\ManyToOne(inversedBy: 'product')]
+    private ?Storage $storage = null;
+
+    #[ORM\ManyToOne(inversedBy: 'product')]
+    private ?OS $oS = null;
 
     public function __construct()
     {
@@ -156,18 +149,18 @@ class Product
     /**
      * @return string|null
      */
-    public function getDescriptionEs(): ?string
+    public function getDescription(): ?string
     {
-        return $this->descriptionEs;
+        return $this->description;
     }
 
     /**
-     * @param string|null $descriptionEs
+     * @param string|null $description
      * @return $this
      */
-    public function setDescriptionEs(?string $descriptionEs): self
+    public function setDescription(?string $description): self
     {
-        $this->descriptionEs = $descriptionEs;
+        $this->description = $description;
 
         return $this;
     }
@@ -308,8 +301,7 @@ class Product
             'brand_id' => $this->getBrand()->getId(),
             'cod' => $this->getCod(),
             'name' => $this->getName(),
-            'description' => $this->getDescriptionEs(),
-            'conditium' => $this->getConditium()->getName(),
+            'description' => $this->getDescription(),
         ];
     }
 
@@ -344,137 +336,20 @@ class Product
         return $this;
     }
 
-    public function getLongDescriptionEs(): ?string
+    public function getLongDescription(): ?string
     {
-        return $this->long_description_es;
+        return $this->long_description;
     }
 
-    public function setLongDescriptionEs(?string $long_description_es): self
+    public function setLongDescription(?string $long_description): self
     {
-        $this->long_description_es = $long_description_es;
+        $this->long_description = $long_description;
 
         return $this;
     }
 
-    public function getModel(): ?Specification
-    {
-        return $this->model;
-    }
 
-    public function setModel(?Specification $model): self
-    {
-        $this->model = $model;
 
-        return $this;
-    }
-
-    public function getColor(): ?Specification
-    {
-        return $this->color;
-    }
-
-    public function setColor(?Specification $color): self
-    {
-        $this->color = $color;
-
-        return $this;
-    }
-
-    public function getScreenResolution(): ?Specification
-    {
-        return $this->screen_resolution;
-    }
-
-    public function setScreenResolution(?Specification $screen_resolution): self
-    {
-        $this->screen_resolution = $screen_resolution;
-
-        return $this;
-    }
-
-    public function getScreenSize(): ?Specification
-    {
-        return $this->screen_size;
-    }
-
-    public function setScreenSize(?Specification $screen_size): self
-    {
-        $this->screen_size = $screen_size;
-
-        return $this;
-    }
-
-    public function getCpu(): ?Specification
-    {
-        return $this->cpu;
-    }
-
-    public function setCpu(?Specification $cpu): self
-    {
-        $this->cpu = $cpu;
-
-        return $this;
-    }
-
-    public function getGpu(): ?Specification
-    {
-        return $this->gpu;
-    }
-
-    public function setGpu(?Specification $gpu): self
-    {
-        $this->gpu = $gpu;
-
-        return $this;
-    }
-
-    public function getMemory(): ?Specification
-    {
-        return $this->memory;
-    }
-
-    public function setMemory(?Specification $memory): self
-    {
-        $this->memory = $memory;
-
-        return $this;
-    }
-
-    public function getStorage(): ?Specification
-    {
-        return $this->storage;
-    }
-
-    public function setStorage(?Specification $storage): self
-    {
-        $this->storage = $storage;
-
-        return $this;
-    }
-
-    public function getOpSys(): ?Specification
-    {
-        return $this->op_sys;
-    }
-
-    public function setOpSys(?Specification $op_sys): self
-    {
-        $this->op_sys = $op_sys;
-
-        return $this;
-    }
-
-    public function getConditium(): ?Specification
-    {
-        return $this->conditium;
-    }
-
-    public function setConditium(?Specification $conditium): self
-    {
-        $this->conditium = $conditium;
-
-        return $this;
-    }
 
     public function getBasicDataProduct()
     {
@@ -583,6 +458,114 @@ class Product
                 $productsSalesPoint->setProduct(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getColors(): ?Colors
+    {
+        return $this->colors;
+    }
+
+    public function setColors(?Colors $colors): static
+    {
+        $this->colors = $colors;
+
+        return $this;
+    }
+
+    public function getModels(): ?Models
+    {
+        return $this->models;
+    }
+
+    public function setModels(?Models $models): static
+    {
+        $this->models = $models;
+
+        return $this;
+    }
+
+    public function getScreenSize(): ?ScreenSize
+    {
+        return $this->screenSize;
+    }
+
+    public function setScreenSize(?ScreenSize $screenSize): static
+    {
+        $this->screenSize = $screenSize;
+
+        return $this;
+    }
+
+    public function getScreenResolution(): ?ScreenResolution
+    {
+        return $this->screenResolution;
+    }
+
+    public function setScreenResolution(?ScreenResolution $screenResolution): static
+    {
+        $this->screenResolution = $screenResolution;
+
+        return $this;
+    }
+
+    public function getCPU(): ?CPU
+    {
+        return $this->cPU;
+    }
+
+    public function setCPU(?CPU $cPU): static
+    {
+        $this->cPU = $cPU;
+
+        return $this;
+    }
+
+    public function getGPU(): ?GPU
+    {
+        return $this->gPU;
+    }
+
+    public function setGPU(?GPU $gPU): static
+    {
+        $this->gPU = $gPU;
+
+        return $this;
+    }
+
+    public function getMemory(): ?Memory
+    {
+        return $this->memory;
+    }
+
+    public function setMemory(?Memory $memory): static
+    {
+        $this->memory = $memory;
+
+        return $this;
+    }
+
+    public function getStorage(): ?Storage
+    {
+        return $this->storage;
+    }
+
+    public function setStorage(?Storage $storage): static
+    {
+        $this->storage = $storage;
+
+        return $this;
+    }
+
+    public function getOS(): ?OS
+    {
+        return $this->oS;
+    }
+
+    public function setOS(?OS $oS): static
+    {
+        $this->oS = $oS;
 
         return $this;
     }

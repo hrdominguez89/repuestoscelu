@@ -46,8 +46,9 @@ class ProductType extends AbstractType
 
         $builder
             ->add('name', TextType::class, ['label' => 'Nombre *', 'attr' => ['required' => true]])
-            ->add('descriptionEs', TextType::class, ['label' => 'Descripción corta español *', 'required' => true])
-            ->add('long_description_es', TextareaType::class, ['label' => 'Descripción larga en español', 'required' => false, 'attr' => ['rows' => 4]])
+            ->add('cod', TextType::class, ['label' => 'Cod.', 'required' => false, 'attr' => ['style' => 'text-transform: uppercase']])
+            ->add('description', TextType::class, ['label' => 'Descripción corta español *', 'required' => true])
+            ->add('long_description', TextareaType::class, ['label' => 'Descripción larga en español', 'required' => false, 'attr' => ['rows' => 4]])
             ->add('category', EntityType::class, [
                 'class'  => Category::class,
                 'placeholder' => 'Seleccione una categoría',
@@ -64,17 +65,6 @@ class ProductType extends AbstractType
                 'mapped' => false,
                 'required' => false,
             ])
-            ->add('model', TextType::class, [
-                'attr' => ['list' => 'model_names', 'required' => 'required', 'autocomplete' => 'off', 'style' => 'text-transform: uppercase'],
-                'label' => 'Modelo *',
-                // 'autocomplete'=>'off',
-                'required' => true,
-                'mapped' => false,
-                'constraints' => [
-                    new NotBlank(),
-                ],
-                'data' => @$product->getModel() ? $product->getModel()->getName() : '',
-            ])
             ->add('brand', TextType::class, [
                 'attr' => ['list' => 'brand_names', 'required' => 'required', 'autocomplete' => 'off', 'style' => 'text-transform: uppercase'],
                 'label' => 'Marca *',
@@ -85,7 +75,17 @@ class ProductType extends AbstractType
                 ],
                 'data' => @$product->getBrand() ? $product->getBrand()->getName() : '',
             ])
-            ->add('color', EntityType::class, [
+            ->add('model', TextType::class, [
+                'attr' => ['list' => 'model_names', 'required' => 'required', 'autocomplete' => 'off', 'style' => 'text-transform: uppercase'],
+                'label' => 'Modelo *',
+                // 'autocomplete'=>'off',
+                'required' => true,
+                'mapped' => false,
+                'constraints' => [
+                    new NotBlank(),
+                ],
+                'data' => @$product->getModel() ? $product->getModel()->getName() : '',
+            ])->add('color', EntityType::class, [
                 'class'  => Specification::class,
                 'query_builder' => function (SpecificationRepository $br) {
                     return $br->createQueryBuilder('s')
@@ -99,7 +99,7 @@ class ProductType extends AbstractType
                 'required' => false,
                 'choice_label' => 'name',
             ])
-            ->add('cod', TextType::class, ['label' => 'Cod.', 'required' => false, 'attr' => ['style' => 'text-transform: uppercase']])
+            
             ->add('screen_resolution', EntityType::class, [
                 'class'  => Specification::class,
                 'query_builder' => function (SpecificationRepository $sr) {
