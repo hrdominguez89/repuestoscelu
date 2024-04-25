@@ -2,27 +2,27 @@
 
 namespace App\Repository;
 
-use App\Entity\Colors;
+use App\Entity\Color;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Colors>
+ * @extends ServiceEntityRepository<Color>
  *
- * @method Colors|null find($id, $lockMode = null, $lockVersion = null)
- * @method Colors|null findOneBy(array $criteria, array $orderBy = null)
- * @method Colors[]    findAll()
- * @method Colors[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Color|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Color|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Color[]    findAll()
+ * @method Color[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class ColorsRepository extends ServiceEntityRepository
+class ColorRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Colors::class);
+        parent::__construct($registry, Color::class);
     }
 
 //    /**
-//     * @return Colors[] Returns an array of Colors objects
+//     * @return Color[] Returns an array of Color objects
 //     */
 //    public function findByExampleField($value): array
 //    {
@@ -36,7 +36,7 @@ class ColorsRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-//    public function findOneBySomeField($value): ?Colors
+//    public function findOneBySomeField($value): ?Color
 //    {
 //        return $this->createQueryBuilder('c')
 //            ->andWhere('c.exampleField = :val')

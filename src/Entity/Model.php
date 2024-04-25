@@ -2,13 +2,13 @@
 
 namespace App\Entity;
 
-use App\Repository\ModelsRepository;
+use App\Repository\ModelRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: ModelsRepository::class)]
-class Models
+#[ORM\Entity(repositoryClass: ModelRepository::class)]
+class Model
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -18,7 +18,7 @@ class Models
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
-    #[ORM\OneToMany(mappedBy: 'models', targetEntity: Product::class)]
+    #[ORM\OneToMany(mappedBy: 'model', targetEntity: Product::class)]
     private Collection $product;
 
     public function __construct()
@@ -55,7 +55,7 @@ class Models
     {
         if (!$this->product->contains($product)) {
             $this->product->add($product);
-            $product->setModels($this);
+            $product->setModel($this);
         }
 
         return $this;
@@ -65,8 +65,8 @@ class Models
     {
         if ($this->product->removeElement($product)) {
             // set the owning side to null (unless already changed)
-            if ($product->getModels() === $this) {
-                $product->setModels(null);
+            if ($product->getModel() === $this) {
+                $product->setModel(null);
             }
         }
 

@@ -70,10 +70,10 @@ class Product
     private Collection $productsSalesPoints;
 
     #[ORM\ManyToOne(inversedBy: 'product')]
-    private ?Colors $colors = null;
+    private ?Color $color = null;
 
     #[ORM\ManyToOne(inversedBy: 'product')]
-    private ?Models $models = null;
+    private ?Model $model = null;
 
     #[ORM\ManyToOne(inversedBy: 'product')]
     private ?ScreenSize $screenSize = null;
@@ -82,10 +82,10 @@ class Product
     private ?ScreenResolution $screenResolution = null;
 
     #[ORM\ManyToOne(inversedBy: 'product')]
-    private ?CPU $cPU = null;
+    private ?CPU $CPU = null;
 
     #[ORM\ManyToOne(inversedBy: 'product')]
-    private ?GPU $gPU = null;
+    private ?GPU $GPU = null;
 
     #[ORM\ManyToOne(inversedBy: 'product')]
     private ?Memory $memory = null;
@@ -94,7 +94,7 @@ class Product
     private ?Storage $storage = null;
 
     #[ORM\ManyToOne(inversedBy: 'product')]
-    private ?OS $oS = null;
+    private ?OS $OS = null;
 
     public function __construct()
     {
@@ -462,26 +462,26 @@ class Product
         return $this;
     }
 
-    public function getColors(): ?Colors
+    public function getColor(): ?Color
     {
-        return $this->colors;
+        return $this->color;
     }
 
-    public function setColors(?Colors $colors): static
+    public function setColor(?Color $color): static
     {
-        $this->colors = $colors;
+        $this->color = $color;
 
         return $this;
     }
 
-    public function getModels(): ?Models
+    public function getModel(): ?Model
     {
-        return $this->models;
+        return $this->model;
     }
 
-    public function setModels(?Models $models): static
+    public function setModel(?Model $model): static
     {
-        $this->models = $models;
+        $this->model = $model;
 
         return $this;
     }
@@ -512,24 +512,24 @@ class Product
 
     public function getCPU(): ?CPU
     {
-        return $this->cPU;
+        return $this->CPU;
     }
 
-    public function setCPU(?CPU $cPU): static
+    public function setCPU(?CPU $CPU): static
     {
-        $this->cPU = $cPU;
+        $this->CPU = $CPU;
 
         return $this;
     }
 
     public function getGPU(): ?GPU
     {
-        return $this->gPU;
+        return $this->GPU;
     }
 
-    public function setGPU(?GPU $gPU): static
+    public function setGPU(?GPU $GPU): static
     {
-        $this->gPU = $gPU;
+        $this->GPU = $GPU;
 
         return $this;
     }
@@ -560,12 +560,12 @@ class Product
 
     public function getOS(): ?OS
     {
-        return $this->oS;
+        return $this->OS;
     }
 
-    public function setOS(?OS $oS): static
+    public function setOS(?OS $OS): static
     {
-        $this->oS = $oS;
+        $this->OS = $OS;
 
         return $this;
     }

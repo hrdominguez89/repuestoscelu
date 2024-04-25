@@ -18,7 +18,7 @@ class OS
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
-    #[ORM\OneToMany(mappedBy: 'oS', targetEntity: Product::class)]
+    #[ORM\OneToMany(mappedBy: 'OS', targetEntity: Product::class)]
     private Collection $product;
 
     public function __construct()

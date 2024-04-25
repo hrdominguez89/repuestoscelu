@@ -18,7 +18,7 @@ class CPU
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
-    #[ORM\OneToMany(mappedBy: 'cPU', targetEntity: Product::class)]
+    #[ORM\OneToMany(mappedBy: 'CPU', targetEntity: Product::class)]
     private Collection $product;
 
     public function __construct()

@@ -75,44 +75,36 @@ class ProductType extends AbstractType
                 ],
                 'data' => @$product->getBrand() ? $product->getBrand()->getName() : '',
             ])
-            ->add('model', TextType::class, [
-                'attr' => ['list' => 'model_names', 'required' => 'required', 'autocomplete' => 'off', 'style' => 'text-transform: uppercase'],
+            ->add('models', TextType::class, [
+                'attr' => ['list' => 'models_names', 'required' => 'required', 'autocomplete' => 'off', 'style' => 'text-transform: uppercase'],
                 'label' => 'Modelo *',
-                // 'autocomplete'=>'off',
                 'required' => true,
                 'mapped' => false,
                 'constraints' => [
                     new NotBlank(),
                 ],
-                'data' => @$product->getModel() ? $product->getModel()->getName() : '',
-            ])->add('color', EntityType::class, [
-                'class'  => Specification::class,
-                'query_builder' => function (SpecificationRepository $br) {
-                    return $br->createQueryBuilder('s')
-                        ->where('st.id = :id')
-                        ->setParameter('id', Constants::SPECIFICATION_COLOR)
-                        ->leftJoin('App:SpecificationTypes', 'st', 'WITH', 's.specification_type = st.id')
-                        ->orderBy('s.name');
-                },
-                'placeholder' => 'Seleccione Color.',
+                'data' => @$product->getModels() ? $product->getModels()->getName() : '',
+            ])
+            ->add('colors', TextType::class, [
+                'attr' => ['list' => 'colors_names', 'required' => 'required', 'autocomplete' => 'off', 'style' => 'text-transform: uppercase'],
                 'label' => 'Color',
                 'required' => false,
-                'choice_label' => 'name',
+                'mapped' => false,
+                'constraints' => [
+                    new NotBlank(),
+                ],
+                'data' => @$product->getColors() ? $product->getColors()->getName() : '',
             ])
             
-            ->add('screen_resolution', EntityType::class, [
-                'class'  => Specification::class,
-                'query_builder' => function (SpecificationRepository $sr) {
-                    return $sr->createQueryBuilder('s')
-                        ->where('st.id = :id')
-                        ->setParameter('id', Constants::SPECIFICATION_SCREEN_RESOLUTION)
-                        ->leftJoin('App:SpecificationTypes', 'st', 'WITH', 's.specification_type = st.id')
-                        ->orderBy('s.name');
-                },
-                'placeholder' => 'Seleccione tipo de resolución de pantalla.',
+            ->add('screenResolution', TextType::class, [
+                'attr' => ['list' => 'screenResolution_names', 'required' => 'required', 'autocomplete' => 'off', 'style' => 'text-transform: uppercase'],
                 'label' => 'Resolución de pantalla',
                 'required' => false,
-                'choice_label' => 'name',
+                'mapped' => false,
+                'constraints' => [
+                    new NotBlank(),
+                ],
+                'data' => @$product->getScreenResolution() ? $product->getScreenResolution()->getName() : '',
             ])
             ->add('cpu', EntityType::class, [
                 'class'  => Specification::class,

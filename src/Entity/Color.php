@@ -2,13 +2,13 @@
 
 namespace App\Entity;
 
-use App\Repository\ColorsRepository;
+use App\Repository\ColorRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: ColorsRepository::class)]
-class Colors
+#[ORM\Entity(repositoryClass: ColorRepository::class)]
+class Color
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -18,7 +18,7 @@ class Colors
     #[ORM\Column(length: 255)]
     private ?string $name = null;
 
-    #[ORM\OneToMany(mappedBy: 'colors', targetEntity: Product::class)]
+    #[ORM\OneToMany(mappedBy: 'color', targetEntity: Product::class)]
     private Collection $product;
 
     public function __construct()
@@ -55,7 +55,7 @@ class Colors
     {
         if (!$this->product->contains($product)) {
             $this->product->add($product);
-            $product->setColors($this);
+            $product->setColor($this);
         }
 
         return $this;
@@ -65,8 +65,8 @@ class Colors
     {
         if ($this->product->removeElement($product)) {
             // set the owning side to null (unless already changed)
-            if ($product->getColors() === $this) {
-                $product->setColors(null);
+            if ($product->getColor() === $this) {
+                $product->setColor(null);
             }
         }
 
