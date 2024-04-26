@@ -4,23 +4,37 @@ namespace App\Controller\Secure;
 
 use App\Constants\Constants;
 use App\Entity\Brand;
+use App\Entity\Color;
+use App\Entity\CPU;
+use App\Entity\GPU;
+use App\Entity\Memory;
+use App\Entity\Model;
+use App\Entity\OS;
 use App\Entity\Product;
 use App\Entity\ProductDiscount;
 use App\Entity\ProductImages;
 use App\Entity\ProductsSalesPoints;
-use App\Entity\Specification;
-use App\Entity\SpecificationTypes;
+use App\Entity\ScreenResolution;
+use App\Entity\ScreenSize;
+use App\Entity\Storage;
 use App\Form\ProductDiscountType;
 use App\Form\ProductTagType;
 use App\Form\ProductType;
 use App\Repository\BrandRepository;
+use App\Repository\ColorRepository;
+use App\Repository\CPURepository;
+use App\Repository\GPURepository;
+use App\Repository\MemoryRepository;
+use App\Repository\ModelRepository;
+use App\Repository\OSRepository;
 use App\Repository\ProductDiscountRepository;
 use App\Repository\ProductImagesRepository;
 use App\Repository\ProductRepository;
 use App\Repository\ProductSubcategoryRepository;
 use App\Repository\ProductTagRepository;
-use App\Repository\SpecificationRepository;
-use App\Repository\SpecificationTypesRepository;
+use App\Repository\ScreenResolutionRepository;
+use App\Repository\ScreenSizeRepository;
+use App\Repository\StorageRepository;
 use App\Repository\SubcategoryRepository;
 use App\Repository\TagRepository;
 use App\Repository\UserRepository;
@@ -54,7 +68,6 @@ class ProductsController extends AbstractController
     public function __construct(
         ProductRepository $productRepository,
         BrandRepository $brandRepository,
-        SpecificationRepository $specificationRepository,
         ProductTagRepository $productTagRepository,
         TagRepository $tagRepository,
         SubcategoryRepository $subcategoryRepository,
@@ -65,7 +78,6 @@ class ProductsController extends AbstractController
         $this->brandRepository = $brandRepository;
         $this->tagRepository = $tagRepository;
         $this->subcategoryRepository = $subcategoryRepository;
-        $this->specificationRepository = $specificationRepository;
         $this->productSubcategoryRepository = $productSubcategoryRepository;
         $this->productTagRepository = $productTagRepository;
         $this->productImagesRepository = $productImagesRepository;
@@ -99,8 +111,25 @@ class ProductsController extends AbstractController
     }
 
     #[Route("/new/{sale_point?}", name: "secure_product_new", methods: ["GET", "POST"])]
-    public function new(EntityManagerInterface $em, UserRepository $userRepository, Request $request, SpecificationRepository $specificationRepository, BrandRepository $brandRepository, SpecificationTypesRepository $specificationTypesRepository, SluggerInterface $slugger, SubcategoryRepository $subcategoryRepository, FileUploader $fileUploader, $sale_point = null): Response
-    {
+    public function new(
+        EntityManagerInterface $em,
+        UserRepository $userRepository,
+        Request $request,
+        BrandRepository $brandRepository,
+        ModelRepository $modelRepository,
+        ColorRepository $colorRepository,
+        ScreenResolutionRepository $screenResolutionRepository,
+        CPURepository $CPURepository,
+        GPURepository $GPURepository,
+        MemoryRepository $memoryRepository,
+        StorageRepository $storageRepository,
+        ScreenSizeRepository $screenSizeRepository,
+        OSRepository $OSRepository,
+        SluggerInterface $slugger,
+        SubcategoryRepository $subcategoryRepository,
+        FileUploader $fileUploader,
+        $sale_point = null
+    ): Response {
         $data['user'] = $this->getUser();
         $data['title'] = 'Nuevo producto';
         $data['breadcrumbs'] = array(
@@ -108,8 +137,17 @@ class ProductsController extends AbstractController
             array('active' => true, 'title' => $data['title'])
         );
 
-        $data['models'] = $specificationRepository->findBy(['specification_type' => Constants::SPECIFICATION_MODEL]);
         $data['brands'] = $brandRepository->findAll();
+        $data['models'] = $modelRepository->findAll();
+        $data['colors'] = $colorRepository->findAll();
+        $data['screenResolutions'] = $screenResolutionRepository->findAll();
+        $data['CPUs'] = $CPURepository->findAll();
+        $data['GPUs'] = $GPURepository->findAll();
+        $data['memories'] = $memoryRepository->findAll();
+        $data['storages'] = $storageRepository->findAll();
+        $data['screenSizes'] = $screenSizeRepository->findAll();
+        $data['OSs'] = $OSRepository->findAll();
+
         $data['files_js'] = array('../uppy.min.js', '../select2.min.js', 'product/upload_files.js?v=' . rand(), 'product/product.js?v=' . rand());
         $data['files_css'] = array('uppy.min.css', 'select2.min.css', 'select2-bootstrap4.min.css');
         $data['product'] = new Product;
@@ -119,15 +157,8 @@ class ProductsController extends AbstractController
         $form = $this->createForm(ProductType::class, $data['product'], ['user_role' => $sale_point ? $data['user']->getRole()->getId() : null]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $model = $specificationRepository->findOneBy(['name' => @$request->get('product')['model'], 'specification_type' => Constants::SPECIFICATION_MODEL]);
-            if (!$model) {
-                $model = new Specification();
-                $model->setName($request->get('product')['model']);
-                $model->setSpecificationType($specificationTypesRepository->find(Constants::SPECIFICATION_MODEL));
-                $em->persist($model);
-            }
-            $data['product']->setModel($model);
             $data['product']->setSubcategory($subcategoryRepository->findOneBy(['id' => (int)$request->get('product')['subcategory']]));
+
             $brand = $brandRepository->findOneBy(['name' => @$request->get('product')['brand']]);
             if (!$brand) {
                 $brand = new Brand();
@@ -135,6 +166,80 @@ class ProductsController extends AbstractController
                 $em->persist($brand);
             }
             $data['product']->setBrand($brand);
+
+            $model = $modelRepository->findOneBy(['name' => @$request->get('product')['model']]);
+            if (!$model) {
+                $model = new Model();
+                $model->setName($request->get('product')['model']);
+                $em->persist($model);
+            }
+            $data['product']->setModel($model);
+
+            $color = $colorRepository->findOneBy(['name' => @$request->get('product')['color']]);
+            if (!$color) {
+                $color = new Color();
+                $color->setName($request->get('product')['color']);
+                $em->persist($color);
+            }
+            $data['product']->setColor($color);
+
+            $screenResolution = $screenResolutionRepository->findOneBy(['name' => @$request->get('product')['screenResolution']]);
+            if (!$screenResolution) {
+                $screenResolution = new ScreenResolution();
+                $screenResolution->setName($request->get('product')['screenResolution']);
+                $em->persist($screenResolution);
+            }
+            $data['product']->setScreenResolution($screenResolution);
+
+            $CPU = $CPURepository->findOneBy(['name' => @$request->get('product')['CPU']]);
+            if (!$CPU) {
+                $CPU = new CPU();
+                $CPU->setName($request->get('product')['CPU']);
+                $em->persist($CPU);
+            }
+            $data['product']->setCPU($CPU);
+
+            $GPU = $GPURepository->findOneBy(['name' => @$request->get('product')['GPU']]);
+            if (!$GPU) {
+                $GPU = new GPU();
+                $GPU->setName($request->get('product')['GPU']);
+                $em->persist($GPU);
+            }
+            $data['product']->setGPU($GPU);
+
+            $memory = $memoryRepository->findOneBy(['name' => @$request->get('product')['memory']]);
+            if (!$memory) {
+                $memory = new Memory();
+                $memory->setName($request->get('product')['memory']);
+                $em->persist($memory);
+            }
+            $data['product']->setMemory($memory);
+
+            $storage = $storageRepository->findOneBy(['name' => @$request->get('product')['storage']]);
+            if (!$storage) {
+                $storage = new Storage();
+                $storage->setName($request->get('product')['storage']);
+                $em->persist($storage);
+            }
+            $data['product']->setStorage($storage);
+
+            $screenSize = $screenSizeRepository->findOneBy(['name' => @$request->get('product')['screenSize']]);
+            if (!$screenSize) {
+                $screenSize = new ScreenSize();
+                $screenSize->setName($request->get('product')['screenSize']);
+                $em->persist($screenSize);
+            }
+            $data['product']->setScreenSize($screenSize);
+
+            $OS = $OSRepository->findOneBy(['name' => @$request->get('product')['OS']]);
+            if (!$OS) {
+                $OS = new OS();
+                $OS->setName($request->get('product')['OS']);
+                $em->persist($OS);
+            }
+            $data['product']->setOS($OS);
+
+
             if ($data['user']->getRole()->getId() === Constants::ROLE_SUPER_ADMIN && !$sale_point) {
                 $sales_points = $userRepository->findBy(['role' => Constants::ROLE_SUCURSAL]);
                 foreach ($sales_points as $sale_point_object) {
@@ -235,29 +340,51 @@ class ProductsController extends AbstractController
     }
 
     #[Route("/{id}/edit/{sale_point?}", name: "secure_product_edit", methods: ["GET", "POST"])]
-    public function edit(EntityManagerInterface $em, $id, SpecificationRepository $specificationRepository, BrandRepository $brandRepository, SpecificationTypesRepository $specificationTypesRepository, Request $request, SluggerInterface $slugger, ProductRepository $productRepository, SubcategoryRepository $subcategoryRepository, FileUploader $fileUploader, $sale_point = null): Response
+    public function edit(
+        EntityManagerInterface $em,
+        $id,
+        Request $request,
+        BrandRepository $brandRepository,
+        ModelRepository $modelRepository,
+        ColorRepository $colorRepository,
+        ScreenResolutionRepository $screenResolutionRepository,
+        CPURepository $CPURepository,
+        GPURepository $GPURepository,
+        MemoryRepository $memoryRepository,
+        StorageRepository $storageRepository,
+        ScreenSizeRepository $screenSizeRepository,
+        OSRepository $OSRepository,
+        SluggerInterface $slugger,
+        ProductRepository $productRepository,
+        SubcategoryRepository $subcategoryRepository,
+        FileUploader $fileUploader,
+        $sale_point = null): Response
     {
         $data['title'] = 'Editar producto';
         $data['breadcrumbs'] = array(
             @$sale_point ? array('path' => 'secure_product_sale_point', 'title' => 'Productos de los puntos de venta') : array('path' => 'secure_product_index', 'title' => 'Mis productos'),
             array('active' => true, 'title' => $data['title'])
         );
-        $data['models'] = $specificationRepository->findBy(['specification_type' => Constants::SPECIFICATION_MODEL]);
+
         $data['brands'] = $brandRepository->findAll();
+        $data['models'] = $modelRepository->findAll();
+        $data['colors'] = $colorRepository->findAll();
+        $data['screenResolutions'] = $screenResolutionRepository->findAll();
+        $data['CPUs'] = $CPURepository->findAll();
+        $data['GPUs'] = $GPURepository->findAll();
+        $data['memories'] = $memoryRepository->findAll();
+        $data['storages'] = $storageRepository->findAll();
+        $data['screenSizes'] = $screenSizeRepository->findAll();
+        $data['OSs'] = $OSRepository->findAll();
+
         $data['files_js'] = array('../uppy.min.js', '../pgwslideshow.min.js', '../select2.min.js', 'product/upload_files.js?v=' . rand(), 'product/product.js?v=' . rand());
         $data['files_css'] = array('uppy.min.css', 'pgwslideshow.min.css', 'select2.min.css', 'select2-bootstrap4.min.css');
         $data['product'] = $productRepository->find($id);
         $form = $this->createForm(ProductType::class, $data['product']);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $model = $specificationRepository->findOneBy(['name' => @$request->get('product')['model'], 'specification_type' => Constants::SPECIFICATION_MODEL]);
-            if (!$model) {
-                $model = new Specification();
-                $model->setName($request->get('product')['model']);
-                $model->setSpecificationType($specificationTypesRepository->find(Constants::SPECIFICATION_MODEL));
-                $em->persist($model);
-            }
-            $data['product']->setModel($model);
+            $data['product']->setSubcategory($subcategoryRepository->findOneBy(['id' => (int)$request->get('product')['subcategory']]));
+
             $brand = $brandRepository->findOneBy(['name' => @$request->get('product')['brand']]);
             if (!$brand) {
                 $brand = new Brand();
@@ -265,8 +392,78 @@ class ProductsController extends AbstractController
                 $em->persist($brand);
             }
             $data['product']->setBrand($brand);
-            $data['product']->setSubcategory($subcategoryRepository->findOneBy(['id' => (int)@$request->get('product')['subcategory']]));
-            $em->persist($data['product']);
+
+            $model = $modelRepository->findOneBy(['name' => @$request->get('product')['model']]);
+            if (!$model) {
+                $model = new Model();
+                $model->setName($request->get('product')['model']);
+                $em->persist($model);
+            }
+            $data['product']->setModel($model);
+
+            $color = $colorRepository->findOneBy(['name' => @$request->get('product')['color']]);
+            if (!$color) {
+                $color = new Color();
+                $color->setName($request->get('product')['color']);
+                $em->persist($color);
+            }
+            $data['product']->setColor($color);
+
+            $screenResolution = $screenResolutionRepository->findOneBy(['name' => @$request->get('product')['screenResolution']]);
+            if (!$screenResolution) {
+                $screenResolution = new ScreenResolution();
+                $screenResolution->setName($request->get('product')['screenResolution']);
+                $em->persist($screenResolution);
+            }
+            $data['product']->setScreenResolution($screenResolution);
+
+            $CPU = $CPURepository->findOneBy(['name' => @$request->get('product')['CPU']]);
+            if (!$CPU) {
+                $CPU = new CPU();
+                $CPU->setName($request->get('product')['CPU']);
+                $em->persist($CPU);
+            }
+            $data['product']->setCPU($CPU);
+
+            $GPU = $GPURepository->findOneBy(['name' => @$request->get('product')['GPU']]);
+            if (!$GPU) {
+                $GPU = new GPU();
+                $GPU->setName($request->get('product')['GPU']);
+                $em->persist($GPU);
+            }
+            $data['product']->setGPU($GPU);
+
+            $memory = $memoryRepository->findOneBy(['name' => @$request->get('product')['memory']]);
+            if (!$memory) {
+                $memory = new Memory();
+                $memory->setName($request->get('product')['memory']);
+                $em->persist($memory);
+            }
+            $data['product']->setMemory($memory);
+
+            $storage = $storageRepository->findOneBy(['name' => @$request->get('product')['storage']]);
+            if (!$storage) {
+                $storage = new Storage();
+                $storage->setName($request->get('product')['storage']);
+                $em->persist($storage);
+            }
+            $data['product']->setStorage($storage);
+
+            $screenSize = $screenSizeRepository->findOneBy(['name' => @$request->get('product')['screenSize']]);
+            if (!$screenSize) {
+                $screenSize = new ScreenSize();
+                $screenSize->setName($request->get('product')['screenSize']);
+                $em->persist($screenSize);
+            }
+            $data['product']->setScreenSize($screenSize);
+
+            $OS = $OSRepository->findOneBy(['name' => @$request->get('product')['OS']]);
+            if (!$OS) {
+                $OS = new OS();
+                $OS->setName($request->get('product')['OS']);
+                $em->persist($OS);
+            }
+            $data['product']->setOS($OS);
 
             $productNameSlug = $slugger->slug($form->get('name')->getData());
             $imagesFilesBase64 = $form->get('images')->getData();

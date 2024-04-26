@@ -147,64 +147,79 @@
 
 		<div class="row my-2">
 
-
-			<div class="col-4">
-				{{ form_label (form.conditium) }}
-				{{ form_widget (form.conditium) }}
-				{{ form_errors (form.conditium)}}
+			<div class="col-3">
+				{{ form_row(form.color, {'attr': {'list': 'color_names'}}) }}
+				<datalist id="color_names">
+					{% for color in colors %}
+						<option value="{{ color.name }}">{{ color.name }}</option>
+					{% endfor %}
+				</datalist>
+			</div>
+			<div class="col-3">
+				{{ form_row(form.memory, {'attr': {'list': 'memory_names'}}) }}
+				<datalist id="memory_names">
+					{% for color in colors %}
+						<option value="{{ color.name }}">{{ color.name }}</option>
+					{% endfor %}
+				</datalist>
 			</div>
 
-			<div class="col-4">
-				{{ form_label (form.color) }}
-				{{ form_widget (form.color) }}
-				{{ form_errors (form.color)}}
+			<div class="col-3">
+				{{ form_row(form.storage, {'attr': {'list': 'storage_names'}}) }}
+				<datalist id="storages">
+					{% for storage in storages %}
+						<option value="{{ storage.name }}">{{ storage.name }}</option>
+					{% endfor %}
+				</datalist>
 			</div>
 
-			<div class="col-4">
-				{{ form_label (form.screen_size) }}
-				{{ form_widget (form.screen_size) }}
-				{{ form_errors (form.screen_size)}}
+			<div class="col-3">
+				{{ form_row(form.OS, {'attr': {'list': 'os_names'}}) }}
+				<datalist id="os_names">
+					{% for os in OSs %}
+						<option value="{{ os.name }}">{{ os.name }}</option>
+					{% endfor %}
+				</datalist>
 			</div>
 		</div>
 		<div class="row my-2">
-			<div class="col-4">
-				{{ form_label (form.screen_resolution) }}
-				{{ form_widget (form.screen_resolution) }}
-				{{ form_errors (form.screen_resolution)}}
+			<div class="col-3">
+				{{ form_row(form.screenSize, {'attr': {'list': 'screenSize_name'}}) }}
+				<datalist id="screenSize_name">
+					{% for screenSize in screenSizes %}
+						<option value="{{ screenSize.name }}">{{ screenSize.name }}</option>
+					{% endfor %}
+				</datalist>
+			</div>
+			<div class="col-3">
+				{{ form_row(form.screenResolution, {'attr': {'list': 'screenResolution_names'}}) }}
+				<datalist id="screenResolution_names">
+					{% for screenResolution in screenResolutions %}
+						<option value="{{ screenResolution.name }}">{{ screenResolution.name }}</option>
+					{% endfor %}
+				</datalist>
 			</div>
 
-			<div class="col-4">
-				{{ form_label (form.cpu) }}
-				{{ form_widget (form.cpu) }}
-				{{ form_errors (form.cpu)}}
+			<div class="col-3">
+				{{ form_row(form.GPU, {'attr': {'list': 'GPU_names'}}) }}
+				<datalist id="GPU_names">
+					{% for GPU in GPUs %}
+						<option value="{{ GPU.name }}">{{ GPU.name }}</option>
+					{% endfor %}
+				</datalist>
 			</div>
-			<div class="col-4">
-				{{ form_label (form.gpu) }}
-				{{ form_widget (form.gpu) }}
-				{{ form_errors (form.gpu)}}
+			<div class="col-3">
+				{{ form_row(form.CPU, {'attr': {'list': 'CPU_names'}}) }}
+				<datalist id="CPU_names">
+					{% for CPU in CPUs %}
+						<option value="{{ CPU.name }}">{{ CPU.name }}</option>
+					{% endfor %}
+				</datalist>
 			</div>
 
-
-		</div>
-
-		<div class="row mt-2 mb-4">
-			<div class="col-4">
-				{{ form_label (form.memory) }}
-				{{ form_widget (form.memory) }}
-				{{ form_errors (form.memory)}}
-			</div>
-			<div class="col-4">
-				{{ form_label (form.storage) }}
-				{{ form_widget (form.storage) }}
-				{{ form_errors (form.storage)}}
-			</div>
-			<div class="col-4">
-				{{ form_label (form.op_sys) }}
-				{{ form_widget (form.op_sys) }}
-				{{ form_errors (form.op_sys)}}
-			</div>
 
 		</div>
+
 	</div>
 	{# FIN CARACTERISTICAS #}
 
