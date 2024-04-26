@@ -7,63 +7,103 @@
 {% block content %}
 	{{parent()}}
 
-	<div class="row">
-		<div class="col-12">
-			<h1 class="mr-auto mb-0 title-table">
-				{{ title }}
-				<small id="message_expiration_time"></small>
-			</h1>
-		</div>
-	</div>
-
-
-	<div class="row my-3">
-		<div class="col-12">
-			<h4>
-				{{product.name}}
-			</h4>
-
-		</div>
-	</div>
-
-	{{ form_start (form) }}
-
-	{% if form_errors (form) %}
+	<div class="container-fluid">
 		<div class="row">
 			<div class="col-12">
-				<div class="alert alert-danger">
-					{{ form_errors (form) }}
-				</div>
+				<h1 class="mr-auto mb-0 title-table">
+					{{ title }}
+				</h1>
 			</div>
 		</div>
-	{% endif %}
 
-	{# ETIQUETAS #}
-	<div class="row my-3">
+
+		{{ form_start (form) }}
+
+		{% if form_errors (form) %}
+			<div class="row">
+				<div class="col-12">
+					<div class="alert alert-danger">
+						{{ form_errors (form) }}
+					</div>
+				</div>
+			</div>
+		{% endif %}
 
 		<div class="row my-2">
-			<div class="col-4">
-				{{ form_label (form.tag) }}
+			<div class="col-12">
+				<table class="table table-sm ">
+					<thead>
+						<tr>
+							<th>
+								Cod.
+							</th>
+							<th>
+								Producto
+							</th>
+							<th>
+								Descripción
+							</th>
+							<th>
+								Marca
+							</th>
+							<th>
+								Categoría
+							</th>
+							<th>
+								Subcategoría
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>
+								{{product.product.salePoint.role.id == 1? 'A':product.product.salePoint.id}}-{{product.product.cod}}
+							</td>
+							<td>
+								{{ product.product.name }}
+							</td>
+							<td>
+								{{ product.product.description ? product.product.description:'' }}
+
+							</td>
+							<td>
+								{{ product.product.brand.name }}
+
+							</td>
+							<td>
+								{{ product.product.category.name }}
+
+							</td>
+							<td>
+								{{product.product.subcategory ? product.product.subcategory.name:''}}
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		{# ETIQUETAS #}
+
+		<div class="row my-2">
+			<div class="col-12">
+				{% set tags_selected = '' %}
+				{% for tag in product_sale_point_tag %}
+					{% if tags_selected != '' %}
+						{% set tags_selected = tags_selected ~ '-' %}
+					{% endif %}
+					{% set tags_selected = tags_selected ~ tag.tag.id %}
+				{% endfor %}
+				{{ form_label (
+				form.tag,
+				'Etiquetas',
+				{'label_attr': {'class': 'form-label','id':'label-tag','data-tags-selected':tags_selected ? tags_selected:''}}
+				)}}
+				{# {{ form_label (form.tag) }} #}
 				{{ form_widget (form.tag) }}
 				{{ form_errors (form.tag)}}
 			</div>
 		</div>
-		<div class="row my-2">
 
-			<div class="col-4">
-				{{ form_label (form.tag_expires) }}
-				{{ form_widget (form.tag_expires) }}
-				{{ form_errors (form.tag_expires)}}
-			</div>
-		</div>
-		<div class="row my-2">
-
-			<div class="col-4">
-				{{ form_label (form.tag_expiration_date) }}
-				{{ form_widget (form.tag_expiration_date) }}
-				{{ form_errors (form.tag_expiration_date)}}
-			</div>
-		</div>
 		<div>
 			<div class="row my-2">
 				<div class="col-12 text-end">
@@ -74,4 +114,6 @@
 			</div>
 		</div>
 		{{ form_end (form) }}
-	{% endblock %}
+
+	</div>
+{% endblock %}

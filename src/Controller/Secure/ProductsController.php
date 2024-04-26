@@ -11,14 +11,13 @@ use App\Entity\Memory;
 use App\Entity\Model;
 use App\Entity\OS;
 use App\Entity\Product;
-use App\Entity\ProductDiscount;
 use App\Entity\ProductImages;
+use App\Entity\ProductSalePointTag;
 use App\Entity\ProductsSalesPoints;
 use App\Entity\ScreenResolution;
 use App\Entity\ScreenSize;
 use App\Entity\Storage;
-use App\Form\ProductDiscountType;
-use App\Form\ProductTagType;
+use App\Form\ProductSalePointTagType;
 use App\Form\ProductType;
 use App\Repository\BrandRepository;
 use App\Repository\ColorRepository;
@@ -27,9 +26,10 @@ use App\Repository\GPURepository;
 use App\Repository\MemoryRepository;
 use App\Repository\ModelRepository;
 use App\Repository\OSRepository;
-use App\Repository\ProductDiscountRepository;
 use App\Repository\ProductImagesRepository;
 use App\Repository\ProductRepository;
+use App\Repository\ProductSalePointTagRepository;
+use App\Repository\ProductsSalesPointsRepository;
 use App\Repository\ProductSubcategoryRepository;
 use App\Repository\ProductTagRepository;
 use App\Repository\ScreenResolutionRepository;
@@ -108,6 +108,20 @@ class ProductsController extends AbstractController
         );
 
         return $this->render('secure/products/abm_products.html.twig', $data);
+    }
+
+    #[Route("/general", name: "secure_product_general", methods: ["GET"])]
+    public function general(ProductsSalesPointsRepository $productsSalesPointsRepository): Response
+    {
+        $data['user'] = $this->getUser();
+        $data['products'] = $productsSalesPointsRepository->findGeneralProductsBySalePoint(['sale_point' => $data['user']]);
+        $data['title'] = 'Productos asignados por la plataforma';
+        $data['files_js'] = array('table_full_buttons.js?v=' . rand());
+        $data['breadcrumbs'] = array(
+            array('active' => true, 'title' => $data['title'])
+        );
+
+        return $this->render('secure/products/abm_products.general.html.twig', $data);
     }
 
     #[Route("/new/{sale_point?}", name: "secure_product_new", methods: ["GET", "POST"])]
@@ -358,8 +372,8 @@ class ProductsController extends AbstractController
         ProductRepository $productRepository,
         SubcategoryRepository $subcategoryRepository,
         FileUploader $fileUploader,
-        $sale_point = null): Response
-    {
+        $sale_point = null
+    ): Response {
         $data['title'] = 'Editar producto';
         $data['breadcrumbs'] = array(
             @$sale_point ? array('path' => 'secure_product_sale_point', 'title' => 'Productos de los puntos de venta') : array('path' => 'secure_product_index', 'title' => 'Mis productos'),
@@ -546,120 +560,50 @@ class ProductsController extends AbstractController
         return $this->renderForm('secure/products/form_products.html.twig', $data);
     }
 
-    #[Route("/{product_id}/discount", name: "secure_product_discount", methods: ["GET", "POST"])]
-    public function discount(EntityManagerInterface $em, $product_id, Request $request, ProductRepository $productRepository, ProductDiscountRepository $productDiscountRepository): Response
+    #[Route("/{product_sale_point_id}/tag", name: "secure_product_tag", methods: ["GET", "POST"])]
+    public function tag(EntityManagerInterface $em, $product_sale_point_id, Request $request, ProductsSalesPointsRepository $productsSalesPointsRepository, TagRepository $tagRepository, ProductSalePointTagRepository $productSalePointTagRepository): Response
     {
-        $data['title'] = 'Descuento de producto';
+        $data['title'] = 'Etiquetas';
         $data['breadcrumbs'] = array(
             array('path' => 'secure_product_index', 'title' => 'Productos'),
             array('active' => true, 'title' => $data['title'])
         );
-        $data['files_js'] = array('table_full_buttons.js?v=' . rand());
-        $data['product'] = $productRepository->find($product_id);
-        $data['products_discount'] = $productDiscountRepository->findBy(['product' => $product_id]);
-        $data['new_product_discount'] = new ProductDiscount;
-        $form = $this->createForm(ProductDiscountType::class, $data['new_product_discount']);
-
-
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-
-            $entityManager = $em;
-            $now = new \DateTime();
-            if ($form->get('start_date')->getData() > $now) {
-                $data['new_product_discount']->setActive(false);
-            }
-            $data['new_product_discount']->setProduct($data['product']);
-            $data['new_product_discount']->setCreatedByUser($this->getUser());
-            $entityManager->persist($data['new_product_discount']);
-
-            $productDiscountRepository->disableAllDiscountProduct($product_id);
-
-            $entityManager->flush();
-            $this->addFlash(
-                'message',
-                [
-                    "alert-color" => "success",
-                    "title" => 'Nuevo descuento generado.',
-                    "message" => 'Se generó un nuevo descuento correctamente.'
-                ]
-            );
-            return $this->redirectToRoute('secure_product_discount', ['product_id' => $product_id]);
-        }
-
-        $data['form'] = $form;
-        return $this->renderForm('secure/products/form_discount.html.twig', $data);
-    }
-
-    #[Route("/discount/{discount_id}/disable", name: "secure_product_discount_disable", methods: ["GET"])]
-    public function disableDiscount(EntityManagerInterface $em, $discount_id, ProductDiscountRepository $productDiscountRepository): Response
-    {
-        $data['products_discount'] = $productDiscountRepository->find($discount_id);
-        $entityManager = $em;
-        $data['products_discount']->setActive(false);
-        $entityManager->persist($data['products_discount']);
-        $entityManager->flush();
-        $this->addFlash(
-            'message',
-            [
-                "alert-color" => "success",
-                "title" => 'Descuento desactivado.',
-                "message" => 'Se desactivó el descuento correctamente.'
-            ]
-        );
-        return $this->redirectToRoute('secure_product_discount', ['product_id' => $data['products_discount']->getProduct()->getId()]);
-    }
-
-    #[Route("/{product_id}/tag", name: "secure_product_tag", methods: ["GET", "POST"])]
-    public function tag(EntityManagerInterface $em, $product_id, Request $request, ProductRepository $productRepository): Response
-    {
-        $data['title'] = 'Etiqueta';
-        $data['breadcrumbs'] = array(
-            array('path' => 'secure_product_index', 'title' => 'Productos'),
-            array('active' => true, 'title' => $data['title'])
-        );
-        $data['files_js'] = array('../select2.min.js', 'product/tag.js?v=' . rand());
+        $data['files_js'] = array('product/tag.js?v=' . rand());
         $data['files_css'] = array('select2.min.css', 'select2-bootstrap4.min.css');
-        $data['product'] = $productRepository->find($product_id);
-        $form = $this->createForm(ProductTagType::class, $data['product']);
-
+        $data['product'] = $productsSalesPointsRepository->find($product_sale_point_id);
+        $data['product_sale_point_tag'] = $productSalePointTagRepository->findBy(['product_sale_point' => $data['product']]);
+        if (!$data['product_sale_point_tag']) {
+            $data['product_sale_point_tag'] = new ProductSalePointTag();
+        }
+        $form = $this->createForm(ProductSalePointTagType::class, $data['product_sale_point_tag']);
         $form->handleRequest($request);
+
         if ($form->isSubmitted() && $form->isValid()) {
-            if (!$form->get('tag_expires')->getData()) {
-                $data['product']->setTagExpires(false);
-                $data['product']->setTagExpirationDate(null);
+            $productSalePointTagRepository->removeAllTags($data['product']);
+            if (@$request->get('product_sale_point_tag')['tag']) {
+                foreach ($request->get('product_sale_point_tag')['tag'] as $tag) {
+                    $product_sale_point_tag = new ProductSalePointTag();
+                    $product_sale_point_tag->setProductSalePoint($data['product']);
+                    $product_sale_point_tag->setTag($tagRepository->findOneBy(['id' => $tag]));
+                    $em->persist($product_sale_point_tag);
+                }
+                $em->flush();
             }
-
-            $entityManager = $em;
-
-            $entityManager->persist($data['product']);
-
-            $entityManager->flush();
-
-            return $this->redirectToRoute('secure_product_index');
+            $message['type'] = 'modal';
+            $message['alert'] = 'success';
+            $message['title'] = 'Cambios guardados';
+            $message['message'] = 'Se guardaron las configuraciones de etiqueta correctamente.';
+            $this->addFlash('message', $message);
+            return $this->redirectToRoute('secure_product_tag', ['product_sale_point_id' => $product_sale_point_id]);
         }
 
         $data['form'] = $form;
         return $this->renderForm('secure/products/form_tag.html.twig', $data);
     }
 
-    #[Route("/consultFreeSku/{sku}", name: "secure_consult_free_sku", methods: ["GET"])]
-    public function consultFreeSku($sku, ProductRepository $productRepository, Request $request): Response
-    {
-        $data['data'] = $productRepository->findFreeSku($sku, $request->get('product_id'));
-        if (!$data['data']) {
-            $data['status'] = true;
-        } else {
-            $data['status'] = false;
-            $data['message'] = 'El SKU ya se encuentra registrado para ver el producto haga <a target="_blank" href="/secure/product/' . $data['data']['id'] . '/edit">click aquí</a>';
-        }
-        return new JsonResponse($data);
-    }
-
     #[Route("/deleteImageProduct", name: "secure_delete_image_product", methods: ["POST"])]
     public function deleteImageProduct(EntityManagerInterface $em, ProductImagesRepository $productImagesRepository, Request $request): Response
     {
-        $em = $em;
         $image_id = $request->get('image_id');
         $principal_image = (bool)$request->get('principal_image');
         $imageObject = $productImagesRepository->find($image_id);
@@ -674,7 +618,7 @@ class ProductsController extends AbstractController
             }
 
             $path = explode($_ENV['AWS_S3_URL'] . '/', $imageObject->getImage())[1];
-            $paththumbnail = explode($_ENV['AWS_S3_URL'] . '/', $imageObject->getImgThumbnail())[1];
+            // $paththumbnail = explode($_ENV['AWS_S3_URL'] . '/', $imageObject->getImgThumbnail())[1];
 
 
             $em->remove($imageObject);
@@ -695,10 +639,10 @@ class ProductsController extends AbstractController
                 'Key'    => $path
             ]);
 
-            $s3->deleteObject([
-                'Bucket' => $_ENV['AWS_S3_BUCKET_NAME'],
-                'Key'    => $paththumbnail
-            ]);
+            // $s3->deleteObject([
+            //     'Bucket' => $_ENV['AWS_S3_BUCKET_NAME'],
+            //     'Key'    => $paththumbnail
+            // ]);
 
             $data['status'] = true;
             $data['new_principal_image_id'] = $principal_image ? ($next_image_not_principal ? $next_image_not_principal[0]['id'] : false) : false;
@@ -754,9 +698,8 @@ class ProductsController extends AbstractController
             $data['visible'] = true;
         }
 
-        $entityManager = $em;
-        $entityManager->persist($entity_object);
-        $entityManager->flush();
+        $em->persist($entity_object);
+        $em->flush();
 
         $data['status'] = true;
 

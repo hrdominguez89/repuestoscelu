@@ -134,6 +134,7 @@ const getSubcategories = () => {
         subcategories = await res.data;
         cleanSelects();
         $("#product_subcategory").prop("disabled", false);
+        $("#product_subcategory").prop("required", 'required');
         for (let i = 0; i < subcategories.length; i++) {
           const element = subcategories[i];
           const option = $("<option></option>").text(element.name);
@@ -151,11 +152,12 @@ const getSubcategories = () => {
 };
 
 const cleanSelects = (disable = false) => {
-  const defaultOptionSelect = $("<option></option>").text(
+  const defaultOptionSelect = $("<option value selected hidden disabled</option>").text(
     "Seleccione una subcategoría"
   );
   $("#product_subcategory").html(defaultOptionSelect);
   if (disable) {
     $("#product_subcategory").prop("disabled", true);
+    $("#product_subcategory").prop("required", 'required');
   }
 };

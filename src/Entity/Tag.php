@@ -33,10 +33,14 @@ class Tag
     #[ORM\Column(type: "datetime", nullable: false)]
     private $created_at;
 
+    #[ORM\OneToMany(mappedBy: 'tag', targetEntity: ProductSalePointTag::class)]
+    private Collection $productSalePointTags;
+
     public function __construct()
     {
         $this->visible = false;
         $this->created_at = new \DateTime();
+        $this->productSalePointTags = new ArrayCollection();
     }
 
     /**
@@ -105,6 +109,36 @@ class Tag
     public function setCreatedAt(?\DateTimeInterface $created_at): self
     {
         $this->created_at = $created_at;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ProductSalePointTag>
+     */
+    public function getProductSalePointTags(): Collection
+    {
+        return $this->productSalePointTags;
+    }
+
+    public function addProductSalePointTag(ProductSalePointTag $productSalePointTag): static
+    {
+        if (!$this->productSalePointTags->contains($productSalePointTag)) {
+            $this->productSalePointTags->add($productSalePointTag);
+            $productSalePointTag->setTag($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProductSalePointTag(ProductSalePointTag $productSalePointTag): static
+    {
+        if ($this->productSalePointTags->removeElement($productSalePointTag)) {
+            // set the owning side to null (unless already changed)
+            if ($productSalePointTag->getTag() === $this) {
+                $productSalePointTag->setTag(null);
+            }
+        }
 
         return $this;
     }

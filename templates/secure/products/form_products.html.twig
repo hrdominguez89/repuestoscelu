@@ -158,15 +158,15 @@
 			<div class="col-3">
 				{{ form_row(form.memory, {'attr': {'list': 'memory_names'}}) }}
 				<datalist id="memory_names">
-					{% for color in colors %}
-						<option value="{{ color.name }}">{{ color.name }}</option>
+					{% for memory in memories %}
+						<option value="{{ memory.name }}">{{ memory.name }}</option>
 					{% endfor %}
 				</datalist>
 			</div>
 
 			<div class="col-3">
 				{{ form_row(form.storage, {'attr': {'list': 'storage_names'}}) }}
-				<datalist id="storages">
+				<datalist id="storage_names">
 					{% for storage in storages %}
 						<option value="{{ storage.name }}">{{ storage.name }}</option>
 					{% endfor %}

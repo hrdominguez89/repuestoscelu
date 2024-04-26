@@ -61,19 +61,45 @@
 					<tbody>
 						{% for product in products %}
 							<tr>
-								<td class="text-center">
-									{{product.id}}
-								</td>
+								{% if is_granted('ROLE_SUPER_ADMIN') %}
+									{% if sale_point is defined %}
+										<td class="text-center">
+											{{product.productsSalesPoints[0]? product.productsSalesPoints[0].id:product.id}}
+										</td>
+									{% else %}
+										<td class="text-center">
+											{{product.id}}
+										</td>
+									{% endif %}
+
+								{% else %}
+									<td class="text-center">
+										{{product.productsSalesPoints[0]? product.productsSalesPoints[0].id:product.id}}
+									</td>
+								{% endif %}
 
 								<td data-order="{{product.createdAt ? product.createdAt|date('U'):0}}" class="text-center">{{product.createdAt ? product.createdAt|date("d/m/Y"):'-'}}</td>
 
 								<td class="text-center">
-									<a style="font-size:16px" class="text-danger m-2" href="{{ path('secure_product_discount',{"product_id":product.id}) }}" title="Descuento de producto.">
-										<i class="fas fa-percent"></i>
-									</a>
-									<a style="font-size:16px" class="text-primary m-2" href="{{ path('secure_product_tag',{"product_id":product.id}) }}" title="Etiqueta de producto.">
-										<i class="fas fa-tag"></i>
-									</a>
+
+									{% if is_granted('ROLE_SUPER_ADMIN') %}
+										{% if sale_point is defined %}
+											<a style="font-size:16px" class="text-primary m-2" href="{{ path('secure_product_tag',{"product_sale_point_id":product.productsSalesPoints[0]? product.productsSalesPoints[0].id:product.id}) }}" title="Etiqueta de producto.">
+												<i class="fas fa-tag"></i>
+											</a>
+										{% else %}
+											<a style="font-size:16px" class="text-primary m-2" href="{{ path('secure_product_tag',{"product_sale_point_id":product.id}) }}" title="Etiqueta de producto.">
+												<i class="fas fa-tag"></i>
+											</a>
+										{% endif %}
+
+									{% else %}
+										<a style="font-size:16px" class="text-primary m-2" href="{{ path('secure_product_tag',{"product_sale_point_id":product.productsSalesPoints[0]? product.productsSalesPoints[0].id:product.id}) }}" title="Etiqueta de producto.">
+												<i class="fas fa-tag"></i>
+											</a>
+									{% endif %}
+
+
 									{% if sale_point is defined %}
 
 										<a style="font-size:16px" class="text-warning m-2" href="{{ path('secure_product_edit',{"sale_point":"sale_point","id":product.id}) }}" title="Editar producto.">
