@@ -38,7 +38,7 @@ class ScreenSize
 
     public function setName(string $name): static
     {
-        $this->name = $name;
+        $this->name = strtoupper($name);
 
         return $this;
     }

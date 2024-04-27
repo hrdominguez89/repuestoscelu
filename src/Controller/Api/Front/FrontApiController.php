@@ -21,6 +21,7 @@ use App\Repository\CustomerRepository;
 use App\Repository\CustomerStatusTypeRepository;
 use App\Repository\FavoriteProductRepository;
 use App\Repository\ProductRepository;
+use App\Repository\ProductsSalesPointsRepository;
 use App\Repository\RegistrationTypeRepository;
 use App\Repository\ShoppingCartRepository;
 use App\Repository\StatesRepository;
@@ -651,6 +652,63 @@ class FrontApiController extends AbstractController
         }
     }
 
+    #[Route("/products", name: "api_products", methods: ["GET"])]
+    public function products(
+        ProductsSalesPointsRepository $productsSalesPointsRepository,
+        CategoryRepository $categoryRepository,
+        TagRepository $tagRepository,
+        BrandRepository $brandRepository,
+        ProductRepository $productRepository,
+        Request $request,
+        EntityManagerInterface $entityManager
+    ): Response {
+        $productosDestacados = $productsSalesPointsRepository->findProductsByTagName('DESTACADOS', 8);
+        $productosOfertas = $productsSalesPointsRepository->findProductsByTagName('OFERTAS', 8);
+        $productosAccesorios = $productsSalesPointsRepository->findProductsByCategoryName('ACCESORIOS', 8);
+        $productosRepuestos = $productsSalesPointsRepository->findProductsByCategoryName('REPUESTOS', 8);
+
+        $importantProducts = [];
+        foreach ($productosDestacados as $product) {
+            $importantProducts[] = $product->getDataBasicProductFront();
+        }
+        $offerProducts = [];
+        foreach ($productosOfertas as $product) {
+            $offerProducts[] = $product->getDataBasicProductFront();
+        }
+        $accesoriesProducts = [];
+        foreach ($productosAccesorios as $product) {
+            $accesoriesProducts[] = $product->getDataBasicProductFront();
+        }
+        $repacementPartsProducts = [];
+        foreach ($productosRepuestos as $product) {
+            $repacementPartsProducts[] = $product->getDataBasicProductFront();
+        }
+        $productsFront = [
+            [
+                'title' => 'Podria interesarte',
+                'products' => $importantProducts
+            ],
+            [
+                'title' => 'Ofertas',
+                'products' => $offerProducts
+            ],
+            [
+                'title' => 'Accesorios',
+                'products' => $accesoriesProducts
+            ],
+            [
+                'title' => 'Repuestos',
+                'products' => $repacementPartsProducts
+            ]
+        ];
+
+        return $this->json(
+            $productsFront,
+            Response::HTTP_OK,
+            ['Content-Type' => 'application/json']
+        );
+    }
+
     #[Route("/products/search", name: "api_products_search", methods: ["GET"])]
     public function productsSearch(
         CategoryRepository $categoryRepository,
@@ -658,7 +716,6 @@ class FrontApiController extends AbstractController
         BrandRepository $brandRepository,
         ProductRepository $productRepository,
         Request $request,
-        EntityManagerInterface $entityManager
     ): Response {
 
         $keywords = $request->query->get('k', null);

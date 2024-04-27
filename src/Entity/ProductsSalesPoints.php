@@ -17,7 +17,7 @@ class ProductsSalesPoints
 
     #[ORM\ManyToOne(inversedBy: 'productsSalesPoints')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?product $product = null;
+    private ?Product $product = null;
 
     #[ORM\ManyToOne(inversedBy: 'productsSalesPoints')]
     #[ORM\JoinColumn(nullable: false)]
@@ -26,9 +26,13 @@ class ProductsSalesPoints
     #[ORM\OneToMany(mappedBy: 'product_sale_point', targetEntity: ProductSalePointTag::class)]
     private Collection $productSalePointTags;
 
+    #[ORM\OneToMany(mappedBy: 'product_sale_point', targetEntity: HistoricalPrice::class)]
+    private Collection $historicalPrices;
+
     public function __construct()
     {
         $this->productSalePointTags = new ArrayCollection();
+        $this->historicalPrices = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -36,12 +40,12 @@ class ProductsSalesPoints
         return $this->id;
     }
 
-    public function getProduct(): ?product
+    public function getProduct(): ?Product
     {
         return $this->product;
     }
 
-    public function setProduct(?product $product): static
+    public function setProduct(?Product $product): static
     {
         $this->product = $product;
 
@@ -88,5 +92,53 @@ class ProductsSalesPoints
         }
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, HistoricalPrice>
+     */
+    public function getHistoricalPrices(): Collection
+    {
+        return $this->historicalPrices;
+    }
+
+    public function addHistoricalPrice(HistoricalPrice $historicalPrice): static
+    {
+        if (!$this->historicalPrices->contains($historicalPrice)) {
+            $this->historicalPrices->add($historicalPrice);
+            $historicalPrice->setProductSalePoint($this);
+        }
+
+        return $this;
+    }
+
+    public function removeHistoricalPrice(HistoricalPrice $historicalPrice): static
+    {
+        if ($this->historicalPrices->removeElement($historicalPrice)) {
+            // set the owning side to null (unless already changed)
+            if ($historicalPrice->getProductSalePoint() === $this) {
+                $historicalPrice->setProductSalePoint(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getLastPrice(): ?HistoricalPrice
+    {
+        return $this->historicalPrices->last() ? $this->historicalPrices->last() : NULL;
+    }
+
+
+    public function getDataBasicProductFront()
+    {
+        return [
+            'id' => $this->getId(),
+            'image' => $this->getProduct()->getPrincipalImage(),
+            'title' => $this->getProduct()->getName(),
+            'price' => number_format((float)$this->getLastPrice()->getPrice(), 2, ',', '.'),
+            'state' => $this->getSalePoint()->getState()->getName(),
+            'city' => $this->getSalePoint()->getCity()->getName()
+        ];
     }
 }

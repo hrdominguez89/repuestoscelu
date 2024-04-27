@@ -50,6 +50,17 @@
 
 							<th>Descripción &nbsp;</th>
 
+
+							{% if is_granted('ROLE_SUPER_ADMIN') %}
+								{% if sale_point is defined %}
+									<th class="text-center">Precio &nbsp;</th>
+								{% endif %}
+							{% else %}
+
+								<th class="text-center">Precio &nbsp;</th>
+
+							{% endif %}
+
 							<th>Marca &nbsp;</th>
 
 							<th>Categoría &nbsp;</th>
@@ -95,8 +106,13 @@
 
 									{% else %}
 										<a style="font-size:16px" class="text-primary m-2" href="{{ path('secure_product_tag',{"product_sale_point_id":product.productsSalesPoints[0]? product.productsSalesPoints[0].id:product.id}) }}" title="Etiqueta de producto.">
-												<i class="fas fa-tag"></i>
-											</a>
+											<i class="fas fa-tag"></i>
+										</a>
+									{% endif %}
+									{% if is_granted('ROLE_SUCURSAL') %}
+										<a style="font-size:16px" class="text-success m-2" href="{{ path('secure_product_price',{"product_sale_point_id":product.productsSalesPoints[0].id}) }}" title="Precio">
+											<i class="fas fa-dollar-sign"></i>
+										</a>
 									{% endif %}
 
 
@@ -135,6 +151,15 @@
 								<td>{{product.name}}</td>
 
 								<td>{{product.description}}</td>
+
+								{% if is_granted('ROLE_SUPER_ADMIN') %}
+									{% if sale_point is defined %}
+										<td class="text-center">{{ product.productsSalesPoints[0] ? (product.productsSalesPoints[0].lastPrice ? '$ ' ~ product.productsSalesPoints[0].lastPrice.price|number_format(2, ',','.'):'No definido' ): 'No definido'}}</td>
+									{% endif %}
+								{% else %}
+									<td class="text-center">{{ product.productsSalesPoints[0] ? (product.productsSalesPoints[0].lastPrice ? '$ ' ~ product.productsSalesPoints[0].lastPrice.price|number_format(2, ',','.'):'No definido' ): 'No definido'}}</td>
+								{% endif %}
+
 
 								<td>{{ product.brand.name}}</td>
 

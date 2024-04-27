@@ -7,6 +7,7 @@ use App\Entity\Brand;
 use App\Entity\Color;
 use App\Entity\CPU;
 use App\Entity\GPU;
+use App\Entity\HistoricalPrice;
 use App\Entity\Memory;
 use App\Entity\Model;
 use App\Entity\OS;
@@ -17,12 +18,15 @@ use App\Entity\ProductsSalesPoints;
 use App\Entity\ScreenResolution;
 use App\Entity\ScreenSize;
 use App\Entity\Storage;
+use App\Form\HistoricalPriceType;
 use App\Form\ProductSalePointTagType;
 use App\Form\ProductType;
 use App\Repository\BrandRepository;
 use App\Repository\ColorRepository;
 use App\Repository\CPURepository;
 use App\Repository\GPURepository;
+use App\Repository\HistoricalPriceCostRepository;
+use App\Repository\HistoricalPriceRepository;
 use App\Repository\MemoryRepository;
 use App\Repository\ModelRepository;
 use App\Repository\OSRepository;
@@ -599,6 +603,40 @@ class ProductsController extends AbstractController
 
         $data['form'] = $form;
         return $this->renderForm('secure/products/form_tag.html.twig', $data);
+    }
+
+    #[Route("/{product_sale_point_id}/price", name: "secure_product_price", methods: ["GET", "POST"])]
+    public function price(EntityManagerInterface $em, $product_sale_point_id, Request $request, ProductsSalesPointsRepository $productsSalesPointsRepository, TagRepository $tagRepository, HistoricalPriceRepository $historicalPriceRepository): Response
+    {
+        $data['title'] = 'Historial de precios';
+        $data['breadcrumbs'] = array(
+            array('path' => 'secure_product_index', 'title' => 'Productos'),
+            array('active' => true, 'title' => $data['title'])
+        );
+        $data['files_js'] = array('table_simple.js?v=' . rand());
+        $data['files_css'] = array('select2.min.css', 'select2-bootstrap4.min.css');
+        $data['product'] = $productsSalesPointsRepository->find($product_sale_point_id);
+        $data['prices'] = $historicalPriceRepository->findBy(['product_sale_point' => $data['product']]);
+
+        $data['historicalPrice'] = new HistoricalPrice();
+        $form = $this->createForm(HistoricalPriceType::class, $data['historicalPrice']);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $data['historicalPrice']->setProductSalePoint($data['product']);
+            $data['historicalPrice']->setCreatedAt(new \DateTime);
+            $em->persist($data['historicalPrice']);
+            $em->flush();
+            $message['type'] = 'modal';
+            $message['alert'] = 'success';
+            $message['title'] = 'Cambios guardados';
+            $message['message'] = 'Se guardó el ultimo precio correctamente.';
+            $this->addFlash('message', $message);
+            return $this->redirectToRoute('secure_product_price', ['product_sale_point_id' => $product_sale_point_id]);
+        }
+
+        $data['form'] = $form;
+        return $this->renderForm('secure/products/form_price.html.twig', $data);
     }
 
     #[Route("/deleteImageProduct", name: "secure_delete_image_product", methods: ["POST"])]

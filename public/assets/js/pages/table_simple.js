@@ -13,7 +13,7 @@ const loadDatatableFullButtons = () => {
   if ($("#table_simple").length) {
     $.fn.dataTable.moment("DD/MM/YYYY");
     tableFullButtons = $("#table_simple").DataTable({
-      stateSave: true, //esto permite guardar en memoria la visualizacion de las columnas
+      // stateSave: true, //esto permite guardar en memoria la visualizacion de las columnas
       colReorder: true,
       language: {
         url: "/assets/libs/datatables.net-language/es-ES.json",
