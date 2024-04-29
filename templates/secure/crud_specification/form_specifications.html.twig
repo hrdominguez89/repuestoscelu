@@ -25,19 +25,10 @@
 
 	<div class="row my-4">
 		<div class="col-6">
-			{{ form_label (form.name, specification_type.name ~ ':') }}
+			{{ form_label (form.name) }}
 			{{ form_widget (form.name) }}
 			{{ form_errors (form.name) }}
 		</div>
-
-		{% if (specification_type.name == 'Color') %}
-			<div class="col-6">
-				<label for="specification_color" class="form-label required">
-					Color hexadecimal
-				</label>
-				<input type="color" id="specification_color" name="specification[color]" required class="form-control" value="{{specification.colorHexadecimal ? specification.colorHexadecimal : ''}}">
-			</div>
-		{% endif %}
 
 	</div>
 

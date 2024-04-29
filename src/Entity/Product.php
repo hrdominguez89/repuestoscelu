@@ -96,6 +96,15 @@ class Product
     #[ORM\ManyToOne(inversedBy: 'product')]
     private ?OS $OS = null;
 
+    #[ORM\OneToMany(mappedBy: 'product', targetEntity: StockProduct::class)]
+    private Collection $stockProducts;
+
+    #[ORM\OneToMany(mappedBy: 'product', targetEntity: ProductAdminInventory::class)]
+    private Collection $productAdminInventories;
+
+    #[ORM\OneToMany(mappedBy: 'product', targetEntity: ProductDispatch::class)]
+    private Collection $productDispatches;
+
     public function __construct()
     {
         $this->created_at = new \DateTime();
@@ -105,6 +114,9 @@ class Product
         $this->favoriteProducts = new ArrayCollection();
         $this->shoppingCarts = new ArrayCollection();
         $this->productsSalesPoints = new ArrayCollection();
+        $this->stockProducts = new ArrayCollection();
+        $this->productAdminInventories = new ArrayCollection();
+        $this->productDispatches = new ArrayCollection();
     }
 
     /**
@@ -566,6 +578,96 @@ class Product
     public function setOS(?OS $OS): static
     {
         $this->OS = $OS;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, StockProduct>
+     */
+    public function getStockProducts(): Collection
+    {
+        return $this->stockProducts;
+    }
+
+    public function addStockProduct(StockProduct $stockProduct): static
+    {
+        if (!$this->stockProducts->contains($stockProduct)) {
+            $this->stockProducts->add($stockProduct);
+            $stockProduct->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStockProduct(StockProduct $stockProduct): static
+    {
+        if ($this->stockProducts->removeElement($stockProduct)) {
+            // set the owning side to null (unless already changed)
+            if ($stockProduct->getProduct() === $this) {
+                $stockProduct->setProduct(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ProductAdminInventory>
+     */
+    public function getProductAdminInventories(): Collection
+    {
+        return $this->productAdminInventories;
+    }
+
+    public function addProductAdminInventory(ProductAdminInventory $productAdminInventory): static
+    {
+        if (!$this->productAdminInventories->contains($productAdminInventory)) {
+            $this->productAdminInventories->add($productAdminInventory);
+            $productAdminInventory->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProductAdminInventory(ProductAdminInventory $productAdminInventory): static
+    {
+        if ($this->productAdminInventories->removeElement($productAdminInventory)) {
+            // set the owning side to null (unless already changed)
+            if ($productAdminInventory->getProduct() === $this) {
+                $productAdminInventory->setProduct(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ProductDispatch>
+     */
+    public function getProductDispatches(): Collection
+    {
+        return $this->productDispatches;
+    }
+
+    public function addProductDispatch(ProductDispatch $productDispatch): static
+    {
+        if (!$this->productDispatches->contains($productDispatch)) {
+            $this->productDispatches->add($productDispatch);
+            $productDispatch->setProduct($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProductDispatch(ProductDispatch $productDispatch): static
+    {
+        if ($this->productDispatches->removeElement($productDispatch)) {
+            // set the owning side to null (unless already changed)
+            if ($productDispatch->getProduct() === $this) {
+                $productDispatch->setProduct(null);
+            }
+        }
 
         return $this;
     }

@@ -114,18 +114,18 @@ class ProductsController extends AbstractController
         return $this->render('secure/products/abm_products.html.twig', $data);
     }
 
-    #[Route("/general", name: "secure_product_general", methods: ["GET"])]
+    #[Route("/central", name: "secure_product_central", methods: ["GET"])]
     public function general(ProductsSalesPointsRepository $productsSalesPointsRepository): Response
     {
         $data['user'] = $this->getUser();
         $data['products'] = $productsSalesPointsRepository->findGeneralProductsBySalePoint(['sale_point' => $data['user']]);
-        $data['title'] = 'Productos asignados por la plataforma';
+        $data['title'] = 'Productos de la casa central';
         $data['files_js'] = array('table_full_buttons.js?v=' . rand());
         $data['breadcrumbs'] = array(
             array('active' => true, 'title' => $data['title'])
         );
 
-        return $this->render('secure/products/abm_products.general.html.twig', $data);
+        return $this->render('secure/products/abm_products.central.html.twig', $data);
     }
 
     #[Route("/new/{sale_point?}", name: "secure_product_new", methods: ["GET", "POST"])]
@@ -606,7 +606,7 @@ class ProductsController extends AbstractController
     }
 
     #[Route("/{product_sale_point_id}/price", name: "secure_product_price", methods: ["GET", "POST"])]
-    public function price(EntityManagerInterface $em, $product_sale_point_id, Request $request, ProductsSalesPointsRepository $productsSalesPointsRepository, TagRepository $tagRepository, HistoricalPriceRepository $historicalPriceRepository): Response
+    public function price(EntityManagerInterface $em, $product_sale_point_id, Request $request, ProductsSalesPointsRepository $productsSalesPointsRepository, HistoricalPriceRepository $historicalPriceRepository): Response
     {
         $data['title'] = 'Historial de precios';
         $data['breadcrumbs'] = array(
@@ -624,7 +624,6 @@ class ProductsController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $data['historicalPrice']->setProductSalePoint($data['product']);
-            $data['historicalPrice']->setCreatedAt(new \DateTime);
             $em->persist($data['historicalPrice']);
             $em->flush();
             $message['type'] = 'modal';

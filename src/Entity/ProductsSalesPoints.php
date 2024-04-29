@@ -29,10 +29,14 @@ class ProductsSalesPoints
     #[ORM\OneToMany(mappedBy: 'product_sale_point', targetEntity: HistoricalPrice::class)]
     private Collection $historicalPrices;
 
+    #[ORM\OneToMany(mappedBy: 'product_sale_point', targetEntity: ProductSalePointInventory::class)]
+    private Collection $productSalePointInventories;
+
     public function __construct()
     {
         $this->productSalePointTags = new ArrayCollection();
         $this->historicalPrices = new ArrayCollection();
+        $this->productSalePointInventories = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -140,5 +144,35 @@ class ProductsSalesPoints
             'state' => $this->getSalePoint()->getState()->getName(),
             'city' => $this->getSalePoint()->getCity()->getName()
         ];
+    }
+
+    /**
+     * @return Collection<int, ProductSalePointInventory>
+     */
+    public function getProductSalePointInventories(): Collection
+    {
+        return $this->productSalePointInventories;
+    }
+
+    public function addProductSalePointInventory(ProductSalePointInventory $productSalePointInventory): static
+    {
+        if (!$this->productSalePointInventories->contains($productSalePointInventory)) {
+            $this->productSalePointInventories->add($productSalePointInventory);
+            $productSalePointInventory->setProductSalePoint($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProductSalePointInventory(ProductSalePointInventory $productSalePointInventory): static
+    {
+        if ($this->productSalePointInventories->removeElement($productSalePointInventory)) {
+            // set the owning side to null (unless already changed)
+            if ($productSalePointInventory->getProductSalePoint() === $this) {
+                $productSalePointInventory->setProductSalePoint(null);
+            }
+        }
+
+        return $this;
     }
 }

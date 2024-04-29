@@ -26,12 +26,6 @@
 								Especificación &nbsp;
 							</th>
 
-							{% if (specification_type.name == 'Color') %}
-								<th>
-									Color &nbsp;
-								</th>
-							{% endif %}
-
 							<th class="text-center" data-orderable="false">
 								Acciones &nbsp;
 							</th>
@@ -41,28 +35,22 @@
 			</thead>
 			<tbody>
 				{% for specification in specifications %}
-					<tr>
-						<td>
-							{{specification.name}}
-							&nbsp;
-						</td>
-
-						{% if (specification_type.name == 'Color') %}
+					{% if specification.name !='' %}
+						<tr>
 							<td>
-								<div style="width:30px;height:30px; border-radius:30px; background-color:{{ specification.colorHexadecimal}};">
-								</div>
+								{{specification.name}}
 								&nbsp;
 							</td>
-						{% endif %}
 
-						<td class="text-center">
+							<td class="text-center">
 
-							<a style="font-size:16px" class="text-warning m-2" href="{{ path('secure_crud_specification_edit', {'specification_id': specification.id}) }}" title="Editar especificación.">
-								<i class="fas fa-edit"></i>
-							</a>
-						</td>
+								<a style="font-size:16px" class="text-warning m-2" href="{{ path('secure_crud_specification_edit', {'specification_type_id':specification_type.id,'specification_id': specification.id}) }}" title="Editar especificación.">
+									<i class="fas fa-edit"></i>
+								</a>
+							</td>
 
-					</tr>
+						</tr>
+					{% endif %}
 
 				{% endfor %}
 			</tbody>

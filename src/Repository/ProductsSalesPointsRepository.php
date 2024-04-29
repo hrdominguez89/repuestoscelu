@@ -54,7 +54,7 @@ class ProductsSalesPointsRepository extends ServiceEntityRepository
             ->setParameter('sp_active', true)
             ->setParameter('sp_visible', true)
             ->setParameter('p_visible', true)
-            ->orderBy('p.id', 'ASC');
+            ->orderBy('random()');
         if ($limit) {
             $query->setMaxResults($limit);
         }
@@ -79,7 +79,7 @@ class ProductsSalesPointsRepository extends ServiceEntityRepository
             ->setParameter('sp_active', true)
             ->setParameter('sp_visible', true)
             ->setParameter('p_visible', true)
-            ->orderBy('p.id', 'ASC');
+            ->orderBy('random()');
         if ($limit) {
             $query->setMaxResults($limit);
         }
