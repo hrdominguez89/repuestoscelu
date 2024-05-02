@@ -817,7 +817,7 @@ class FrontApiController extends AbstractController
 
             $productJson = [
                 "id" => $productSalePoint->getId(),
-                "name" => $productSalePoint->getProduct()->getName(),
+                "title" => $productSalePoint->getProduct()->getName(),
                 "slug" => $productSalePoint->getProduct()->getSlug(),
                 "breadcrumbs" => $breadcrumbs,
                 "category" => $productSalePoint->getProduct()->getCategory() ? $productSalePoint->getProduct()->getCategory()->getName() : null,
