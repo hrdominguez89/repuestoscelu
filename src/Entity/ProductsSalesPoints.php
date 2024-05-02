@@ -140,7 +140,7 @@ class ProductsSalesPoints
             'id' => $this->getId(),
             'image' => $this->getProduct()->getPrincipalImage(),
             'title' => $this->getProduct()->getName(),
-            'price' => number_format((float)$this->getLastPrice()->getPrice(), 2, ',', '.'),
+            'price' => $this->getLastPrice() ?  number_format((float)$this->getLastPrice()->getPrice(), 2, ',', '.') : '0,00',
             'state' => $this->getSalePoint()->getState()->getName(),
             'city' => $this->getSalePoint()->getCity()->getName()
         ];
