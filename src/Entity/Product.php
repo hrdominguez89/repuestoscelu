@@ -641,6 +641,11 @@ class Product
 
         return $this;
     }
+    
+    public function getLastInventory(): ?ProductAdminInventory
+    {
+        return $this->productAdminInventories->last() ? $this->productAdminInventories->last() : NULL;
+    }
 
     /**
      * @return Collection<int, ProductDispatch>

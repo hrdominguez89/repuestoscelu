@@ -108,19 +108,18 @@
 												<i class="fas fa-tag"></i>
 											</a>
 
-											<a style="font-size:16px; color:#d1ae8b" class="m-2" href="{{ path('secure_product_tag',{"product_sale_point_id":product.id}) }}" title="Cargar stock.">
-												<i class="fas fa-boxes"></i>
-											</a>
+											
 										{% endif %}
 
 									{% else %}
 										<a style="font-size:16px" class="text-primary m-2" href="{{ path('secure_product_tag',{"product_sale_point_id":product.productsSalesPoints[0]? product.productsSalesPoints[0].id:product.id}) }}" title="Etiqueta de producto.">
 											<i class="fas fa-tag"></i>
 										</a>
-										<a style="font-size:16px; color:#d1ae8b" class="m-2" href="{{ path('secure_product_tag',{"product_sale_point_id":product.productsSalesPoints[0]? product.productsSalesPoints[0].id:product.id}) }}" title="Cargar stock.">
-											<i class="fas fa-boxes"></i>
-										</a>
+										
 									{% endif %}
+									<a style="font-size:16px; color:#d1ae8b" class="m-2" href="{{ path('secure_product_stock',{"product_id":product.id}) }}" title="Cargar stock.">
+												<i class="fas fa-boxes"></i>
+											</a>
 									{% if is_granted('ROLE_SUCURSAL') %}
 										<a style="font-size:16px" class="text-{{ product.productsSalesPoints[0] ? (product.productsSalesPoints[0].lastPrice ? 'success':'secondary' ): 'secondary'}} m-2" href="{{ path('secure_product_price',{"product_sale_point_id":product.productsSalesPoints[0].id}) }}" title="Precio">
 											<i class="fas fa-dollar-sign"></i>

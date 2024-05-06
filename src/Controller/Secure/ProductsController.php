@@ -12,15 +12,19 @@ use App\Entity\Memory;
 use App\Entity\Model;
 use App\Entity\OS;
 use App\Entity\Product;
+use App\Entity\ProductAdminInventory;
 use App\Entity\ProductImages;
+use App\Entity\ProductSalePointInventory;
 use App\Entity\ProductSalePointTag;
 use App\Entity\ProductsSalesPoints;
 use App\Entity\ScreenResolution;
 use App\Entity\ScreenSize;
+use App\Entity\StockProduct;
 use App\Entity\Storage;
 use App\Form\HistoricalPriceType;
 use App\Form\ProductSalePointTagType;
 use App\Form\ProductType;
+use App\Form\StockProductType;
 use App\Repository\BrandRepository;
 use App\Repository\ColorRepository;
 use App\Repository\CPURepository;
@@ -38,6 +42,7 @@ use App\Repository\ProductSubcategoryRepository;
 use App\Repository\ProductTagRepository;
 use App\Repository\ScreenResolutionRepository;
 use App\Repository\ScreenSizeRepository;
+use App\Repository\StockProductRepository;
 use App\Repository\StorageRepository;
 use App\Repository\SubcategoryRepository;
 use App\Repository\TagRepository;
@@ -614,7 +619,6 @@ class ProductsController extends AbstractController
             array('active' => true, 'title' => $data['title'])
         );
         $data['files_js'] = array('table_simple.js?v=' . rand());
-        $data['files_css'] = array('select2.min.css', 'select2-bootstrap4.min.css');
         $data['product'] = $productsSalesPointsRepository->find($product_sale_point_id);
         $data['prices'] = $historicalPriceRepository->findBy(['product_sale_point' => $data['product']]);
 
@@ -718,7 +722,7 @@ class ProductsController extends AbstractController
     }
 
 
-    #[Route("/updateVisible/product", name: "secure_product_update_visible", methods: ["post"])]
+    #[Route("/updateVisible/product", name: "secure_product_update_visible", methods: ["POST"])]
     public function updateVisible(EntityManagerInterface $em, Request $request, ProductRepository $ProductRepository): Response
     {
         $id = (int)$request->get('id');
@@ -742,4 +746,75 @@ class ProductsController extends AbstractController
 
         return new JsonResponse($data);
     }
+
+    #[Route("/stock/{product_id?}", name: "secure_product_stock", methods: ["GET", "POST"])]
+    public function stock(ProductRepository $productRepository, Request $request, EntityManagerInterface $em, $product_id = false): Response
+    {
+
+        $data['user'] = $this->getUser();
+
+        if ($product_id) {
+            $data['product'] =  $productRepository->find($product_id);
+            if (!$data['product']) {
+                return $this->redirectToRoute('secure_product_index');
+            }
+
+            $data['title'] = 'Historial de stock del producto';
+            $data['breadcrumbs'] = array(
+                array('path' => 'secure_product_index', 'title' => 'Mis Productos'),
+                array('active' => true, 'title' => $data['title'])
+            );
+            $data['files_js'] = array('table_simple.js?v=' . rand());
+            $data['stock'] = new StockProduct();
+            $data['stock']->setProduct($data['product']);
+            $form = $this->createForm(StockProductType::class, $data['stock']);
+
+            $form->handleRequest($request);
+            if ($form->isSubmitted() && $form->isValid()) {
+
+                // SI SOY ADMIN VEO MI DISPONIBILIDAD EN IVENTARIO ADMIN SI SOY SALE POIN VEO MI DISPONIBLIDAD EN INVETARIO SALEPOINT Y SUMO AHI.
+
+                if ($data['user']->getRole()->getId() == Constants::ROLE_SUCURSAL) {
+                    $lastInventory = $data['product']->getProductsSalesPoints()[0]->getLastInventory();
+                    $inventory =  new ProductSalePointInventory();
+                    $inventory->setProductSalePoint($data['product']->getProductsSalesPoints()[0]);
+                }
+                if ($data['user']->getRole()->getId() == Constants::ROLE_SUPER_ADMIN) {
+                    if ($data['product']->getSalePoint()->getRole()->getId() == Constants::ROLE_SUPER_ADMIN) {
+                        $lastInventory = $data['product']->getLastInventory();
+                        $inventory =  new ProductAdminInventory();
+                        $inventory->setProduct($data['product']);
+                        $inventory->setSold($lastInventory ? $lastInventory->getDispatched() : 0);
+                    } else {
+                        $lastInventory = $data['product']->getProductsSalesPoints()[0]->getLastInventory();
+                        $inventory =  new ProductSalePointInventory();
+                        $inventory->setProductSalePoint($data['product']->getProductsSalesPoints()[0]);
+                    }
+                }
+                $inventory->setOnHand($lastInventory ? $lastInventory->getOnHand() + $request->get('stock_product')['stock'] : $request->get('stock_product')['stock']);
+                $inventory->setAvailable($lastInventory ? $lastInventory->getAvailable() + $request->get('stock_product')['stock'] : $request->get('stock_product')['stock']);
+                $inventory->setCommitted($lastInventory ? $lastInventory->getCommitted() : 0);
+                $inventory->setSold($lastInventory ? $lastInventory->getSold() : 0);
+                $em->persist($inventory);
+                $em->persist($data['stock']);
+                $em->flush();
+                $message['type'] = 'modal';
+                $message['alert'] = 'success';
+                $message['title'] = 'Cambios guardados';
+                $message['message'] = 'Se actualizo el stock correctamente.';
+                $this->addFlash('message', $message);
+                return $this->redirectToRoute('secure_product_stock', ['product_id' => $product_id]);
+            }
+
+            $data['form'] = $form;
+            return $this->renderForm('secure/products/form_stock_product.html.twig', $data);
+        } else {
+        }
+    }
+
+    // #[Route("/stock/{id}", name: "secure_product_stock", methods:  ["GET", "POST"])]
+    // public function stock(ProductsSalesPointsRepository $productsSalesPointsRepository): Response
+    // {
+
+    // }
 }

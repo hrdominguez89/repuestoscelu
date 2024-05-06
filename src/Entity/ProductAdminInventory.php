@@ -27,6 +27,15 @@ class ProductAdminInventory
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $created_at = null;
 
+    #[ORM\Column]
+    private ?int $committed = null;
+
+    #[ORM\Column]
+    private ?int $sold = null;
+
+    #[ORM\Column]
+    private ?int $dispatched = null;
+
     public function __construct()
     {
         $this->created_at = new \DateTime();
@@ -81,6 +90,42 @@ class ProductAdminInventory
     public function setCreatedAt(\DateTimeInterface $created_at): static
     {
         $this->created_at = $created_at;
+
+        return $this;
+    }
+
+    public function getCommitted(): ?int
+    {
+        return $this->committed;
+    }
+
+    public function setCommitted(int $committed): static
+    {
+        $this->committed = $committed;
+
+        return $this;
+    }
+
+    public function getSold(): ?int
+    {
+        return $this->sold;
+    }
+
+    public function setSold(int $sold): static
+    {
+        $this->sold = $sold;
+
+        return $this;
+    }
+
+    public function getDispatched(): ?int
+    {
+        return $this->dispatched;
+    }
+
+    public function setDispatched(int $dispatched): static
+    {
+        $this->dispatched = $dispatched;
 
         return $this;
     }

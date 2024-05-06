@@ -738,8 +738,11 @@ class FrontApiController extends AbstractController
         }
 
         return $this->json(
-            [],
-            Response::HTTP_OK,
+            [
+                'status' => false,
+                'message' => 'No se encontraron coincidencias.'
+            ],
+            Response::HTTP_NOT_FOUND,
             ['Content-Type' => 'application/json']
         );
     }

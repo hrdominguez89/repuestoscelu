@@ -155,10 +155,6 @@ class Orders
     #[ORM\Column(type: "text", nullable: true)]
     private $receiver_additional_info;
 
-    #[ORM\ManyToOne(targetEntity: Warehouses::class, inversedBy: "orders")]
-    #[ORM\JoinColumn(nullable: false)]
-    private $warehouse;
-
     #[ORM\OneToMany(targetEntity: PaymentsFiles::class, mappedBy: "order_number", cascade: ["remove"])]
     private $paymentsFiles;
 
@@ -847,7 +843,6 @@ class Orders
             "created_at" => $this->getCreatedAt()->format('Y-m-d H:i:s'),
             "status_order" => $this->getStatus()->getId(),
             "packages" => $guide_numbers_result,
-            "warehouse_id" => $this->getWarehouse()->getId3pl(),
             "items" => $orders_products_result,
             "customer" => [
                 "id" => $this->getCustomer()->getId(),
@@ -984,18 +979,6 @@ class Orders
         //     ]
         // }
         return [];
-    }
-
-    public function getWarehouse(): ?Warehouses
-    {
-        return $this->warehouse;
-    }
-
-    public function setWarehouse(?Warehouses $warehouse): self
-    {
-        $this->warehouse = $warehouse;
-
-        return $this;
     }
 
     /**

@@ -175,4 +175,9 @@ class ProductsSalesPoints
 
         return $this;
     }
+
+    public function getLastInventory(): ?ProductSalePointInventory
+    {
+        return $this->productSalePointInventories->last() ? $this->productSalePointInventories->last() : NULL;
+    }
 }

@@ -1,0 +1,213 @@
+{% extends 'home/index.html.twig' %}
+
+{% block title %}
+	{{ title }}
+{% endblock %}
+
+{% block content %}
+	{{parent()}}
+
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-12">
+				<h1 class="mr-auto mb-0 title-table">
+					{{ title }}
+				</h1>
+			</div>
+		</div>
+
+
+		{{ form_start (form) }}
+
+		{% if form_errors (form) %}
+			<div class="row">
+				<div class="col-12">
+					<div class="alert alert-danger">
+						{{ form_errors (form) }}
+					</div>
+				</div>
+			</div>
+		{% endif %}
+		<div class="row my-2">
+			<div class="col-12">
+				<table class="table table-sm ">
+					<thead>
+						<tr>
+							<th>
+								Cod.
+							</th>
+							<th>
+								Producto
+							</th>
+							<th>
+								Descripción
+							</th>
+							<th>
+								Marca
+							</th>
+							<th>
+								Categoría
+							</th>
+							<th>
+								Subcategoría
+							</th>
+
+							<th class="text-center">
+								En mano
+							</th>
+							<th class="text-center">
+								Disponible
+							</th>
+							{% if is_granted('ROLE_SUPER_ADMIN') and product.salePoint.role.id == 1  %}
+								{# si soy admin y si el producto es admin  #}
+								<th class="text-center">
+									Despachando
+								</th>
+								<th class="text-center">
+									Distribuido en Pto. de venta
+								</th>
+								<th class="text-center">
+									Vendido por los Pto. de venta
+								</th>
+							{% else %}
+
+								<th class="text-center">
+									Reservado
+								</th>
+								<th class="text-center">
+									Vendido
+								</th>
+							{% endif %}
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>
+								{{product.salePoint.role.id == 1? 'A':product.salePoint.id}}-{{product.cod}}
+							</td>
+							<td>
+								{{ product.name }}
+							</td>
+							<td>
+								{{ product.description ? product.description:'' }}
+
+							</td>
+							<td>
+								{{ product.brand.name }}
+
+							</td>
+							<td>
+								{{ product.category.name }}
+
+							</td>
+							<td>
+								{{product.subcategory ? product.subcategory.name:''}}
+							</td>
+
+							{% if is_granted('ROLE_SUPER_ADMIN') and product.salePoint.role.id == 1 %}
+								<td class="text-center">
+									{{ product.lastInventory ? product.lastInventory.onHand:0}}
+								</td>
+								<td class="text-center">
+									{{ product.lastInventory ? product.lastInventory.available:0}}
+								</td>
+								<td class="text-center">
+									{{ product.lastInventory ? product.lastInventory.committed:0}}
+								</td>
+								<td class="text-center">
+									{{ product.lastInventory ? product.lastInventory.dispatched:0}}
+								</td>
+								<td class="text-center">
+									{{ product.lastInventory ? product.lastInventory.sold:0}}
+								</td>
+							{% else %}
+								<td class="text-center">
+									{{ product.productsSalesPoints[0].lastInventory ? product.productsSalesPoints[0].lastInventory.onHand:0}}
+								</td>
+								<td class="text-center">
+									{{ product.productsSalesPoints[0].lastInventory ? product.productsSalesPoints[0].lastInventory.available:0}}
+								</td>
+								<td class="text-center">
+									{{ product.productsSalesPoints[0].lastInventory ? product.productsSalesPoints[0].lastInventory.committed:0}}
+								</td>
+								<td class="text-center">
+									{{ product.productsSalesPoints[0].lastInventory ? product.productsSalesPoints[0].lastInventory.sold:0}}
+								</td>
+							{% endif %}
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<div class="row my-2">
+			<div class="col-6">
+				{{ form_label (form.stock) }}
+				{{ form_widget (form.stock) }}
+				{{ form_errors (form.stock)}}
+			</div>
+			<div class="col-6">
+				{{ form_label (form.cost) }}
+				{{ form_widget (form.cost) }}
+				{{ form_errors (form.cost)}}
+			</div>
+
+			<div class="col-12">
+				{{ form_label (form.description) }}
+				{{ form_widget (form.description) }}
+				{{ form_errors (form.description)}}
+			</div>
+			<div>
+				<div class="row my-2">
+					<div class="col-12 text-end">
+						<a class="btn btn-secondary" href="{{ path('secure_product_index') }}">Regresar</a>
+
+						<button class="btn btn-success">Guardar</button>
+					</div>
+				</div>
+			</div>
+			{{ form_end (form) }}
+
+			<div class="row my-2">
+				<div class="col-12">
+					<table id="table_simple" class="table table-striped table-sm nowrap" data-order="[[3, &quot;desc&quot;]]">
+						<thead>
+							<tr>
+								<th class="text-center">
+									Stock ingresado
+								</th>
+								<th class="text-center">
+									Costo
+								</th>
+								<th class="text-center">
+									Descripción
+								</th>
+								<th class="text-center">
+									Fecha
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for stock in product.stockProducts %}
+
+								<tr>
+									<td class="text-center">
+										{{stock.stock ? stock.stock: ''}}
+									</td>
+									<td class="text-center">
+										{{stock.cost ? '$ ' ~ stock.cost|number_format(2, ',','.'): ''}}
+									</td>
+									<td class="text-center">
+										{{stock.stock ? stock.description: ''}}
+									</td>
+									<td data-order="{{stock.createdAt ? stock.createdAt|date('U'):0}}" class="text-center">
+										{{stock.createdAt ? stock.createdAt|date("d/m/Y"):'-'}}
+									</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	{% endblock %}
