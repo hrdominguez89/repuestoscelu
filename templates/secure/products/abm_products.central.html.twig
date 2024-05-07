@@ -35,11 +35,11 @@
 
 							<th>COD &nbsp;</th>
 
+							<th class="text-center">Precio &nbsp;</th>
+
 							<th>Nombre &nbsp;</th>
 
 							<th>Descripción &nbsp;</th>
-							
-							<th class="text-center">Precio &nbsp;</th>
 
 							<th>Marca &nbsp;</th>
 
@@ -70,11 +70,11 @@
 
 								<td>{{product.product.salePoint.role.id == 1? 'A':product.product.salePoint.id}}-{{product.product.cod}}</td>
 
+								<td class="text-center">{{ product.lastPrice ? '$ ' ~ product.lastPrice.price|number_format(2, ',','.') : 'No definido'}}</td>
+								
 								<td>{{product.product.name}}</td>
 
 								<td>{{product.product.description}}</td>
-
-								<td class="text-center">{{ product.lastPrice ? '$ ' ~ product.lastPrice.price|number_format(2, ',','.') : 'No definido'}}</td>
 
 								<td>{{ product.product.brand.name}}</td>
 

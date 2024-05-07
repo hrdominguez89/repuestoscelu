@@ -46,11 +46,6 @@
 
 							<th>COD &nbsp;</th>
 
-							<th>Nombre &nbsp;</th>
-
-							<th>Descripción &nbsp;</th>
-
-
 							{% if is_granted('ROLE_SUPER_ADMIN') %}
 								{% if sale_point is defined %}
 									<th class="text-center">Precio &nbsp;</th>
@@ -60,6 +55,10 @@
 								<th class="text-center">Precio &nbsp;</th>
 
 							{% endif %}
+
+							<th>Nombre &nbsp;</th>
+
+							<th>Descripción &nbsp;</th>
 
 							<th>Marca &nbsp;</th>
 
@@ -159,10 +158,6 @@
 
 								<td>{{product.salePoint.role.id == 1? 'A':product.salePoint.id}}-{{product.cod}}</td>
 
-								<td>{{product.name}}</td>
-
-								<td>{{product.description}}</td>
-
 								{% if is_granted('ROLE_SUPER_ADMIN') %}
 									{% if sale_point is defined %}
 										<td class="text-center">{{ product.productsSalesPoints[0] ? (product.productsSalesPoints[0].lastPrice ? '$ ' ~ product.productsSalesPoints[0].lastPrice.price|number_format(2, ',','.'):'No definido' ): 'No definido'}}</td>
@@ -171,6 +166,9 @@
 									<td class="text-center">{{ product.productsSalesPoints[0] ? (product.productsSalesPoints[0].lastPrice ? '$ ' ~ product.productsSalesPoints[0].lastPrice.price|number_format(2, ',','.'):'No definido' ): 'No definido'}}</td>
 								{% endif %}
 
+								<td>{{product.name}}</td>
+
+								<td>{{product.description}}</td>
 
 								<td>{{ product.brand.name}}</td>
 

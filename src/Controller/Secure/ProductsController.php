@@ -25,11 +25,11 @@ use App\Form\HistoricalPriceType;
 use App\Form\ProductSalePointTagType;
 use App\Form\ProductType;
 use App\Form\StockProductType;
+use App\Form\StocksProductsType;
 use App\Repository\BrandRepository;
 use App\Repository\ColorRepository;
 use App\Repository\CPURepository;
 use App\Repository\GPURepository;
-use App\Repository\HistoricalPriceCostRepository;
 use App\Repository\HistoricalPriceRepository;
 use App\Repository\MemoryRepository;
 use App\Repository\ModelRepository;
@@ -42,7 +42,6 @@ use App\Repository\ProductSubcategoryRepository;
 use App\Repository\ProductTagRepository;
 use App\Repository\ScreenResolutionRepository;
 use App\Repository\ScreenSizeRepository;
-use App\Repository\StockProductRepository;
 use App\Repository\StorageRepository;
 use App\Repository\SubcategoryRepository;
 use App\Repository\TagRepository;
@@ -50,7 +49,6 @@ use App\Repository\UserRepository;
 use App\Service\FileUploader;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -753,7 +751,7 @@ class ProductsController extends AbstractController
 
         $data['user'] = $this->getUser();
 
-        if ($product_id) {
+        if ($product_id) { //CARGA DE STOCK X PRODUCTO
             $data['product'] =  $productRepository->find($product_id);
             if (!$data['product']) {
                 return $this->redirectToRoute('secure_product_index');
@@ -808,13 +806,71 @@ class ProductsController extends AbstractController
 
             $data['form'] = $form;
             return $this->renderForm('secure/products/form_stock_product.html.twig', $data);
-        } else {
+        } else { //CARGA DE STOCK MASIVA
+            $data['products'] = $productRepository->findBy(['sale_point' => $data['user']]);
+            $data['title'] = 'Stock de productos';
+            $data['breadcrumbs'] = array(
+                array('active' => true, 'title' => $data['title'])
+            );
+            $data['files_js'] = array('table_simple.js?v=' . rand());
+
+            $form = $this->createForm(StocksProductsType::class, null, ['products' => $data['products']]);
+
+            $form->handleRequest($request);
+            if ($form->isSubmitted() && $form->isValid()) {
+                $stockFlag = false;
+                foreach ($data['products'] as $product) {
+                    if ($request->get('stocks_products')['stock_' . $product->getId()] && $request->get('stocks_products')['cost_' . $product->getId()]) {
+                        $stockFlag = true;
+                        $stockProduct = new StockProduct();
+                        $stockProduct->setProduct($product)
+                            ->setStock($request->get('stocks_products')['stock_' . $product->getId()])
+                            ->setCost($request->get('stocks_products')['cost_' . $product->getId()])
+                            ->setDescription($request->get('stocks_products')['description']);
+                        $em->persist($stockProduct);
+                        // SI SOY ADMIN VEO MI DISPONIBILIDAD EN IVENTARIO ADMIN SI SOY SALE POIN VEO MI DISPONIBLIDAD EN INVETARIO SALEPOINT Y SUMO AHI.
+                        if ($data['user']->getRole()->getId() == Constants::ROLE_SUCURSAL) {
+                            $lastInventory = $product->getProductsSalesPoints()[0]->getLastInventory();
+                            $inventory =  new ProductSalePointInventory();
+                            $inventory->setProductSalePoint($product->getProductsSalesPoints()[0]);
+                        }
+                        if ($data['user']->getRole()->getId() == Constants::ROLE_SUPER_ADMIN) {
+                            if ($product->getSalePoint()->getRole()->getId() == Constants::ROLE_SUPER_ADMIN) {
+                                $lastInventory = $product->getLastInventory();
+                                $inventory =  new ProductAdminInventory();
+                                $inventory->setProduct($product);
+                                $inventory->setSold($lastInventory ? $lastInventory->getDispatched() : 0);
+                            } else {
+                                $lastInventory = $product->getProductsSalesPoints()[0]->getLastInventory();
+                                $inventory =  new ProductSalePointInventory();
+                                $inventory->setProductSalePoint($product->getProductsSalesPoints()[0]);
+                            }
+                        }
+                        $inventory->setOnHand($lastInventory ? $lastInventory->getOnHand() + $request->get('stocks_products')['stock_' . $product->getId()] : $request->get('stocks_products')['stock_' . $product->getId()]);
+                        $inventory->setAvailable($lastInventory ? $lastInventory->getAvailable() + $request->get('stocks_products')['stock_' . $product->getId()] : $request->get('stocks_products')['stock_' . $product->getId()]);
+                        $inventory->setCommitted($lastInventory ? $lastInventory->getCommitted() : 0);
+                        $inventory->setSold($lastInventory ? $lastInventory->getSold() : 0);
+                        $em->persist($inventory);
+                    }
+                }
+                if ($stockFlag) {
+                    $em->flush();
+                    $message['type'] = 'modal';
+                    $message['alert'] = 'success';
+                    $message['title'] = 'Cambios guardados';
+                    $message['message'] = 'Se actualizo el stock de los productos correctamente.';
+                } else {
+                    $message['type'] = 'modal';
+                    $message['alert'] = 'danger';
+                    $message['title'] = 'No se guardo';
+                    $message['message'] = 'Debe llena al menos el stock de un producto.';
+                }
+                $this->addFlash('message', $message);
+                return $this->redirectToRoute('secure_product_stock');
+            }
+
+            $data['form'] = $form;
+            return $this->renderForm('secure/products/form_stocks_products.html.twig', $data);
         }
     }
-
-    // #[Route("/stock/{id}", name: "secure_product_stock", methods:  ["GET", "POST"])]
-    // public function stock(ProductsSalesPointsRepository $productsSalesPointsRepository): Response
-    // {
-
-    // }
 }

@@ -14,6 +14,7 @@ const loadDatatableFullButtons = () => {
     $.fn.dataTable.moment("DD/MM/YYYY");
     tableFullButtons = $("#table_simple").DataTable({
       // stateSave: true, //esto permite guardar en memoria la visualizacion de las columnas
+      // pageLength: 2,
       colReorder: true,
       language: {
         url: "/assets/libs/datatables.net-language/es-ES.json",
@@ -21,6 +22,16 @@ const loadDatatableFullButtons = () => {
     });
   }
 };
+
+$('.btn-save-inputs-datatable').click(function (event) {
+  event.preventDefault();
+
+  // Desactivar el paginado
+  tableFullButtons.search('').page.len(-1).draw();
+
+  // Permitir que el formulario se envíe
+  $(this).closest('form').submit();
+});
 
 const listenToggleOnOff = async () => {
   if ($(".toggle-on-off").length) {
