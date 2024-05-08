@@ -783,6 +783,7 @@ class ProductsController extends AbstractController
                         $inventory =  new ProductAdminInventory();
                         $inventory->setProduct($data['product']);
                         $inventory->setSold($lastInventory ? $lastInventory->getDispatched() : 0);
+                        $inventory->setDispatched($lastInventory ? $lastInventory->getDispatched() : 0);
                     } else {
                         $lastInventory = $data['product']->getProductsSalesPoints()[0]->getLastInventory();
                         $inventory =  new ProductSalePointInventory();
