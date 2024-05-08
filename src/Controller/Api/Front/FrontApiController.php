@@ -633,8 +633,8 @@ class FrontApiController extends AbstractController
     #[Route("/products/search", name: "api_products_search", methods: ["GET"])]
     public function productsSearch(
         // CategoryRepository $categoryRepository,
-        // TagRepository $tagRepository,
         // BrandRepository $brandRepository,
+        TagRepository $tagRepository,
         ProductsSalesPointsRepository $productsSaleProductsSalesPointsRepository,
         Request $request,
     ): Response {
@@ -645,11 +645,12 @@ class FrontApiController extends AbstractController
         // ci=ciudades/localidades (id)
         // i=indice,
         // l=limit,
-        $keywords = $request->query->get('k', null);
-        $category = $request->query->get('c', null);
-        $subcategory = $request->query->get('sc', null);
-        $state = $request->query->get('s', null);
-        $city = $request->query->get('ci', null);
+        $keywords = $request->query->get('k', null); //texto
+        $category = $request->query->get('c', null); //id
+        $subcategory = $request->query->get('sc', null); //id
+        $tag = $request->query->get('t', null); //texto
+        $state = $request->query->get('s', null); //id
+        $city = $request->query->get('ci', null); //id
 
 
 
@@ -673,7 +674,7 @@ class FrontApiController extends AbstractController
 
 
         //DEFINIR LIMITE INICIAL.
-        $limit = $request->query->getInt('l', 4);
+        $limit = $request->query->getInt('l', 8);
         $index = $request->query->getInt('i', 0) * $limit;
         if ($keywords) {
             $array_keywords_minus = explode(' ', strtolower($keywords));
@@ -686,6 +687,15 @@ class FrontApiController extends AbstractController
         }
 
         $filters = [];
+
+        if (isset($tag)) {
+            $tagOb = $tagRepository->findBy(['name' => strtoupper($tag)]);
+            $filters[] = [
+                "table" => 'pspt',
+                "name" => 'tag',
+                "value" => $tagOb,
+            ];
+        }
 
         if (isset($category)) {
             $filters[] = [
@@ -720,7 +730,6 @@ class FrontApiController extends AbstractController
         }
 
         $productsSalesPoints = $productsSaleProductsSalesPointsRepository->findProductByFilters(isset($array_keywords) ? $array_keywords : null, $filters, $limit, $index);
-
         if ($productsSalesPoints) {
             $products_founded = [];
             foreach ($productsSalesPoints as $productSalePoint) {

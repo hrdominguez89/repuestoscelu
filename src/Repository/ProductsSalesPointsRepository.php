@@ -41,15 +41,18 @@ class ProductsSalesPointsRepository extends ServiceEntityRepository
     public function findProductsByCategoryName($category_name, $limit = false): array
     { //falta agregar que disponible no sea null o mayor a 0
         $query = $this->createQueryBuilder('psp')
+            ->select('DISTINCT psp')
             ->join('psp.product', 'p')
             ->join('psp.sale_point', 'sp')
             ->join('psp.historicalPrices', 'hp')
+            ->join('psp.productSalePointInventories','pspi')
             ->join('p.category', 'c')
             ->andWhere('c.name = :c_name')
             ->andWhere('sp.active = :sp_active')
             ->andWhere('sp.visible = :sp_visible')
             ->andWhere('p.visible = :p_visible')
             ->andWhere('hp.id IS NOT NULL')
+            ->andWhere('pspi.id IS NOT NULL')
             ->setParameter('c_name', $category_name)
             ->setParameter('sp_active', true)
             ->setParameter('sp_visible', true)
@@ -65,16 +68,19 @@ class ProductsSalesPointsRepository extends ServiceEntityRepository
     public function findProductsByTagName($tag_name, $limit = false): array
     { //falta agregar que disponible no sea null o mayor a 0
         $query = $this->createQueryBuilder('psp')
+            ->select('DISTINCT psp')
             ->join('psp.product', 'p')
             ->join('psp.sale_point', 'sp')
             ->join('psp.historicalPrices', 'hp')
             ->join('psp.productSalePointTags', 'pspt')
+            ->join('psp.productSalePointInventories','pspi')
             ->join('pspt.tag', 't')
             ->andWhere('t.name = :t_name')
             ->andWhere('sp.active = :sp_active')
             ->andWhere('sp.visible = :sp_visible')
             ->andWhere('p.visible = :p_visible')
             ->andWhere('hp.id IS NOT NULL')
+            ->andWhere('pspi.id IS NOT NULL')
             ->setParameter('t_name', $tag_name)
             ->setParameter('sp_active', true)
             ->setParameter('sp_visible', true)
@@ -91,6 +97,7 @@ class ProductsSalesPointsRepository extends ServiceEntityRepository
     public function findActiveProductById($id): ?ProductsSalesPoints
     { //falta agregar que disponible no sea null o mayor a 0
         $query = $this->createQueryBuilder('psp')
+            ->select('DISTINCT psp')
             ->join('psp.product', 'p')
             ->join('psp.sale_point', 'sp')
             ->join('psp.historicalPrices', 'hp')
@@ -108,12 +115,14 @@ class ProductsSalesPointsRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
-    public function findProductByFilters($keywords = null, $filters = null, $limit = 4, $index = 0)
+    public function findProductByFilters($keywords = null, $filters = null, $limit = 8, $index = 0)
     {
         $products = $this->createQueryBuilder('psp')
+            ->select('DISTINCT psp')
             ->join('psp.product', 'p')
             ->join('psp.sale_point', 'sp')
             ->join('p.category', 'c')
+            ->join('psp.productSalePointTags', 'pspt')
             ->join('p.subcategory', 'sc')
             ->join('psp.historicalPrices', 'hp')
             ->andWhere('hp.id IS NOT NULL')
@@ -123,12 +132,13 @@ class ProductsSalesPointsRepository extends ServiceEntityRepository
         if ($keywords) {
             $orX = $products->expr()->orX();
             foreach ($keywords as $keyword) {
+
                 $orX->add(
-                    $products->expr()->orX(
-                        $products->expr()->like('p.name', "'%" . $keyword . "%'"),
-                        $products->expr()->like('p.description', "'%" . $keyword . "%'")
-                    )
+                    $products->expr()->like('p.name', ':keyword_name'),
+                    $products->expr()->like('p.name', ':keyword_description'),
                 );
+                $products->setParameter('keyword_name', '%' . $keyword . '%');
+                $products->setParameter('keyword_description', '%' . $keyword . '%');
             }
             $products->andWhere($orX);
         }
