@@ -64,7 +64,7 @@ class Product
 
     #[ORM\ManyToOne(inversedBy: 'products')]
     #[ORM\JoinColumn(nullable: false)]
-    private ?user $sale_point = null;
+    private ?User $sale_point = null;
 
     #[ORM\OneToMany(mappedBy: 'product', targetEntity: ProductsSalesPoints::class)]
     private Collection $productsSalesPoints;
@@ -432,12 +432,12 @@ class Product
         return $this;
     }
 
-    public function getSalePoint(): ?user
+    public function getSalePoint(): ?User
     {
         return $this->sale_point;
     }
 
-    public function setSalePoint(?user $sale_point): static
+    public function setSalePoint(?User $sale_point): static
     {
         $this->sale_point = $sale_point;
 

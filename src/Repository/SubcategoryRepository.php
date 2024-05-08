@@ -39,7 +39,6 @@ class SubcategoryRepository extends ServiceEntityRepository
 
     public function getSubcategoriesVisiblesByCategory($category)
     {
-
         return $this->createQueryBuilder('sc')
             ->select('sc.id', 'sc.name', 'sc.slug', "'sc=' as search_parameter")
             ->where('sc.visible = true')
