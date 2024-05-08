@@ -39,9 +39,9 @@ class ProductsSalesPointsRepository extends ServiceEntityRepository
 
 
     public function findProductsByCategoryName($category_name, $limit = false): array
-    { //falta agregar que disponible no sea null o mayor a 0
+    {
         $query = $this->createQueryBuilder('psp')
-            ->select('DISTINCT psp')
+            ->select('DISTINCT psp, random() as HIDDEN rand')
             ->join('psp.product', 'p')
             ->join('psp.sale_point', 'sp')
             ->join('psp.historicalPrices', 'hp')
@@ -57,7 +57,7 @@ class ProductsSalesPointsRepository extends ServiceEntityRepository
             ->setParameter('sp_active', true)
             ->setParameter('sp_visible', true)
             ->setParameter('p_visible', true)
-            ->orderBy('random()');
+            ->orderBy('rand');
         if ($limit) {
             $query->setMaxResults($limit);
         }
@@ -66,9 +66,9 @@ class ProductsSalesPointsRepository extends ServiceEntityRepository
     }
 
     public function findProductsByTagName($tag_name, $limit = false): array
-    { //falta agregar que disponible no sea null o mayor a 0
+    {
         $query = $this->createQueryBuilder('psp')
-            ->select('DISTINCT psp')
+            ->select('DISTINCT psp, random() as HIDDEN rand')
             ->join('psp.product', 'p')
             ->join('psp.sale_point', 'sp')
             ->join('psp.historicalPrices', 'hp')
@@ -85,7 +85,7 @@ class ProductsSalesPointsRepository extends ServiceEntityRepository
             ->setParameter('sp_active', true)
             ->setParameter('sp_visible', true)
             ->setParameter('p_visible', true)
-            ->orderBy('random()');
+            ->orderBy('rand');
         if ($limit) {
             $query->setMaxResults($limit);
         }
@@ -95,7 +95,7 @@ class ProductsSalesPointsRepository extends ServiceEntityRepository
 
 
     public function findActiveProductById($id): ?ProductsSalesPoints
-    { //falta agregar que disponible no sea null o mayor a 0
+    {
         $query = $this->createQueryBuilder('psp')
             ->select('DISTINCT psp')
             ->join('psp.product', 'p')
@@ -109,8 +109,7 @@ class ProductsSalesPointsRepository extends ServiceEntityRepository
             ->setParameter('psp_id', $id)
             ->setParameter('sp_active', true)
             ->setParameter('sp_visible', true)
-            ->setParameter('p_visible', true)
-            ->orderBy('random()');
+            ->setParameter('p_visible', true);
         return $query->getQuery()
             ->getOneOrNullResult();
     }
