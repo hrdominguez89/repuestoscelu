@@ -133,8 +133,8 @@ class ProductsSalesPointsRepository extends ServiceEntityRepository
             foreach ($keywords as $keyword) {
                 $orX->add(
                     $products->expr()->orX(
-                        $products->expr()->like('p.name', ":keyword_name_" . $i),
-                        $products->expr()->like('p.description', ":keyword_description_" . $i)
+                        $products->expr()->like("clearstr(p.name)", "clearstr(:keyword_name_" . $i . ")"),
+                        $products->expr()->like("clearstr(p.description)", "clearstr(:keyword_description_" . $i . ")")
                     )
                 );
                 $products->setParameter('keyword_name_' . $i, "%" . $keyword . "%");

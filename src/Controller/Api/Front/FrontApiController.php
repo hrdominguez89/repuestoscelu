@@ -677,13 +677,10 @@ class FrontApiController extends AbstractController
         $limit = $request->query->getInt('l', 8);
         $index = $request->query->getInt('i', 0) * $limit;
         if ($keywords) {
-            $array_keywords_minus = explode(' ', strtolower($keywords));
-            array_push($array_keywords_minus, strtolower($keywords));
-
-            $array_keywords_mayus = explode(' ', strtoupper($keywords));
-            array_push($array_keywords_mayus, strtoupper($keywords));
-
-            $array_keywords = array_merge($array_keywords_minus, $array_keywords_mayus);
+            $array_keywords = explode(' ', $keywords);
+            if (count($array_keywords)) {
+                array_push($array_keywords, $keywords);
+            }
         }
 
         $filters = [];
