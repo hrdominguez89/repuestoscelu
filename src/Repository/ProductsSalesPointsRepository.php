@@ -45,7 +45,7 @@ class ProductsSalesPointsRepository extends ServiceEntityRepository
             ->join('psp.product', 'p')
             ->join('psp.sale_point', 'sp')
             ->join('psp.historicalPrices', 'hp')
-            ->join('psp.productSalePointInventories','pspi')
+            ->join('psp.productSalePointInventories', 'pspi')
             ->join('p.category', 'c')
             ->andWhere('c.name = :c_name')
             ->andWhere('sp.active = :sp_active')
@@ -73,7 +73,7 @@ class ProductsSalesPointsRepository extends ServiceEntityRepository
             ->join('psp.sale_point', 'sp')
             ->join('psp.historicalPrices', 'hp')
             ->join('psp.productSalePointTags', 'pspt')
-            ->join('psp.productSalePointInventories','pspi')
+            ->join('psp.productSalePointInventories', 'pspi')
             ->join('pspt.tag', 't')
             ->andWhere('t.name = :t_name')
             ->andWhere('sp.active = :sp_active')
@@ -125,20 +125,23 @@ class ProductsSalesPointsRepository extends ServiceEntityRepository
             ->join('psp.productSalePointTags', 'pspt')
             ->join('p.subcategory', 'sc')
             ->join('psp.historicalPrices', 'hp')
-            ->andWhere('hp.id IS NOT NULL')
             ->where('p.visible = :p_visible')
+            ->andWhere('hp.id IS NOT NULL')
             ->andWhere('sp.active = :sp_active')
             ->andWhere('sp.visible = :sp_visible');
         if ($keywords) {
             $orX = $products->expr()->orX();
+            $i = 0;
             foreach ($keywords as $keyword) {
-
                 $orX->add(
-                    $products->expr()->like('p.name', ':keyword_name'),
-                    $products->expr()->like('p.name', ':keyword_description'),
+                    $products->expr()->orX(
+                        $products->expr()->like('p.name', ":keyword_name_" . $i),
+                        $products->expr()->like('p.description', ":keyword_description_" . $i)
+                    )
                 );
-                $products->setParameter('keyword_name', '%' . $keyword . '%');
-                $products->setParameter('keyword_description', '%' . $keyword . '%');
+                $products->setParameter('keyword_name_' . $i, "%" . $keyword . "%");
+                $products->setParameter('keyword_description_' . $i, "%" . $keyword . "%");
+                $i++;
             }
             $products->andWhere($orX);
         }
