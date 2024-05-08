@@ -121,7 +121,6 @@ class ProductsSalesPointsRepository extends ServiceEntityRepository
             ->join('psp.product', 'p')
             ->join('psp.sale_point', 'sp')
             ->join('p.category', 'c')
-            ->join('psp.productSalePointTags', 'pspt')
             ->join('p.subcategory', 'sc')
             ->join('psp.historicalPrices', 'hp')
             ->where('p.visible = :p_visible')
@@ -146,6 +145,9 @@ class ProductsSalesPointsRepository extends ServiceEntityRepository
         }
         if ($filters) {
             foreach ($filters as $filter) {
+                if ($filter['name'] == 'tag') {
+                    $products->join('psp.productSalePointTags', 'pspt');
+                }
                 $products->andWhere($filter['table'] . '.' . $filter['name'] . ' = :' . $filter['table'] . '_' . $filter['name']);
                 $products->setParameter($filter['table'] . '_' . $filter['name'], $filter['value']);
             }
