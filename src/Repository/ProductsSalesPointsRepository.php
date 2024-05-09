@@ -117,7 +117,6 @@ class ProductsSalesPointsRepository extends ServiceEntityRepository
     public function findProductByFilters($keywords = null, $filters = null, $limit = 8, $index = 0)
     {
         $products = $this->createQueryBuilder('psp')
-            ->select('DISTINCT psp')
             ->join('psp.product', 'p')
             ->join('psp.sale_point', 'sp')
             ->join('p.category', 'c')
@@ -130,7 +129,21 @@ class ProductsSalesPointsRepository extends ServiceEntityRepository
         if ($keywords) {
             $orX = $products->expr()->orX();
             $i = 0;
+            $subquery = '';
+            $sumaCoincidencias = '';
             foreach ($keywords as $keyword) {
+                if ($i > 0) {
+                    $sumaCoincidencias.='+';
+                    $subquery .= ', ';
+                }
+                $subquery .= "
+                '(SELECT 
+                    CASE 
+                        WHEN EXISTS (SELECT 1 FROM p" . $i . " WHERE clearstr(p.name) LIKE %clearstr(" . $keyword . ")%) 
+                        THEN 1 
+                        ELSE 0 
+                    END)' AS HIDDEN result_" . $i;
+                $sumaCoincidencias="result_".$i;
                 $orX->add(
                     $products->expr()->orX(
                         $products->expr()->like("clearstr(p.name)", "clearstr(:keyword_name_" . $i . ")"),
@@ -142,6 +155,10 @@ class ProductsSalesPointsRepository extends ServiceEntityRepository
                 $i++;
             }
             $products->andWhere($orX);
+            $products->select("DISTINCT psp, " . $subquery);
+            $products->orderBy($sumaCoincidencias, 'DESC');
+        } else {
+            $products->select("DISTINCT psp");
         }
         if ($filters) {
             foreach ($filters as $filter) {

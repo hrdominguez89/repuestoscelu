@@ -63,15 +63,15 @@
 										<i class="fas fa-tag"></i>
 									</a>
 
-									<a style="font-size:16px" class="text-success m-2" href="{{ path('secure_product_price',{"product_sale_point_id":product.id}) }}" title="Precio">
+									<a style="font-size:16px" class="text-{{ product.lastPrice? 'success':'secondary' }} m-2" href="{{ path('secure_product_price',{"product_sale_point_id":product.id}) }}" title="Precio">
 										<i class="fas fa-dollar-sign"></i>
 									</a>
 								</td>
 
-								<td>{{product.product.salePoint.role.id == 1? 'A':product.product.salePoint.id}}-{{product.product.cod}}</td>
+								<td class="text-nowrap">{{product.product.salePoint.role.id == 1? 'A':product.product.salePoint.id}}-{{product.product.cod}}</td>
 
 								<td class="text-center">{{ product.lastPrice ? '$ ' ~ product.lastPrice.price|number_format(2, ',','.') : 'No definido'}}</td>
-								
+
 								<td>{{product.product.name}}</td>
 
 								<td>{{product.product.description}}</td>
