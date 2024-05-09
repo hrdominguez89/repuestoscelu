@@ -128,14 +128,14 @@ class ProductsSalesPointsRepository extends ServiceEntityRepository
             ->andWhere('sp.visible = :sp_visible');
         if ($keywords) {
             $orX = $products->expr()->orX();
-            $orX->add('STRICT_WORD_SIMILARITY_COMMUTATOR_OP(p.name, :keyword_name) = :keyword_name_true'); // Asumiendo que la función devuelve un booleano
-            $orX->add('STRICT_WORD_SIMILARITY_COMMUTATOR_OP(p.description, :keyword_description) = :keyword_description_true'); // Asumiendo que la función devuelve un booleano
+            $orX->add('STRICT_WORD_SIMILARITY_COMMUTATOR_OP(clearstr(p.name), clearstr(:keyword_name)) = :keyword_name_true'); // Asumiendo que la función devuelve un booleano
+            $orX->add('STRICT_WORD_SIMILARITY_COMMUTATOR_OP(clearstr(p.description), clearstr(:keyword_description)) = :keyword_description_true'); // Asumiendo que la función devuelve un booleano
             $products->setParameter('keyword_name', $keywords);
             $products->setParameter('keyword_description', $keywords);
             $products->setParameter('keyword_name_true', true);
             $products->setParameter('keyword_description_true', true);
             $products->andWhere($orX);
-            $products->select("DISTINCT psp, SIMILARITY_DIST(p.name, :keywords_select) as HIDDEN puntuacion_name, SIMILARITY_DIST(p.name, :keywords_select) as HIDDEN puntuacion_description");
+            $products->select("DISTINCT psp, SIMILARITY_DIST(clearstr(p.name), clearstr(:keywords_select)) as HIDDEN puntuacion_name, SIMILARITY_DIST(clearstr(p.name), clearstr(:keywords_select)) as HIDDEN puntuacion_description");
             $products->setParameter('keywords_select', $keywords);
             $products->orderBy('puntuacion_name, puntuacion_description', 'DESC');
         } else {
