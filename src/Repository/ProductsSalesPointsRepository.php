@@ -137,7 +137,7 @@ class ProductsSalesPointsRepository extends ServiceEntityRepository
             $products->andWhere($orX);
             $products->select("DISTINCT psp, SIMILARITY_DIST(clearstr(p.name), clearstr(:keywords_select)) as HIDDEN puntuacion_name, SIMILARITY_DIST(clearstr(p.name), clearstr(:keywords_select)) as HIDDEN puntuacion_description");
             $products->setParameter('keywords_select', $keywords);
-            $products->orderBy('puntuacion_name, puntuacion_description', 'DESC');
+            $products->orderBy('puntuacion_name, puntuacion_description', 'asc');
         } else {
             $products->select("DISTINCT psp");
         }
