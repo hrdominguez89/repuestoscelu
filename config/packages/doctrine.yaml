@@ -19,5 +19,7 @@ doctrine:
         dql:
             string_functions:
                 clearstr: App\Helpers\ClearStrFunction
+                SIMILARITY_DIST: App\Doctrine\Functions\SimilarityDistFunction
+                STRICT_WORD_SIMILARITY_COMMUTATOR_OP: App\Doctrine\Functions\StrictWordSimilarityCommutatorOpFunction
             numeric_functions:
                 Random: App\Doctrine\DBAL\FunctionNode\Random

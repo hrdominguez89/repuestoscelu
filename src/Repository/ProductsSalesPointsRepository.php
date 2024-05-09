@@ -128,35 +128,16 @@ class ProductsSalesPointsRepository extends ServiceEntityRepository
             ->andWhere('sp.visible = :sp_visible');
         if ($keywords) {
             $orX = $products->expr()->orX();
-            $i = 0;
-            $subquery = '';
-            $sumaCoincidencias = '';
-            foreach ($keywords as $keyword) {
-                if ($i > 0) {
-                    $sumaCoincidencias.=',';
-                    $subquery .= ', ';
-                }
-                $subquery .= "
-                '(SELECT 
-                    CASE 
-                        WHEN EXISTS (SELECT 1 FROM p WHERE clearstr(p.name) LIKE %clearstr(" . $keyword . ")%) 
-                        THEN 1 
-                        ELSE 0 
-                    END)' AS HIDDEN result_" . $i;
-                $sumaCoincidencias.="result_".$i;
-                $orX->add(
-                    $products->expr()->orX(
-                        $products->expr()->like("clearstr(p.name)", "clearstr(:keyword_name_" . $i . ")"),
-                        $products->expr()->like("clearstr(p.description)", "clearstr(:keyword_description_" . $i . ")")
-                    )
-                );
-                $products->setParameter('keyword_name_' . $i, "%" . $keyword . "%");
-                $products->setParameter('keyword_description_' . $i, "%" . $keyword . "%");
-                $i++;
-            }
+            $orX->add('STRICT_WORD_SIMILARITY_COMMUTATOR_OP(p.name, :keyword_name) = :keyword_name_true'); // Asumiendo que la función devuelve un booleano
+            $orX->add('STRICT_WORD_SIMILARITY_COMMUTATOR_OP(p.description, :keyword_description) = :keyword_description_true'); // Asumiendo que la función devuelve un booleano
+            $products->setParameter('keyword_name', $keywords);
+            $products->setParameter('keyword_description', $keywords);
+            $products->setParameter('keyword_name_true', true);
+            $products->setParameter('keyword_description_true', true);
             $products->andWhere($orX);
-            $products->select("DISTINCT psp, " . $subquery);
-            $products->orderBy($sumaCoincidencias, 'DESC');
+            $products->select("DISTINCT psp, SIMILARITY_DIST(p.name, :keywords_select) as HIDDEN puntuacion_name, SIMILARITY_DIST(p.name, :keywords_select) as HIDDEN puntuacion_description");
+            $products->setParameter('keywords_select', $keywords);
+            $products->orderBy('puntuacion_name, puntuacion_description', 'DESC');
         } else {
             $products->select("DISTINCT psp");
         }

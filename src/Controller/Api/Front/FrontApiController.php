@@ -676,12 +676,7 @@ class FrontApiController extends AbstractController
         //DEFINIR LIMITE INICIAL.
         $limit = $request->query->getInt('l', 8);
         $index = $request->query->getInt('i', 0) * $limit;
-        if ($keywords) {
-            $array_keywords = explode(' ', $keywords);
-            if (count($array_keywords)) {
-                array_push($array_keywords, $keywords);
-            }
-        }
+        
 
         $filters = [];
 
@@ -726,7 +721,7 @@ class FrontApiController extends AbstractController
             ];
         }
 
-        $productsSalesPoints = $productsSaleProductsSalesPointsRepository->findProductByFilters(isset($array_keywords) ? $array_keywords : null, $filters, $limit, $index);
+        $productsSalesPoints = $productsSaleProductsSalesPointsRepository->findProductByFilters($keywords, $filters, $limit, $index);
         if ($productsSalesPoints) {
             $products_founded = [];
             foreach ($productsSalesPoints as $productSalePoint) {
