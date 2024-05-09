@@ -133,17 +133,17 @@ class ProductsSalesPointsRepository extends ServiceEntityRepository
             $sumaCoincidencias = '';
             foreach ($keywords as $keyword) {
                 if ($i > 0) {
-                    $sumaCoincidencias.='+';
+                    $sumaCoincidencias.=',';
                     $subquery .= ', ';
                 }
                 $subquery .= "
                 '(SELECT 
                     CASE 
-                        WHEN EXISTS (SELECT 1 FROM p" . $i . " WHERE clearstr(p.name) LIKE %clearstr(" . $keyword . ")%) 
+                        WHEN EXISTS (SELECT 1 FROM p WHERE clearstr(p.name) LIKE %clearstr(" . $keyword . ")%) 
                         THEN 1 
                         ELSE 0 
                     END)' AS HIDDEN result_" . $i;
-                $sumaCoincidencias="result_".$i;
+                $sumaCoincidencias.="result_".$i;
                 $orX->add(
                     $products->expr()->orX(
                         $products->expr()->like("clearstr(p.name)", "clearstr(:keyword_name_" . $i . ")"),
@@ -176,6 +176,7 @@ class ProductsSalesPointsRepository extends ServiceEntityRepository
             $products->setFirstResult($index);
         }
         $products->setMaxResults($limit);
+        // dd($products->getQuery()->getDQL());
         return $products->getQuery()->getResult();
     }
 
