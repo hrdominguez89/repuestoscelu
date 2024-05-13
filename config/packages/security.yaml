@@ -58,6 +58,13 @@ security:
                   ],
           }
         - {
+              path: ^/secure/product/dispatch/new,
+              roles:
+                  [
+                      ROLE_SUPER_ADMIN,
+                  ],
+          }
+        - {
               path: ^/secure/*,
               roles:
                   [

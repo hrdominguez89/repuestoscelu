@@ -111,11 +111,15 @@ const initInputs = () => {
 
 const listenSelectCategories = () => {
   selectCategory = $('#product_category');
-  selectCategory.on("change", async () => {
-    categoryId = parseInt(selectCategory.val());
-    await getSubcategories();
-    $("#product_subcategory").trigger("chosen:updated");
-  });
+    selectCategory.on("change", async () => {
+      categoryId = parseInt(selectCategory.val());
+      if(categoryId){
+        await getSubcategories();
+        $("#product_subcategory").trigger("chosen:updated");
+      }else{
+        cleanSelects();
+      }
+    });
 };
 
 function addZeros(text, zerosQuantity) {

@@ -25,9 +25,6 @@ class Constants
     const EMAIL_TYPE_PRICE_LIST = 7;
     const EMAIL_TYPE_WELCOME_BACKOFFICE = 8;
 
-
-
-
     // END EMAIL TYPES
 
     // STATUS EMAIL
@@ -116,4 +113,11 @@ class Constants
 
     // FIN ROLES
 
+    //STATUS DESPACHOS
+
+    const STATUS_DISPATCH_IN_TRANSIT = 1;
+    const STATUS_DISPATCH_RECEIVED = 2;
+    const STATUS_DISPATCH_CANCELED = 3;
+
+    //FIN STATUS DESPACHOS
 }

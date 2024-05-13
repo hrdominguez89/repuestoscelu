@@ -12,9 +12,16 @@ let columnNumber;
 const loadDatatableFullButtons = () => {
   if ($("#table_simple").length) {
     $.fn.dataTable.moment("DD/MM/YYYY");
+    // Obtener el valor de data-paging del elemento de la tabla
+    const pagingValue = $("#table_simple").data("paging");
+
+    // Verificar si data-paging está presente y su valor es "false" para deshabilitar la paginación
+    const pagingOption = (pagingValue !== undefined && pagingValue === false) ? false : true;
+
     tableFullButtons = $("#table_simple").DataTable({
       // stateSave: true, //esto permite guardar en memoria la visualizacion de las columnas
       // pageLength: 2,
+      pagingOption: pagingOption,
       colReorder: true,
       language: {
         url: "/assets/libs/datatables.net-language/es-ES.json",

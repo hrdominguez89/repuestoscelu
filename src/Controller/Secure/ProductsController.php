@@ -6,6 +6,7 @@ use App\Constants\Constants;
 use App\Entity\Brand;
 use App\Entity\Color;
 use App\Entity\CPU;
+use App\Entity\Dispatch;
 use App\Entity\GPU;
 use App\Entity\HistoricalPrice;
 use App\Entity\Memory;
@@ -13,6 +14,7 @@ use App\Entity\Model;
 use App\Entity\OS;
 use App\Entity\Product;
 use App\Entity\ProductAdminInventory;
+use App\Entity\ProductDispatch;
 use App\Entity\ProductImages;
 use App\Entity\ProductSalePointInventory;
 use App\Entity\ProductSalePointTag;
@@ -21,14 +23,19 @@ use App\Entity\ScreenResolution;
 use App\Entity\ScreenSize;
 use App\Entity\StockProduct;
 use App\Entity\Storage;
+use App\Form\DispatchConfirmType;
+use App\Form\DispatchType;
 use App\Form\HistoricalPriceType;
 use App\Form\ProductSalePointTagType;
 use App\Form\ProductType;
 use App\Form\StockProductType;
 use App\Form\StocksProductsType;
+use App\Manager\EntityManager;
 use App\Repository\BrandRepository;
 use App\Repository\ColorRepository;
 use App\Repository\CPURepository;
+use App\Repository\DispatchRepository;
+use App\Repository\DispatchStatusTypeRepository;
 use App\Repository\GPURepository;
 use App\Repository\HistoricalPriceRepository;
 use App\Repository\MemoryRepository;
@@ -54,9 +61,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Aws\S3\S3Client;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Intervention\Image\ImageManager;
+use OpenSearch\Generated\App\Constant;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -782,7 +791,7 @@ class ProductsController extends AbstractController
                         $lastInventory = $data['product']->getLastInventory();
                         $inventory =  new ProductAdminInventory();
                         $inventory->setProduct($data['product']);
-                        $inventory->setSold($lastInventory ? $lastInventory->getDispatched() : 0);
+                        $inventory->setSold($lastInventory ? $lastInventory->getSold() : 0);
                         $inventory->setDispatched($lastInventory ? $lastInventory->getDispatched() : 0);
                     } else {
                         $lastInventory = $data['product']->getProductsSalesPoints()[0]->getLastInventory();
@@ -839,6 +848,7 @@ class ProductsController extends AbstractController
                                 $lastInventory = $product->getLastInventory();
                                 $inventory =  new ProductAdminInventory();
                                 $inventory->setProduct($product);
+                                $inventory->setDispatched($lastInventory ? $lastInventory->getDispatched() : 0);
                                 $inventory->setSold($lastInventory ? $lastInventory->getDispatched() : 0);
                             } else {
                                 $lastInventory = $product->getProductsSalesPoints()[0]->getLastInventory();
@@ -871,6 +881,208 @@ class ProductsController extends AbstractController
 
             $data['form'] = $form;
             return $this->renderForm('secure/products/form_stocks_products.html.twig', $data);
+        }
+    }
+
+
+    #[Route("/dispatch", name: "secure_product_dispatch", methods: ["GET"])]
+    public function dispatch(Request $request, DispatchRepository $dispatchRepository): Response
+    {
+        $data['user'] = $this->getUser();
+        if ($data['user']->getRole()->getId() == Constants::ROLE_SUPER_ADMIN) {
+            switch ($request->get('status')) {
+                case 'all':
+                    $data['dispatches'] = $dispatchRepository->findAll();
+                    $data['status'] = 'all';
+                    break;
+                case Constants::STATUS_DISPATCH_RECEIVED:
+                    $data['dispatches'] = $dispatchRepository->findBy(['status' => Constants::STATUS_DISPATCH_RECEIVED]);
+                    $data['status'] = Constants::STATUS_DISPATCH_RECEIVED;
+                    break;
+                case Constants::STATUS_DISPATCH_CANCELED:
+                    $data['dispatches'] = $dispatchRepository->findBy(['status' => Constants::STATUS_DISPATCH_CANCELED]);
+                    $data['status'] = Constants::STATUS_DISPATCH_CANCELED;
+                    break;
+                case Constants::STATUS_DISPATCH_IN_TRANSIT:
+                default:
+                    $data['dispatches'] = $dispatchRepository->findBy(['status' => Constants::STATUS_DISPATCH_IN_TRANSIT]);
+                    $data['status'] = Constants::STATUS_DISPATCH_IN_TRANSIT;
+                    break;
+            }
+            $data['title'] = 'Despacho de productos';
+        } else {
+            $data['title'] = 'Productos en camino';
+            switch ($request->get('status')) {
+                case 'all':
+                    $data['dispatches'] = $dispatchRepository->findAll();
+                    $data['status'] = 'all';
+                    break;
+                case Constants::STATUS_DISPATCH_RECEIVED:
+                    $data['dispatches'] = $dispatchRepository->findBy(['sale_point' => $data['user']->getId(), 'status' => Constants::STATUS_DISPATCH_RECEIVED]);
+                    $data['status'] = Constants::STATUS_DISPATCH_RECEIVED;
+                    break;
+                case Constants::STATUS_DISPATCH_CANCELED:
+                    $data['dispatches'] = $dispatchRepository->findBy(['sale_point' => $data['user']->getId(), 'status' => Constants::STATUS_DISPATCH_CANCELED]);
+                    $data['status'] = Constants::STATUS_DISPATCH_CANCELED;
+                    break;
+                case Constants::STATUS_DISPATCH_IN_TRANSIT:
+                default:
+                    $data['dispatches'] = $dispatchRepository->findBy(['sale_point' => $data['user']->getId(), 'status' => Constants::STATUS_DISPATCH_IN_TRANSIT]);
+                    $data['status'] = Constants::STATUS_DISPATCH_IN_TRANSIT;
+                    break;
+            }
+        }
+        $data['breadcrumbs'] = array(
+            array('active' => true, 'title' => $data['title'])
+        );
+        $data['files_js'] = array('table_full_buttons.js?v=' . rand());
+        return $this->renderForm('secure/products/abm_dispatch_products.html.twig', $data);
+    }
+
+    #[Route("/dispatch/new", name: "secure_product_new_dispatch", methods: ["GET", "POST"])]
+    public function newDispatch(Request $request, ProductRepository $productRepository, UserRepository $userRepository, EntityManager $em, DispatchStatusTypeRepository $dispatchStatusTypeRepository): Response
+    {
+        $data['user'] = $this->getUser();
+        $data['title'] = 'Generar orden de despacho';
+        $data['breadcrumbs'] = array(
+            array('path' => 'secure_product_dispatch', 'title' => 'Despacho de productos'),
+            array('active' => true, 'title' => $data['title'])
+        );
+        $data['files_js'] = array('table_simple.js?v=' . rand(), '../select2.min.js', 'dispatch/dispatch.js?v=' . rand());
+        $data['files_css'] = array('select2.min.css', 'select2-bootstrap4.min.css');
+
+        $data['products'] = $productRepository->findBy(['sale_point' => $data['user']]);
+        $data['form'] = $this->createForm(DispatchType::class, null, ['products' => $data['products']]);
+        $data['form']->handleRequest($request);
+        if ($data['form']->isSubmitted() && $data['form']->isValid()) {
+            $sale_point = $userRepository->find($request->get('dispatch')['sale_point']);
+            $dispatch = new Dispatch();
+            $dispatch->setSalePoint($sale_point);
+            $dispatch->setStatus($dispatchStatusTypeRepository->find(Constants::STATUS_DISPATCH_IN_TRANSIT));
+            $dispatch->setDescription($request->get('dispatch')['description']);
+            foreach ($data['products'] as $product) {
+                if ($request->get('dispatch')['quantity_' . $product->getId()]) {
+                    $lastInventory = $product->getLastInventory();
+
+                    $productDispatched = new ProductDispatch();
+                    $productDispatched->setQuantity($request->get('dispatch')['quantity_' . $product->getId()]);
+                    $productDispatched->setProduct($product);
+                    $productDispatched->setDispatch($dispatch);
+                    $em->persist($productDispatched);
+
+                    $inventory =  new ProductAdminInventory();
+                    $inventory->setProduct($product);
+                    $inventory->setOnHand($lastInventory->getOnHand());
+                    $inventory->setAvailable($lastInventory->getAvailable() - $request->get('dispatch')['quantity_' . $product->getId()]);
+                    $inventory->setCommitted($lastInventory->getCommitted() + $request->get('dispatch')['quantity_' . $product->getId()]); //commited porque es el reservado hasta que la orden de despacho se confirme o se cancele
+                    $inventory->setSold($lastInventory->getSold());
+                    $inventory->setDispatched($lastInventory->getDispatched()); // no se asigna el despachado hasta que no se acepte la orden de despacho
+
+                    $em->persist($inventory);
+                }
+            }
+            $em->persist($dispatch);
+            $em->flush();
+            $message['type'] = 'modal';
+            $message['alert'] = 'success';
+            $message['title'] = 'Cambios guardados';
+            $message['message'] = 'Se generó la orden de despacho correctamente.';
+            $this->addFlash('message', $message);
+            return $this->redirectToRoute('secure_product_dispatch');
+        }
+        return $this->renderForm('secure/products/form_dispatch_products.html.twig', $data);
+    }
+
+    #[Route("/dispatch/show/{dispatch_id}", name: "secure_product_show_dispatch", methods: ["GET", "POST"])]
+    public function showDispatch(
+        Request $request,
+        DispatchRepository $dispatchRepository,
+        ProductsSalesPointsRepository $productsSalesPointsRepository,
+        EntityManager $em,
+        DispatchStatusTypeRepository $dispatchStatusTypeRepository,
+        $dispatch_id
+    ): Response {
+        $data['user'] = $this->getUser();
+        $data['title'] = 'Ver orden de despacho';
+        if ($data['user']->getRole()->getId() == Constants::ROLE_SUPER_ADMIN) {
+            $data['breadcrumbs'] = array(
+                array('path' => 'secure_product_dispatch', 'title' => 'Despacho de productos'),
+                array('active' => true, 'title' => $data['title'])
+            );
+        } else {
+            $data['breadcrumbs'] = array(
+                array('path' => 'secure_product_dispatch', 'title' => 'Productos en camino'),
+                array('active' => true, 'title' => $data['title'])
+            );
+        }
+        $data['dispatch'] = $dispatchRepository->find($dispatch_id);
+        if (!$data['dispatch']) {
+            return $this->redirectToRoute('secure_product_dispatch');
+        }
+        $data['files_js'] = array('table_simple.js?v=' . rand());
+        if ($data['dispatch']->getStatus()->getId() == Constants::STATUS_DISPATCH_IN_TRANSIT) {
+            $data['form'] = $this->createForm(DispatchConfirmType::class, null, ["user" => $data['user']]);
+            $data['form']->handleRequest($request);
+            if ($data['form']->isSubmitted() && $data['form']->isValid()) {
+                $data['dispatch']->setStatus($dispatchStatusTypeRepository->find(($request->get('dispatch_confirm')['status'])));
+                $data['dispatch']->setModifiedAt(new \DateTime());
+
+                if ($request->get('dispatch_confirm')['status'] == Constants::STATUS_DISPATCH_RECEIVED) {
+                    foreach ($data['dispatch']->getProductDispatches() as $product) {
+
+                        $lastInventory = $product->getProduct()->getLastInventory();
+
+                        $inventory =  new ProductAdminInventory();
+                        $inventory->setProduct($product->getProduct());
+                        $inventory->setOnHand($lastInventory->getOnHand() - $product->getQuantity());
+                        $inventory->setAvailable($lastInventory->getAvailable());
+                        $inventory->setCommitted($lastInventory->getCommitted() - $product->getQuantity()); //commited porque es el reservado hasta que la orden de despacho se confirme o se cancele
+                        $inventory->setSold($lastInventory->getSold());
+                        $inventory->setDispatched($lastInventory->getDispatched() + $product->getQuantity()); // no se asigna el despachado hasta que no se acepte la orden de despacho
+
+                        $em->persist($inventory);
+
+                        $productSalePoint = $productsSalesPointsRepository->findOneBy(['sale_point' => $data['dispatch']->getSalePoint(), 'product' => $product->getProduct()]);
+                        $productSalePointLastInventory = $productSalePoint->getLastInventory();
+
+                        $productSalePointInventory = new ProductSalePointInventory();
+                        $productSalePointInventory->setProductSalePoint($productSalePoint);
+                        $productSalePointInventory->setOnHand($productSalePointLastInventory ? $productSalePointLastInventory->getOnHand() + $product->getQuantity() : $product->getQuantity());
+                        $productSalePointInventory->setAvailable($productSalePointLastInventory ? $productSalePointLastInventory->getAvailable() + $product->getQuantity() : $product->getQuantity());
+                        $productSalePointInventory->setCommitted($productSalePointLastInventory ? $productSalePointLastInventory->getCommitted() : 0);
+                        $productSalePointInventory->setSold($productSalePointLastInventory ? $productSalePointLastInventory->getSold() : 0);
+
+                        $em->persist($productSalePointInventory);
+                    }
+                } else { //canceled
+                    foreach ($data['dispatch']->getProductDispatches() as $product) {
+
+                        $lastInventory = $product->getProduct()->getLastInventory();
+
+                        $inventory =  new ProductAdminInventory();
+                        $inventory->setProduct($product->getProduct());
+                        $inventory->setOnHand($lastInventory->getOnHand());
+                        $inventory->setAvailable($lastInventory->getAvailable() + $product->getQuantity());
+                        $inventory->setCommitted($lastInventory->getCommitted() - $product->getQuantity()); //commited porque es el reservado hasta que la orden de despacho se confirme o se cancele
+                        $inventory->setSold($lastInventory->getSold());
+                        $inventory->setDispatched($lastInventory->getDispatched()); // no se asigna el despachado hasta que no se acepte la orden de despacho
+
+                        $em->persist($inventory);
+                    }
+                }
+
+                $em->persist($data['dispatch']);
+                $em->flush();
+                $message['type'] = 'modal';
+                $message['alert'] = 'success';
+                $message['title'] = 'Cambios guardados';
+                $message['message'] = 'La orden fue gestionada correctamente.';
+                $this->addFlash('message', $message);
+                return $this->redirectToRoute('secure_product_dispatch');
+            }
+            return $this->renderForm('secure/products/form_dispatched_products.html.twig', $data);
+        }else{
+            return $this->renderForm('secure/products/show_dispatched_products.html.twig', $data);
         }
     }
 }

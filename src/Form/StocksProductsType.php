@@ -30,7 +30,6 @@ class StocksProductsType extends AbstractType
                     'label' => 'Stock',
                     'required' => false,
                     'attr' => [
-                        'class' => 'stock-input',
                         'min' => 1
                     ],
                     'constraints' => [
@@ -45,11 +44,9 @@ class StocksProductsType extends AbstractType
                     'label' => 'Costo *',
                     'required' => false,
                     'attr' => [
-                        'name' => 'cost_' . $product->getId(),
                         'placeholder' => '0.00',
                         'pattern' => '^\d+(\.\d{1,2}|,\d{1,2})?$',
                         'title' => 'El formato debe ser 0,00 o 0.00',
-                        'class' => 'cost-input'
                     ],
                     'constraints' => [
                         new Regex([
@@ -62,7 +59,6 @@ class StocksProductsType extends AbstractType
             // Agregar evento para validar requerimientos de stock o costo
             $builder->addEventListener(FormEvents::SUBMIT, function (FormEvent $event) use ($product) {
                 $form = $event->getForm();
-                $data = $event->getData();
 
                 $stock = $form->get('stock_' . $product->getId())->getViewData();
                 $cost = $form->get('cost_' . $product->getId())->getViewData();

@@ -2,7 +2,9 @@
 
 namespace App\Entity;
 
+use App\Constants\Constants;
 use App\Repository\DispatchRepository;
+use App\Repository\DispatchStatusTypeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -24,7 +26,7 @@ class Dispatch
     private ?string $description = null;
 
     #[ORM\ManyToOne(inversedBy: 'dispatches')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: false, options: ["default" => 1])]
     private ?DispatchStatusType $status = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
