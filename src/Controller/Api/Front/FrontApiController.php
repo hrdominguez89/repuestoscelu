@@ -4,7 +4,6 @@ namespace App\Controller\Api\Front;
 
 use App\Entity\Customer;
 use App\Form\RegisterCustomerApiType;
-use App\Repository\CountriesRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Form\FormInterface;
@@ -13,14 +12,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Helpers\EnqueueEmail;
 use App\Constants\Constants;
-use App\Entity\Product;
-use App\Repository\BrandRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\CitiesRepository;
 use App\Repository\CustomerRepository;
 use App\Repository\CustomerStatusTypeRepository;
 use App\Repository\FavoriteProductRepository;
-use App\Repository\ProductRepository;
 use App\Repository\ProductsSalesPointsRepository;
 use App\Repository\RegistrationTypeRepository;
 use App\Repository\ShoppingCartRepository;
@@ -439,8 +435,8 @@ class FrontApiController extends AbstractController
         $shopping_cart_products = $shoppingCartRepository->findAllShoppingCartProductsByStatus($customer->getId(), 1);
         $shopping_cart_products_list = [];
         if ($shopping_cart_products) {
-            foreach ($shopping_cart_products as $favorite_product) {
-                $shopping_cart_products_list[] = (int)$favorite_product->getProductsSalesPoints()->getId();
+            foreach ($shopping_cart_products as $shopping_cart_product) {
+                $shopping_cart_products_list[] = (int)$shopping_cart_product->getProductsSalesPoints()->getId();
             }
         }
 
@@ -469,7 +465,7 @@ class FrontApiController extends AbstractController
 
 
     #[Route("/states", name: "api_get_states", methods: ["GET"])]
-    public function getStates(CountriesRepository $countriesRepository, StatesRepository $statesRepository): Response
+    public function getStates(StatesRepository $statesRepository): Response
     {
         $states = $statesRepository->findVisibleStatesByCountryId(['country_id' => 11]); //11 = argentina
         return $this->json(

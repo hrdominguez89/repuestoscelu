@@ -92,8 +92,11 @@ class ShoppingCartRepository extends ServiceEntityRepository
     public function findAllShoppingCartProductsByStatus($customer_id, $status_id)
     {
         return $this->createQueryBuilder('s')
+            ->leftJoin('s.productsSalesPoints', 'psp')
+            ->leftJoin('psp.product', 'p')
             ->where('s.customer =:customer_id')
             ->andWhere('s.status =:status_id')
+            ->andWhere('p.visible = true')
             ->setParameter('customer_id', $customer_id)
             ->setParameter('status_id', $status_id)
             ->getQuery()

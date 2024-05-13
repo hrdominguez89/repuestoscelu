@@ -7,6 +7,7 @@ use App\Entity\ShoppingCart;
 use App\Repository\CustomerRepository;
 use App\Repository\FavoriteProductRepository;
 use App\Repository\ProductRepository;
+use App\Repository\ProductsSalesPointsRepository;
 use App\Repository\ShoppingCartRepository;
 use App\Repository\StatusTypeFavoriteRepository;
 use App\Repository\StatusTypeShoppingCartRepository;
@@ -56,7 +57,7 @@ class CustomerCartApiController extends AbstractController
 
         $shopping_cart_products_list = [];
         foreach ($shopping_cart_products as $shopping_cart_product) {
-            $shopping_cart_products_list[] = $shopping_cart_product->getProduct()->getBasicDataProduct();
+            $shopping_cart_products_list[] = $shopping_cart_product->getProductsSalesPoints()->getDataBasicProductFront();
         }
 
         return $this->json(
@@ -90,9 +91,9 @@ class CustomerCartApiController extends AbstractController
 
         $actual_datetime = new DateTime();
 
-
+        $favorite_products_list = [];
         foreach ($favorite_products as $favorite_product) {
-            if ($favorite_product->getProduct()->getAvailable() > 0) {
+            if ($favorite_product->getProductsSalesPoints()->getLastInventory() ? $favorite_product->getProductsSalesPoints()->getLastInventory()->getAvailable() > 0 : false) {
                 $favorite_product
                     ->setStatus($status_on_shopping_cart)
                     ->setUpdatedAt($actual_datetime);
@@ -100,17 +101,14 @@ class CustomerCartApiController extends AbstractController
                 $shopping_cart_product = new ShoppingCart;
                 $shopping_cart_product
                     ->setCustomer($this->customer)
-                    ->setProduct($favorite_product->getProduct())
+                    ->setProductsSalesPoints($favorite_product->getProductsSalesPoints())
                     ->setFavorite($favorite_product)
                     ->setStatus($status_active);
 
                 $em->persist($favorite_product);
                 $em->persist($shopping_cart_product);
             } else {
-                $favorite_products_list = [];
-                foreach ($favorite_products as $favorite_product) {
-                    $favorite_products_list[] = $favorite_product->getProduct()->getBasicDataProduct();
-                }
+                $favorite_products_list[] = $favorite_product->getProductsSalesPoints()->getDataBasicProductFront();
             }
         }
         $message = 'Productos agregados al carrito correctamente.';
@@ -124,7 +122,7 @@ class CustomerCartApiController extends AbstractController
 
         $shopping_cart_products_list = [];
         foreach ($shopping_cart_products as $shopping_cart_product) {
-            $shopping_cart_products_list[] = $shopping_cart_product->getProduct()->getBasicDataProduct();
+            $shopping_cart_products_list[] = $shopping_cart_product->getProductsSalesPoints()->getDataBasicProductFront();
         }
 
         return $this->json(
@@ -139,13 +137,20 @@ class CustomerCartApiController extends AbstractController
     }
 
     #[Route("/add", name: "api_cart_add", methods: ["POST"])]
-    public function cartAdd(Request $request, FavoriteProductRepository $favoriteProductRepository, StatusTypeFavoriteRepository $statusTypeFavoriteRepository, StatusTypeShoppingCartRepository $statusTypeShoppingCartRepository, ProductRepository $productRepository, ShoppingCartRepository $shoppingCartRepository, EntityManagerInterface $em): Response
-    {
+    public function cartAdd(
+        Request $request,
+        FavoriteProductRepository $favoriteProductRepository,
+        StatusTypeFavoriteRepository $statusTypeFavoriteRepository,
+        StatusTypeShoppingCartRepository $statusTypeShoppingCartRepository,
+        ProductsSalesPointsRepository $productsSalesPointsRepository,
+        ShoppingCartRepository $shoppingCartRepository,
+        EntityManagerInterface $em
+    ): Response {
 
         $body = $request->getContent();
         $data = json_decode($body, true);
 
-        $product = $productRepository->findActiveProductById($data['product_id']);
+        $product = $productsSalesPointsRepository->findActiveProductById($data['product_id']);
         if (!$product) { //retorno no se encontro producto activo.
             return $this->json(
                 [
@@ -168,7 +173,7 @@ class CustomerCartApiController extends AbstractController
             );
         }
 
-        if ($product->getAvailable() <= 0) {
+        if (!$product->getLastInventory() || $product->getLastInventory()->getAvailable() <= 0) {
             return $this->json(
                 [
                     'message' => 'No fue posible agregar el producto al carrito, por falta de disponibilidad.'
@@ -193,7 +198,7 @@ class CustomerCartApiController extends AbstractController
 
         $shopping_cart_product
             ->setCustomer($this->customer)
-            ->setProduct($product)
+            ->setProductsSalesPoints($product)
             ->setStatus($statusTypeShoppingCartRepository->find(Constants::STATUS_SHOPPING_CART_ACTIVO))
             ->setFavorite($favorite_product);
 
@@ -222,13 +227,13 @@ class CustomerCartApiController extends AbstractController
     }
 
     #[Route("/remove", name: "api_cart_remove", methods: ["POST"])]
-    public function cartRemove(Request $request, StatusTypeShoppingCartRepository $statusTypeShoppingCartRepository, ProductRepository $productRepository, ShoppingCartRepository $shoppingCartRepository, EntityManagerInterface $em): Response
+    public function cartRemove(Request $request, StatusTypeShoppingCartRepository $statusTypeShoppingCartRepository, ProductsSalesPointsRepository $productsSalesPointsRepository, ShoppingCartRepository $shoppingCartRepository, EntityManagerInterface $em): Response
     {
 
         $body = $request->getContent();
         $data = json_decode($body, true);
 
-        $product = $productRepository->findActiveProductById($data['product_id']);
+        $product = $productsSalesPointsRepository->findActiveProductById($data['product_id']);
         if (!$product) { //retorno no se encontro producto activo.
             return $this->json(
                 [
