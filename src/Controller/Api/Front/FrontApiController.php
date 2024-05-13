@@ -432,7 +432,7 @@ class FrontApiController extends AbstractController
         $favorite_products_list = [];
         if ($favorite_products) {
             foreach ($favorite_products as $favorite_product) {
-                $favorite_products_list[] = (int)$favorite_product->getProduct()->getId();
+                $favorite_products_list[] = (int)$favorite_product->getProductsSalesPoints()->getId();
             }
         }
 
@@ -440,7 +440,7 @@ class FrontApiController extends AbstractController
         $shopping_cart_products_list = [];
         if ($shopping_cart_products) {
             foreach ($shopping_cart_products as $favorite_product) {
-                $shopping_cart_products_list[] = (int)$favorite_product->getProduct()->getId();
+                $shopping_cart_products_list[] = (int)$favorite_product->getProductsSalesPoints()->getId();
             }
         }
 
@@ -454,7 +454,7 @@ class FrontApiController extends AbstractController
                 "name" => $customer->getName(),
                 "image" => $customer->getImage(),
                 "email" => $customer->getEmail(),
-                "wish_list" => $favorite_products_list,
+                "favorite_list" => $favorite_products_list,
                 "shop_cart" => $shopping_cart_products_list,
                 "code_area" => $customer->getCodeArea(),
                 "state_id" => $customer->getState()->getId(),
@@ -676,7 +676,7 @@ class FrontApiController extends AbstractController
         //DEFINIR LIMITE INICIAL.
         $limit = $request->query->getInt('l', 8);
         $index = $request->query->getInt('i', 0) * $limit;
-        
+
 
         $filters = [];
 
