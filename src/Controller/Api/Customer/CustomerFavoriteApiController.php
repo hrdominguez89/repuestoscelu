@@ -7,6 +7,7 @@ use App\Entity\FavoriteProduct;
 use App\Repository\CustomerRepository;
 use App\Repository\FavoriteProductRepository;
 use App\Repository\ProductRepository;
+use App\Repository\ProductsSalesPointsRepository;
 use App\Repository\ShoppingCartRepository;
 use App\Repository\StatusTypeFavoriteRepository;
 use DateTime;
@@ -46,7 +47,7 @@ class CustomerFavoriteApiController extends AbstractController
         if (!$favorite_products) { //retorno si el producto ya fue activado como favorito..
             return $this->json(
                 [
-                    "wish_list" => [],
+                    "favorite_list" => [],
                     'message' => 'No tiene productos en su lista de favoritos.'
                 ],
                 Response::HTTP_ACCEPTED,
@@ -56,12 +57,12 @@ class CustomerFavoriteApiController extends AbstractController
 
         $favorite_products_list = [];
         foreach ($favorite_products as $favorite_product) {
-            $favorite_products_list[] = $favorite_product->getProduct()->getBasicDataProduct();
+            $favorite_products_list[] = $favorite_product->getProductsSalesPoints()->getDataBasicProductFront();
         }
 
         return $this->json(
             [
-                "wish_list" => $favorite_products_list,
+                "favorite_list" => $favorite_products_list,
             ],
             Response::HTTP_ACCEPTED,
             ['Content-Type' => 'application/json']
@@ -69,13 +70,13 @@ class CustomerFavoriteApiController extends AbstractController
     }
 
     #[Route("/add", name: "api_favorite_add", methods: ["POST"])]
-    public function favoriteAdd(Request $request, StatusTypeFavoriteRepository $statusTypeFavoriteRepository, ProductRepository $productRepository, ShoppingCartRepository $shoppingCartRepository, FavoriteProductRepository $favoriteProductRepository, EntityManagerInterface $em): Response
+    public function favoriteAdd(Request $request, StatusTypeFavoriteRepository $statusTypeFavoriteRepository, ProductsSalesPointsRepository $productsSalesPointRepository, ShoppingCartRepository $shoppingCartRepository, FavoriteProductRepository $favoriteProductRepository, EntityManagerInterface $em): Response
     {
 
         $body = $request->getContent();
         $data = json_decode($body, true);
 
-        $product = $productRepository->findActiveProductById($data['product_id']);
+        $product = $productsSalesPointRepository->findActiveProductById($data['product_id']);
         if (!$product) { //retorno no se encontro producto activo.
             return $this->json(
                 [
@@ -114,7 +115,7 @@ class CustomerFavoriteApiController extends AbstractController
 
         $favorite_product
             ->setCustomer($this->customer)
-            ->setProduct($product)
+            ->setProductsSalesPoints($product)
             ->setStatus($statusTypeFavoriteRepository->find(Constants::STATUS_FAVORITE_ACTIVO));
 
         $em->persist($favorite_product);
@@ -130,13 +131,13 @@ class CustomerFavoriteApiController extends AbstractController
     }
 
     #[Route("/remove", name: "api_favorite_remove", methods: ["POST"])]
-    public function favoriteRemove(Request $request, StatusTypeFavoriteRepository $statusTypeFavoriteRepository, ProductRepository $productRepository, FavoriteProductRepository $favoriteProductRepository, EntityManagerInterface $em): Response
+    public function favoriteRemove(Request $request, StatusTypeFavoriteRepository $statusTypeFavoriteRepository, ProductsSalesPointsRepository $productsSalesPointRepository, FavoriteProductRepository $favoriteProductRepository, EntityManagerInterface $em): Response
     {
 
         $body = $request->getContent();
         $data = json_decode($body, true);
 
-        $product = $productRepository->findActiveProductById($data['product_id']);
+        $product = $productsSalesPointRepository->findActiveProductById($data['product_id']);
         if (!$product) { //retorno no se encontro producto activo.
             return $this->json(
                 [
