@@ -19,37 +19,37 @@ class FavoriteProductRepository extends ServiceEntityRepository
         parent::__construct($registry, FavoriteProduct::class);
     }
 
-    /**
-     * @param $uid
-     * @return array
-     */
-    public function findByUid($uid): array
-    {
-        $entityManager = $this->getEntityManager();
+    // /**
+    //  * @param $uid
+    //  * @return array
+    //  */
+    // public function findByUid($uid): array
+    // {
+    //     $entityManager = $this->getEntityManager();
 
-        return $entityManager->createQuery(
-            'SELECT e, p
-            FROM App\Entity\FavoriteProduct e 
-            LEFT JOIN e.customerId c
-            LEFT JOIN e.productId p
-            WHERE c.id =:uid'
-        )->setParameter('uid', $uid)->getResult();
-    }
+    //     return $entityManager->createQuery(
+    //         'SELECT e, p
+    //         FROM App\Entity\FavoriteProduct e 
+    //         LEFT JOIN e.customerId c
+    //         LEFT JOIN e.productId p
+    //         WHERE c.id =:uid'
+    //     )->setParameter('uid', $uid)->getResult();
+    // }
 
-    /**
-     * @param $newIds
-     * @return int|mixed|string
-     */
-    public function findNewProduct($newIds)
-    {
-        $entityManager = $this->getEntityManager();
+    // /**
+    //  * @param $newIds
+    //  * @return int|mixed|string
+    //  */
+    // public function findNewProduct($newIds)
+    // {
+    //     $entityManager = $this->getEntityManager();
 
-        return $entityManager->createQuery(
-            'SELECT e
-            FROM App\Entity\Product e
-            WHERE e.id IN (:ids)'
-        )->setParameter('ids', $newIds)->getResult();
-    }
+    //     return $entityManager->createQuery(
+    //         'SELECT e
+    //         FROM App\Entity\Product e
+    //         WHERE e.id IN (:ids)'
+    //     )->setParameter('ids', $newIds)->getResult();
+    // }
 
     /**
      * @param array $wlImport
@@ -66,13 +66,13 @@ class FavoriteProductRepository extends ServiceEntityRepository
     }
 
 
-    public function findFavoriteProductByStatus($product_id, $customer_id, $status_id)
+    public function findFavoriteProductByStatus($products_sales_points_id, $customer_id, $status_id)
     {
         return $this->createQueryBuilder('f')
-            ->where('f.product =:product_id')
+            ->where('f.products_sales_points =:products_sales_points_id')
             ->andWhere('f.customer =:customer_id')
             ->andWhere('f.status =:status_id')
-            ->setParameter('product_id', $product_id)
+            ->setParameter('products_sales_points_id', $products_sales_points_id)
             ->setParameter('customer_id', $customer_id)
             ->setParameter('status_id', $status_id)
             ->getQuery()
@@ -82,10 +82,10 @@ class FavoriteProductRepository extends ServiceEntityRepository
     public function findAllFavoriteProductsByStatus($customer_id, $status_id)
     {
         return $this->createQueryBuilder('f')
-            ->leftJoin('f.product', 'p')
+            // ->leftJoin('f.products_sales_points', 'psp')
             ->where('f.customer =:customer_id')
             ->andWhere('f.status =:status_id')
-            ->andWhere('p.visible = true')
+            // ->andWhere('psp.visible = true')
             ->setParameter('customer_id', $customer_id)
             ->setParameter('status_id', $status_id)
             ->getQuery()

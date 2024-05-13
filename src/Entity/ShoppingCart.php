@@ -17,9 +17,9 @@ class ShoppingCart
     #[ORM\JoinColumn(nullable: false)]
     private $customer;
 
-    #[ORM\ManyToOne(targetEntity: Product::class, inversedBy: "shoppingCarts")]
+    #[ORM\ManyToOne(targetEntity: ProductsSalesPoints::class, inversedBy: "shoppingCarts")]
     #[ORM\JoinColumn(nullable: false)]
-    private $product;
+    private $productsSalesPoints;
 
     #[ORM\Column(type: "integer", options: ["default" => 1])]
     private $quantity;
@@ -64,14 +64,14 @@ class ShoppingCart
         return $this;
     }
 
-    public function getProduct(): ?Product
+    public function getProductsSalesPoints(): ?ProductsSalesPoints
     {
-        return $this->product;
+        return $this->productsSalesPoints;
     }
 
-    public function setProduct(?Product $product): self
+    public function setProductsSalesPoints(?ProductsSalesPoints $productsSalesPoints): self
     {
-        $this->product = $product;
+        $this->productsSalesPoints = $productsSalesPoints;
 
         return $this;
     }

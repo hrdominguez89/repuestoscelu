@@ -12,14 +12,13 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Validator\Constraints\GreaterThan;
 
 class StocksProductsType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $products = $options['products'];
-
-        // dd($products[0]->getProduct());
         $builder->add('description', TextareaType::class, [
             'label' => 'Descripción general (se aplicará a cada producto)',
             'required' => false,
@@ -31,14 +30,22 @@ class StocksProductsType extends AbstractType
                     'label' => 'Stock',
                     'required' => false,
                     'attr' => [
-                        'class' => 'stock-input'
-                    ]
+                        'class' => 'stock-input',
+                        'min' => 1
+                    ],
+                    'constraints' => [
+                        new GreaterThan([
+                            'value' => 0,
+                            'message' => 'El valor del stock debe ser mayor que 0.'
+                        ]),
+                    ],
                 ])
                 ->add('cost_' . $product->getId(), MoneyType::class, [
                     'currency' => 'USD',
                     'label' => 'Costo *',
                     'required' => false,
                     'attr' => [
+                        'name' => 'cost_' . $product->getId(),
                         'placeholder' => '0.00',
                         'pattern' => '^\d+(\.\d{1,2}|,\d{1,2})?$',
                         'title' => 'El formato debe ser 0,00 o 0.00',
@@ -57,8 +64,8 @@ class StocksProductsType extends AbstractType
                 $form = $event->getForm();
                 $data = $event->getData();
 
-                $stock = $data['stock_' . $product->getId()];
-                $cost = $data['cost_' . $product->getId()];
+                $stock = $form->get('stock_' . $product->getId())->getViewData();
+                $cost = $form->get('cost_' . $product->getId())->getViewData();
 
                 if (($stock !== null && $stock !== '') && ($cost === null || $cost === '')) {
                     $form->get('cost_' . $product->getId())->addError(new FormError('El campo Costo es requerido si el campo Stock está completado.'));
@@ -66,6 +73,15 @@ class StocksProductsType extends AbstractType
 
                 if (($cost !== null && $cost !== '') && ($stock === null || $stock === '')) {
                     $form->get('stock_' . $product->getId())->addError(new FormError('El campo Stock es requerido si el campo Costo está completado.'));
+                }
+
+                // Validación para el campo cost_
+                $costField = $form->get('cost_' . $product->getId());
+                $costValue = $costField->getData();
+
+                // Aplicar las restricciones
+                if ($costValue !== null && !preg_match("/^\d+(\.\d{1,2}|,\d{1,2})?$/", $costValue)) {
+                    $costField->addError(new FormError('El valor debe cumplir con el formato 00,00 o 00.00'));
                 }
             });
         }

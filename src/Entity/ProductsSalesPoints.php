@@ -32,11 +32,80 @@ class ProductsSalesPoints
     #[ORM\OneToMany(mappedBy: 'product_sale_point', targetEntity: ProductSalePointInventory::class)]
     private Collection $productSalePointInventories;
 
+    #[ORM\OneToMany(targetEntity: FavoriteProduct::class, mappedBy: "productsSalesPoints")]
+    private $favoriteProducts;
+
+    #[ORM\OneToMany(targetEntity: ShoppingCart::class, mappedBy: "productsSalesPoints")]
+    private $shoppingCarts;
+
     public function __construct()
     {
         $this->productSalePointTags = new ArrayCollection();
         $this->historicalPrices = new ArrayCollection();
         $this->productSalePointInventories = new ArrayCollection();
+        $this->favoriteProducts = new ArrayCollection();
+        $this->shoppingCarts = new ArrayCollection();
+    }
+
+    /**
+     * @return Collection<int, ShoppingCart>
+     */
+    public function getShoppingCarts(): Collection
+    {
+        return $this->shoppingCarts;
+    }
+
+    public function addShoppingCart(ShoppingCart $shoppingCart): self
+    {
+        if (!$this->shoppingCarts->contains($shoppingCart)) {
+            $this->shoppingCarts[] = $shoppingCart;
+            $shoppingCart->setProductsSalesPoints($this);
+        }
+
+        return $this;
+    }
+
+    public function removeShoppingCart(ShoppingCart $shoppingCart): self
+    {
+        if ($this->shoppingCarts->removeElement($shoppingCart)) {
+            // set the owning side to null (unless already changed)
+            if ($shoppingCart->getProductsSalesPoints() === $this) {
+                $shoppingCart->setProductsSalesPoints(null);
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * @return Collection<int, FavoriteProduct>
+     */
+    public function getFavoriteProducts(): Collection
+    {
+        return $this->favoriteProducts;
+    }
+
+    public function addFavoriteProduct(FavoriteProduct $favoriteProduct): self
+    {
+        if (!$this->favoriteProducts->contains($favoriteProduct)) {
+            $this->favoriteProducts[] = $favoriteProduct;
+            $favoriteProduct->setProductsSalesPoints($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFavoriteProduct(FavoriteProduct $favoriteProduct): self
+    {
+        if ($this->favoriteProducts->removeElement($favoriteProduct)) {
+            // set the owning side to null (unless already changed)
+            if ($favoriteProduct->getProductsSalesPoints() === $this) {
+                $favoriteProduct->setProductsSalesPoints(null);
+            }
+        }
+
+        return $this;
     }
 
     public function getId(): ?int

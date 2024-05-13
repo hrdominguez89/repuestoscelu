@@ -23,9 +23,9 @@ class FavoriteProduct
     #[ORM\Column(type: "datetime", nullable: true)]
     private $updated_at;
 
-    #[ORM\ManyToOne(targetEntity: Product::class, inversedBy: "favoriteProducts")]
+    #[ORM\ManyToOne(targetEntity: ProductsSalesPoints::class, inversedBy: "favoriteProducts")]
     #[ORM\JoinColumn(nullable: false)]
-    private $product;
+    private $productsSalesPoints;
 
     #[ORM\ManyToOne(targetEntity: Customer::class, inversedBy: "favoriteProducts")]
     #[ORM\JoinColumn(nullable: false)]
@@ -80,14 +80,14 @@ class FavoriteProduct
         return $this;
     }
 
-    public function getProduct(): ?Product
+    public function getProductsSalesPoints(): ?ProductsSalesPoints
     {
-        return $this->product;
+        return $this->productsSalesPoints;
     }
 
-    public function setProduct(?Product $product): self
+    public function setProductsSalesPoints(?ProductsSalesPoints $productsSalesPoints): self
     {
-        $this->product = $product;
+        $this->productsSalesPoints = $productsSalesPoints;
 
         return $this;
     }

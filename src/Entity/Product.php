@@ -56,12 +56,6 @@ class Product
     #[ORM\Column(type: "text", nullable: true)]
     private $long_description;
 
-    #[ORM\OneToMany(targetEntity: FavoriteProduct::class, mappedBy: "product")]
-    private $favoriteProducts;
-
-    #[ORM\OneToMany(targetEntity: ShoppingCart::class, mappedBy: "product")]
-    private $shoppingCarts;
-
     #[ORM\ManyToOne(inversedBy: 'products')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $sale_point = null;
@@ -111,7 +105,6 @@ class Product
         $this->visible = false;
         $this->image = new ArrayCollection();
         $this->ordersProducts = new ArrayCollection();
-        $this->favoriteProducts = new ArrayCollection();
         $this->shoppingCarts = new ArrayCollection();
         $this->productsSalesPoints = new ArrayCollection();
         $this->stockProducts = new ArrayCollection();
@@ -370,66 +363,6 @@ class Product
             "name" => $this->getName(),
             "image" => $this->getPrincipalImage(),
         ];
-    }
-
-    /**
-     * @return Collection<int, FavoriteProduct>
-     */
-    public function getFavoriteProducts(): Collection
-    {
-        return $this->favoriteProducts;
-    }
-
-    public function addFavoriteProduct(FavoriteProduct $favoriteProduct): self
-    {
-        if (!$this->favoriteProducts->contains($favoriteProduct)) {
-            $this->favoriteProducts[] = $favoriteProduct;
-            $favoriteProduct->setProduct($this);
-        }
-
-        return $this;
-    }
-
-    public function removeFavoriteProduct(FavoriteProduct $favoriteProduct): self
-    {
-        if ($this->favoriteProducts->removeElement($favoriteProduct)) {
-            // set the owning side to null (unless already changed)
-            if ($favoriteProduct->getProduct() === $this) {
-                $favoriteProduct->setProduct(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, ShoppingCart>
-     */
-    public function getShoppingCarts(): Collection
-    {
-        return $this->shoppingCarts;
-    }
-
-    public function addShoppingCart(ShoppingCart $shoppingCart): self
-    {
-        if (!$this->shoppingCarts->contains($shoppingCart)) {
-            $this->shoppingCarts[] = $shoppingCart;
-            $shoppingCart->setProduct($this);
-        }
-
-        return $this;
-    }
-
-    public function removeShoppingCart(ShoppingCart $shoppingCart): self
-    {
-        if ($this->shoppingCarts->removeElement($shoppingCart)) {
-            // set the owning side to null (unless already changed)
-            if ($shoppingCart->getProduct() === $this) {
-                $shoppingCart->setProduct(null);
-            }
-        }
-
-        return $this;
     }
 
     public function getSalePoint(): ?User

@@ -816,7 +816,6 @@ class ProductsController extends AbstractController
             $data['files_js'] = array('table_simple.js?v=' . rand());
 
             $form = $this->createForm(StocksProductsType::class, null, ['products' => $data['products']]);
-
             $form->handleRequest($request);
             if ($form->isSubmitted() && $form->isValid()) {
                 $stockFlag = false;
@@ -826,7 +825,7 @@ class ProductsController extends AbstractController
                         $stockProduct = new StockProduct();
                         $stockProduct->setProduct($product)
                             ->setStock($request->get('stocks_products')['stock_' . $product->getId()])
-                            ->setCost($request->get('stocks_products')['cost_' . $product->getId()])
+                            ->setCost((float)$request->get('stocks_products')['cost_' . $product->getId()])
                             ->setDescription($request->get('stocks_products')['description']);
                         $em->persist($stockProduct);
                         // SI SOY ADMIN VEO MI DISPONIBILIDAD EN IVENTARIO ADMIN SI SOY SALE POIN VEO MI DISPONIBLIDAD EN INVETARIO SALEPOINT Y SUMO AHI.
