@@ -66,13 +66,13 @@ class FavoriteProductRepository extends ServiceEntityRepository
     }
 
 
-    public function findFavoriteProductByStatus($products_sales_points_id, $customer_id, $status_id)
+    public function findFavoriteProductByStatus($productsSalesPoints_id, $customer_id, $status_id)
     {
         return $this->createQueryBuilder('f')
-            ->where('f.products_sales_points =:products_sales_points_id')
+            ->where('f.productsSalesPoints =:productsSalesPoints_id')
             ->andWhere('f.customer =:customer_id')
             ->andWhere('f.status =:status_id')
-            ->setParameter('products_sales_points_id', $products_sales_points_id)
+            ->setParameter('productsSalesPoints_id', $productsSalesPoints_id)
             ->setParameter('customer_id', $customer_id)
             ->setParameter('status_id', $status_id)
             ->getQuery()
@@ -82,7 +82,7 @@ class FavoriteProductRepository extends ServiceEntityRepository
     public function findAllFavoriteProductsByStatus($customer_id, $status_id)
     {
         return $this->createQueryBuilder('f')
-            ->leftJoin('f.products_sales_points', 'psp')
+            ->leftJoin('f.productsSalesPoints', 'psp')
             ->leftJoin('psp.product', 'p')
             ->where('f.customer =:customer_id')
             ->andWhere('f.status =:status_id')
