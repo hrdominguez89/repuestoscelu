@@ -451,7 +451,7 @@ class FrontApiController extends AbstractController
                 "image" => $customer->getImage(),
                 "email" => $customer->getEmail(),
                 "favorite_list" => $favorite_products_list,
-                "shop_cart" => $shopping_cart_products_list,
+                "shop_cart_list" => $shopping_cart_products_list,
                 "code_area" => $customer->getCodeArea(),
                 "state_id" => $customer->getState()->getId(),
                 "state_name" => $customer->getState()->getName(),

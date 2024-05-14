@@ -47,6 +47,7 @@ class CustomerFavoriteApiController extends AbstractController
         if (!$favorite_products) { //retorno si el producto ya fue activado como favorito..
             return $this->json(
                 [
+                    "status" => false,
                     "favorite_list" => [],
                     'message' => 'No tiene productos en su lista de favoritos.'
                 ],
@@ -62,6 +63,7 @@ class CustomerFavoriteApiController extends AbstractController
 
         return $this->json(
             [
+                "status" => true,
                 "favorite_list" => $favorite_products_list,
             ],
             Response::HTTP_ACCEPTED,
@@ -77,9 +79,18 @@ class CustomerFavoriteApiController extends AbstractController
         $data = json_decode($body, true);
 
         $product = $productsSalesPointRepository->findActiveProductById($data['product_id']);
+
+        $favorite_products = $favoriteProductRepository->findAllFavoriteProductsByStatus($this->customer->getId(), Constants::STATUS_FAVORITE_ACTIVO);
+        $favorite_products_list = [];
+        foreach ($favorite_products as $favorite_product) {
+            $favorite_products_list[] = $favorite_product->getProductsSalesPoints()->getDataBasicProductFront();
+        }
+
         if (!$product) { //retorno no se encontro producto activo.
             return $this->json(
                 [
+                    'status' => false,
+                    'favorite_list' => $favorite_products_list,
                     'message' => 'No fue posible encontrar el producto indicado.'
                 ],
                 Response::HTTP_NOT_FOUND,
@@ -92,6 +103,8 @@ class CustomerFavoriteApiController extends AbstractController
         if ($favorite_product) { //retorno si el producto ya fue activado como favorito..
             return $this->json(
                 [
+                    'status' => false,
+                    'favorite_list' => $favorite_products_list,
                     'message' => 'El producto ya se encuenta en su lista de favoritos.'
                 ],
                 Response::HTTP_CONFLICT,
@@ -104,6 +117,8 @@ class CustomerFavoriteApiController extends AbstractController
         if ($cart_product) { //retorno si el producto ya fue activado como favorito..
             return $this->json(
                 [
+                    'status' => false,
+                    'favorite_list' => $favorite_products_list,
                     'message' => 'El producto ya se encuentra añadido al carrito.'
                 ],
                 Response::HTTP_CONFLICT,
@@ -121,8 +136,17 @@ class CustomerFavoriteApiController extends AbstractController
         $em->persist($favorite_product);
         $em->flush();
 
+
+        $favorite_products = $favoriteProductRepository->findAllFavoriteProductsByStatus($this->customer->getId(), Constants::STATUS_FAVORITE_ACTIVO);
+        $favorite_products_list = [];
+        foreach ($favorite_products as $favorite_product) {
+            $favorite_products_list[] = $favorite_product->getProductsSalesPoints()->getDataBasicProductFront();
+        }
+
         return $this->json(
             [
+                'status' => true,
+                'favorite_list' => $favorite_products_list,
                 'message' => 'Producto agregado a favorito.'
             ],
             Response::HTTP_CREATED,
@@ -138,9 +162,20 @@ class CustomerFavoriteApiController extends AbstractController
         $data = json_decode($body, true);
 
         $product = $productsSalesPointRepository->findActiveProductById($data['product_id']);
+
+
+        $favorite_products = $favoriteProductRepository->findAllFavoriteProductsByStatus($this->customer->getId(), Constants::STATUS_FAVORITE_ACTIVO);
+        $favorite_products_list = [];
+        foreach ($favorite_products as $favorite_product) {
+            $favorite_products_list[] = $favorite_product->getProductsSalesPoints()->getDataBasicProductFront();
+        }
+
+
         if (!$product) { //retorno no se encontro producto activo.
             return $this->json(
                 [
+                    'status' => false,
+                    'favorite_list' => $favorite_products_list,
                     'message' => 'No fue posible encontrar el producto indicado.'
                 ],
                 Response::HTTP_NOT_FOUND,
@@ -153,6 +188,8 @@ class CustomerFavoriteApiController extends AbstractController
         if (!$favorite_product) { //retorno si el producto ya fue activado como favorito..
             return $this->json(
                 [
+                    'status' => false,
+                    'favorite_list' => $favorite_products_list,
                     'message' => 'El producto indicado no se encuentra su lista de favoritos.'
                 ],
                 Response::HTTP_NOT_FOUND,
@@ -167,8 +204,16 @@ class CustomerFavoriteApiController extends AbstractController
         $em->persist($favorite_product);
         $em->flush();
 
+        $favorite_products = $favoriteProductRepository->findAllFavoriteProductsByStatus($this->customer->getId(), Constants::STATUS_FAVORITE_ACTIVO);
+        $favorite_products_list = [];
+        foreach ($favorite_products as $favorite_product) {
+            $favorite_products_list[] = $favorite_product->getProductsSalesPoints()->getDataBasicProductFront();
+        }
+
         return $this->json(
             [
+                'status' => true,
+                'favorite_list' => $favorite_products_list,
                 'message' => 'Producto eliminado de tu lista de favoritos.'
             ],
             Response::HTTP_ACCEPTED,
@@ -181,10 +226,16 @@ class CustomerFavoriteApiController extends AbstractController
     {
 
         $favorite_products = $favoriteProductRepository->findAllFavoriteProductsByStatus($this->customer->getId(), Constants::STATUS_FAVORITE_ACTIVO);
+        $favorite_products_list = [];
+        foreach ($favorite_products as $favorite_product) {
+            $favorite_products_list[] = $favorite_product->getProductsSalesPoints()->getDataBasicProductFront();
+        }
 
         if (!$favorite_products) { //retorno si el producto ya fue activado como favorito..
             return $this->json(
                 [
+                    'status' => false,
+                    'favorite_list' => $favorite_products_list,
                     'message' => 'No tiene productos en su lista de favoritos.'
                 ],
                 Response::HTTP_CONFLICT,
@@ -205,6 +256,8 @@ class CustomerFavoriteApiController extends AbstractController
 
         return $this->json(
             [
+                'status' => true,
+                'favorite_list' => [],
                 'message' => 'Se eliminaron todos los productos de su lista de favoritos.'
             ],
             Response::HTTP_ACCEPTED,

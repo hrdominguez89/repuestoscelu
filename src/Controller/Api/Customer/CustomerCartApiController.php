@@ -127,7 +127,8 @@ class CustomerCartApiController extends AbstractController
 
         return $this->json(
             [
-                "wish_list" => $favorite_products_list,
+                "status" => true,
+                "favorite_list" => $favorite_products_list,
                 "shop_cart_list" => $shopping_cart_products_list,
                 "message" => $message
             ],
