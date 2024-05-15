@@ -211,19 +211,15 @@ class CustomerFavoriteApiController extends AbstractController
     {
 
         $favorite_products = $favoriteProductRepository->findAllFavoriteProductsByStatus($this->customer->getId(), Constants::STATUS_FAVORITE_ACTIVO);
-        $favorite_products_list = [];
-        foreach ($favorite_products as $favorite_product) {
-            $favorite_products_list[] = $favorite_product->getProductsSalesPoints()->getDataBasicProductFront();
-        }
 
         if (!$favorite_products) { //retorno si el producto ya fue activado como favorito..
             return $this->json(
                 [
                     'status' => false,
-                    'favorite_list' => $favorite_products_list,
+                    'favorite_list' => [],
                     'message' => 'No tiene productos en su lista de favoritos.'
                 ],
-                Response::HTTP_CONFLICT,
+                Response::HTTP_NO_CONTENT,
                 ['Content-Type' => 'application/json']
             );
         }

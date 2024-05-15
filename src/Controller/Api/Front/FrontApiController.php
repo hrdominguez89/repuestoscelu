@@ -826,7 +826,6 @@ class FrontApiController extends AbstractController
                 "brand" => $productSalePoint->getProduct()->getBrand() ? $productSalePoint->getProduct()->getBrand()->getName() : null,
                 "model" => $productSalePoint->getProduct()->getModel() ? $productSalePoint->getProduct()->getModel()->getName() : null,
                 "price" => $productSalePoint->getLastPrice() ? $productSalePoint->getLastPrice()->getPrice() : null,
-                // "available" => $productSalePoint->getProduct()->getAvailable(),
                 "short_description" => $productSalePoint->getProduct()->getDescription(),
                 "long_description" => $productSalePoint->getProduct()->getLongDescription(),
                 "images" => $images,
