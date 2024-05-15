@@ -11,17 +11,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\FileUploader;
-use App\Repository\CommunicationStatesBetweenPlatformsRepository;
-use App\Constants\Constants;
-use App\Helpers\SendBrandTo3pl;
 use Doctrine\ORM\EntityManagerInterface;
 
 #[Route("/brand")]
 class CrudBrandController extends AbstractController
 {
-
-    private $pathImg = 'brands';
-
 
     #[Route("/", name: "secure_crud_brand_index", methods: ["GET"])]
     public function index(BrandRepository $brandRepository): Response

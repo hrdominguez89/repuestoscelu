@@ -48,9 +48,6 @@ class Cities
     #[ORM\Column(type:"string", length:255, nullable:true)]
     private $wikiDataId;
 
-    #[ORM\OneToMany(targetEntity:CustomerAddresses::class, mappedBy:"city")]
-    private $customerAddresses;
-
     #[ORM\Column(type:"boolean", nullable:true)]
     private $visible;
 
@@ -60,9 +57,6 @@ class Cities
     #[ORM\OneToMany(targetEntity:Orders::class, mappedBy:"receiver_city")]
     private $receiver_orders;
 
-    #[ORM\OneToMany(targetEntity:Recipients::class, mappedBy:"city")]
-    private $recipients;
-
     #[ORM\OneToMany(mappedBy: 'city', targetEntity: User::class)]
     private Collection $users;
 
@@ -71,10 +65,8 @@ class Cities
 
     public function __construct()
     {
-        $this->customerAddresses = new ArrayCollection();
         $this->orders = new ArrayCollection();
         $this->receiver_orders = new ArrayCollection();
-        $this->recipients = new ArrayCollection();
         $this->created_at = new \DateTime();
         $this->users = new ArrayCollection();
         $this->customers = new ArrayCollection();
@@ -222,33 +214,6 @@ class Cities
         return $this;
     }
 
-    public function getCustomerAddresses(): Collection
-    {
-        return $this->customerAddresses;
-    }
-
-    public function addCustomerAddress(CustomerAddresses $customerAddress): self
-    {
-        if (!$this->customerAddresses->contains($customerAddress)) {
-            $this->customerAddresses[] = $customerAddress;
-            $customerAddress->setCity($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCustomerAddress(CustomerAddresses $customerAddress): self
-    {
-        if ($this->customerAddresses->removeElement($customerAddress)) {
-            // set the owning side to null (unless already changed)
-            if ($customerAddress->getCity() === $this) {
-                $customerAddress->setCity(null);
-            }
-        }
-
-        return $this;
-    }
-
     public function getVisible(): ?bool
     {
         return $this->visible;
@@ -315,36 +280,6 @@ class Cities
             // set the owning side to null (unless already changed)
             if ($receiverOrder->getReceiverCity() === $this) {
                 $receiverOrder->setReceiverCity(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Recipients>
-     */
-    public function getRecipients(): Collection
-    {
-        return $this->recipients;
-    }
-
-    public function addRecipient(Recipients $recipient): self
-    {
-        if (!$this->recipients->contains($recipient)) {
-            $this->recipients[] = $recipient;
-            $recipient->setCity($this);
-        }
-
-        return $this;
-    }
-
-    public function removeRecipient(Recipients $recipient): self
-    {
-        if ($this->recipients->removeElement($recipient)) {
-            // set the owning side to null (unless already changed)
-            if ($recipient->getCity() === $this) {
-                $recipient->setCity(null);
             }
         }
 

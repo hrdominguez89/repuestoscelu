@@ -55,9 +55,6 @@ class States
     #[ORM\OneToMany(targetEntity: Cities::class, mappedBy: "state")]
     private $cities;
 
-    #[ORM\OneToMany(targetEntity: CustomerAddresses::class, mappedBy: "state")]
-    private $customerAddresses;
-
     #[ORM\Column(type: "boolean", nullable: true)]
     private $visible;
 
@@ -66,9 +63,6 @@ class States
 
     #[ORM\OneToMany(targetEntity: Orders::class, mappedBy: "receiver_state")]
     private $receiver_orders;
-
-    #[ORM\OneToMany(targetEntity: Recipients::class, mappedBy: "state")]
-    private $recipients;
 
     #[ORM\OneToMany(mappedBy: 'state', targetEntity: User::class)]
     private Collection $users;
@@ -79,10 +73,8 @@ class States
     public function __construct()
     {
         $this->cities = new ArrayCollection();
-        $this->customerAddresses = new ArrayCollection();
         $this->orders = new ArrayCollection();
         $this->receiver_orders = new ArrayCollection();
-        $this->recipients = new ArrayCollection();
         $this->users = new ArrayCollection();
         $this->customers = new ArrayCollection();
     }
@@ -268,33 +260,6 @@ class States
         return $this;
     }
 
-    public function getCustomerAddresses(): Collection
-    {
-        return $this->customerAddresses;
-    }
-
-    public function addCustomerAddress(CustomerAddresses $customerAddress): self
-    {
-        if (!$this->customerAddresses->contains($customerAddress)) {
-            $this->customerAddresses[] = $customerAddress;
-            $customerAddress->setState($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCustomerAddress(CustomerAddresses $customerAddress): self
-    {
-        if ($this->customerAddresses->removeElement($customerAddress)) {
-            // set the owning side to null (unless already changed)
-            if ($customerAddress->getState() === $this) {
-                $customerAddress->setState(null);
-            }
-        }
-
-        return $this;
-    }
-
     public function getVisible(): ?bool
     {
         return $this->visible;
@@ -361,36 +326,6 @@ class States
             // set the owning side to null (unless already changed)
             if ($receiverOrder->getReceiverState() === $this) {
                 $receiverOrder->setReceiverState(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Recipients>
-     */
-    public function getRecipients(): Collection
-    {
-        return $this->recipients;
-    }
-
-    public function addRecipient(Recipients $recipient): self
-    {
-        if (!$this->recipients->contains($recipient)) {
-            $this->recipients[] = $recipient;
-            $recipient->setState($this);
-        }
-
-        return $this;
-    }
-
-    public function removeRecipient(Recipients $recipient): self
-    {
-        if ($this->recipients->removeElement($recipient)) {
-            // set the owning side to null (unless already changed)
-            if ($recipient->getState() === $this) {
-                $recipient->setState(null);
             }
         }
 

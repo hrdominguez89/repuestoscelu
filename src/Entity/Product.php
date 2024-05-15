@@ -50,9 +50,6 @@ class Product
     #[ORM\ManyToOne(targetEntity: Subcategory::class, inversedBy: "products")]
     private $subcategory;
 
-    #[ORM\OneToMany(targetEntity: OrdersProducts::class, mappedBy: "product")]
-    private $ordersProducts;
-
     #[ORM\Column(type: "text", nullable: true)]
     private $long_description;
 
@@ -104,7 +101,6 @@ class Product
         $this->created_at = new \DateTime();
         $this->visible = false;
         $this->image = new ArrayCollection();
-        $this->ordersProducts = new ArrayCollection();
         $this->shoppingCarts = new ArrayCollection();
         $this->productsSalesPoints = new ArrayCollection();
         $this->stockProducts = new ArrayCollection();
@@ -308,37 +304,6 @@ class Product
             'name' => $this->getName(),
             'description' => $this->getDescription(),
         ];
-    }
-
-
-    /**
-     * @return Collection<int, OrdersProducts>
-     */
-    public function getOrdersProducts(): Collection
-    {
-        return $this->ordersProducts;
-    }
-
-    public function addOrdersProduct(OrdersProducts $ordersProduct): self
-    {
-        if (!$this->ordersProducts->contains($ordersProduct)) {
-            $this->ordersProducts[] = $ordersProduct;
-            $ordersProduct->setProduct($this);
-        }
-
-        return $this;
-    }
-
-    public function removeOrdersProduct(OrdersProducts $ordersProduct): self
-    {
-        if ($this->ordersProducts->removeElement($ordersProduct)) {
-            // set the owning side to null (unless already changed)
-            if ($ordersProduct->getProduct() === $this) {
-                $ordersProduct->setProduct(null);
-            }
-        }
-
-        return $this;
     }
 
     public function getLongDescription(): ?string

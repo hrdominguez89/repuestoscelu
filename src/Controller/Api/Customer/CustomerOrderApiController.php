@@ -6,7 +6,6 @@ use App\Constants\Constants;
 use App\Entity\Orders;
 use App\Entity\OrdersProducts;
 use App\Helpers\SendOrderToCrm;
-use App\Repository\CommunicationStatesBetweenPlatformsRepository;
 use App\Repository\CustomerRepository;
 use App\Repository\OrdersRepository;
 use App\Repository\ProductRepository;
@@ -47,7 +46,6 @@ class CustomerOrderApiController extends AbstractController
         ShoppingCartRepository $shoppingCartRepository,
         StatusTypeShoppingCartRepository $statusTypeShoppingCartRepository,
         EntityManagerInterface $em,
-        CommunicationStatesBetweenPlatformsRepository $communicationStatesBetweenPlatformsRepository,
         ProductRepository $productRepository
     ): Response {
 
@@ -98,7 +96,6 @@ class CustomerOrderApiController extends AbstractController
             return $this->json($response, Response::HTTP_CONFLICT, ['Content-Type' => 'application/json']);
         }
 
-        $status_sent_crm = $communicationStatesBetweenPlatformsRepository->find(Constants::CBP_STATUS_PENDING);
         $pre_order = new Orders();
 
         $pre_order
@@ -109,7 +106,6 @@ class CustomerOrderApiController extends AbstractController
             ->setCustomerPhoneCode($this->customer->getCountryPhoneCode())
             ->setCelPhoneCustomer($this->customer->getCelPhone())
             ->setPhoneCustomer($this->customer->getPhone() ?: null)
-            ->setStatusSentCrm($status_sent_crm)
             ->setAttemptsSendCrm(0)
             ->setStatus($statusOrderTypeRepository->findOneBy(["id" => Constants::STATUS_ORDER_PENDING]))
             ->setCreatedAt(new \DateTime())
@@ -166,8 +162,6 @@ class CustomerOrderApiController extends AbstractController
         ShoppingCartRepository $shoppingCartRepository,
         StatusTypeShoppingCartRepository $statusTypeShoppingCartRepository,
         EntityManagerInterface $em,
-        SendOrderToCrm $sendOrderToCrm,
-        CommunicationStatesBetweenPlatformsRepository $communicationStatesBetweenPlatformsRepository,
         OrdersRepository $ordersRepository
         // CustomerAd
     ): Response {
@@ -302,7 +296,6 @@ class CustomerOrderApiController extends AbstractController
                 $data = json_decode($body, true);
         }
 
-        $status_sent_crm = $communicationStatesBetweenPlatformsRepository->find(Constants::CBP_STATUS_PENDING);
 
         $shopping_cart_products = $shoppingCartRepository->findAllShoppingCartProductsByStatus($this->customer->getId(), 1);
         if (!$shopping_cart_products) {
@@ -325,8 +318,6 @@ class CustomerOrderApiController extends AbstractController
         ShoppingCartRepository $shoppingCartRepository,
         StatusTypeShoppingCartRepository $statusTypeShoppingCartRepository,
         EntityManagerInterface $em,
-        SendOrderToCrm $sendOrderToCrm,
-        CommunicationStatesBetweenPlatformsRepository $communicationStatesBetweenPlatformsRepository,
         OrdersRepository $ordersRepository
     ): Response {
 
@@ -346,7 +337,6 @@ class CustomerOrderApiController extends AbstractController
                 $data = json_decode($body, true);
         }
 
-        $status_sent_crm = $communicationStatesBetweenPlatformsRepository->find(Constants::CBP_STATUS_PENDING);
 
         $shopping_cart_products = $shoppingCartRepository->findAllShoppingCartProductsByStatus($this->customer->getId(), 1);
         if (!$shopping_cart_products) {

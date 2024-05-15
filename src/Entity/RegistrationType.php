@@ -24,13 +24,9 @@ class RegistrationType
     #[ORM\OneToMany(targetEntity: Customer::class, mappedBy: "registration_type")]
     private $customers;
 
-    #[ORM\OneToMany(targetEntity: CustomerAddresses::class, mappedBy: "registration_type")]
-    private $customerAddresses;
-
     public function __construct()
     {
         $this->customers = new ArrayCollection();
-        $this->customerAddresses = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -89,30 +85,4 @@ class RegistrationType
         return $this;
     }
 
-    public function getCustomerAddresses(): Collection
-    {
-        return $this->customerAddresses;
-    }
-
-    public function addCustomerAddress(CustomerAddresses $customerAddress): self
-    {
-        if (!$this->customerAddresses->contains($customerAddress)) {
-            $this->customerAddresses[] = $customerAddress;
-            $customerAddress->setRegistrationType($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCustomerAddress(CustomerAddresses $customerAddress): self
-    {
-        if ($this->customerAddresses->removeElement($customerAddress)) {
-            // set the owning side to null (unless already changed)
-            if ($customerAddress->getRegistrationType() === $this) {
-                $customerAddress->setRegistrationType(null);
-            }
-        }
-
-        return $this;
-    }
 }

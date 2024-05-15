@@ -7,7 +7,6 @@ use App\Entity\Category;
 use App\Entity\Subcategory;
 use App\Form\SubcategoryType;
 use App\Helpers\FileUploader;
-use App\Repository\CommunicationStatesBetweenPlatformsRepository;
 use App\Repository\SubcategoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;

@@ -19,12 +19,6 @@ class Customer extends BaseUser
 {
     const ROLE_DEFAULT = 'ROLE_CUSTOMER';
 
-    #[ORM\OneToMany(targetEntity: CustomerCouponDiscount::class, mappedBy: "customer", cascade: ["remove"])]
-    private $couponDiscounts;
-
-    #[ORM\OneToMany(targetEntity: Order::class, mappedBy: "customer")]
-    private $shoppingOrders;
-
     #[ORM\Column(name: "cel_phone", type: "string", length: 100, nullable: true)]
     #[Assert\Length(min: 2, max: 100)]
     public $cel_phone;
@@ -92,8 +86,6 @@ class Customer extends BaseUser
     {
         parent::__construct();
 
-        $this->couponDiscounts = new ArrayCollection();
-        $this->shoppingOrders = new ArrayCollection();
         $this->roles = json_encode([self::ROLE_DEFAULT]);
         $this->registration_date = new \DateTime();
         $this->change_password = false;
@@ -115,76 +107,6 @@ class Customer extends BaseUser
         return $this->password;
     }
 
-    public function getCouponDiscounts()
-    {
-        return $this->couponDiscounts;
-    }
-
-    public function addCustomerCouponDiscount(CustomerCouponDiscount $customerCouponDiscount): Customer
-    {
-        if (!$this->couponDiscounts->contains($customerCouponDiscount)) {
-            $this->couponDiscounts[] = $customerCouponDiscount;
-        }
-
-        return $this;
-    }
-
-    public function removeCustomerCouponDiscount(CustomerCouponDiscount $customerCouponDiscount): Customer
-    {
-        if ($this->couponDiscounts->contains($customerCouponDiscount)) {
-            $this->couponDiscounts->removeElement($customerCouponDiscount);
-        }
-
-        return $this;
-    }
-
-    public function getDiscount($subTotal): float
-    {
-        foreach ($this->getCouponDiscounts() as $couponDiscount) {
-            if (!$couponDiscount->isApplied()) {
-                return $couponDiscount->isPercent()
-                    ? ($subTotal * $couponDiscount->getDiscount() / 100)
-                    : $couponDiscount->getDiscount();
-            }
-        }
-
-        return 0.00;
-    }
-
-    public function existCouponDiscount($nro): bool
-    {
-        foreach ($this->getCouponDiscounts() as $couponDiscount) {
-            if ($couponDiscount->getCoupon() == $nro || !$couponDiscount->isApplied()) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public function getShoppingOrders()
-    {
-        return $this->shoppingOrders;
-    }
-
-    public function addShoppingOrder(Order $shoppingOrder): Customer
-    {
-        if (!$this->shoppingOrders->contains($shoppingOrder)) {
-            $this->shoppingOrders[] = $shoppingOrder;
-        }
-
-        return $this;
-    }
-
-    public function removeShoppingOrder(Order $shoppingOrder): Customer
-    {
-        if ($this->shoppingOrders->contains($shoppingOrder)) {
-            $this->shoppingOrders->removeElement($shoppingOrder);
-        }
-
-        return $this;
-    }
-
     public function getRoles(): array
     {
         return array_unique(['ROLE_CUSTOMER']);
@@ -202,27 +124,6 @@ class Customer extends BaseUser
             'status_name' => $this->getStatus()->getName(),
             'created_at' => $this->getRegistrationDate()->format('Y-m-d H:i:s'),
         ];
-    }
-
-    public function addCouponDiscount(CustomerCouponDiscount $couponDiscount): self
-    {
-        if (!$this->couponDiscounts->contains($couponDiscount)) {
-            $this->couponDiscounts[] = $couponDiscount;
-            $couponDiscount->setCustomer($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCouponDiscount(CustomerCouponDiscount $couponDiscount): self
-    {
-        if ($this->couponDiscounts->removeElement($couponDiscount)) {
-            // set the owning side to null (unless already changed)
-            if ($couponDiscount->getCustomer() === $this) {
-            }
-        }
-
-        return $this;
     }
 
     public function getCelPhone(): ?string

@@ -17,10 +17,6 @@ class OrdersProducts
     #[ORM\JoinColumn(nullable: false)]
     private $number_order;
 
-    #[ORM\ManyToOne(targetEntity: Product::class, inversedBy: "ordersProducts")]
-    #[ORM\JoinColumn(nullable: false)]
-    private $product;
-
     #[ORM\Column(type: "string", length: 255)]
     private $name;
 
@@ -45,10 +41,6 @@ class OrdersProducts
     #[ORM\Column(type: "float", nullable: true)]
     private $discount;
 
-    #[ORM\ManyToOne(targetEntity: ProductDiscount::class, inversedBy: "ordersProducts")]
-    #[ORM\JoinColumn(nullable: true)]
-    private $product_discount;
-
     #[ORM\OneToOne(targetEntity: ShoppingCart::class, inversedBy: "ordersProducts", cascade: ["persist", "remove"])]
     #[ORM\JoinColumn(nullable: true)]
     private $shopping_cart;
@@ -66,18 +58,6 @@ class OrdersProducts
     public function setNumberOrder(?Orders $number_order): self
     {
         $this->number_order = $number_order;
-
-        return $this;
-    }
-
-    public function getProduct(): ?Product
-    {
-        return $this->product;
-    }
-
-    public function setProduct(?Product $product): self
-    {
-        $this->product = $product;
 
         return $this;
     }
@@ -174,18 +154,6 @@ class OrdersProducts
     public function setDiscount(float $discount): self
     {
         $this->discount = $discount;
-
-        return $this;
-    }
-
-    public function getProductDiscount(): ?ProductDiscount
-    {
-        return $this->product_discount;
-    }
-
-    public function setProductDiscount(?ProductDiscount $product_discount): self
-    {
-        $this->product_discount = $product_discount;
 
         return $this;
     }

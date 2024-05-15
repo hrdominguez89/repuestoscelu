@@ -90,9 +90,6 @@ class Countries
     #[ORM\OneToMany(targetEntity: Cities::class, mappedBy: "country")]
     private $cities;
 
-    #[ORM\OneToMany(targetEntity: CustomerAddresses::class, mappedBy: "country")]
-    private $customerAddresses;
-
     #[ORM\ManyToOne(targetEntity: RegionType::class, inversedBy: "countries")]
     private $region_type;
 
@@ -102,23 +99,10 @@ class Countries
     #[ORM\Column(type: "boolean", nullable: true)]
     private $visible;
 
-    #[ORM\OneToMany(targetEntity: Orders::class, mappedBy: "customer_phone_code")]
-    private $orders;
-
-    #[ORM\OneToMany(targetEntity: Orders::class, mappedBy: "receiver_country")]
-    private $receiver_orders;
-
-    #[ORM\OneToMany(targetEntity: Recipients::class, mappedBy: "country")]
-    private $recipients;
-
     public function __construct()
     {
         $this->states = new ArrayCollection();
         $this->cities = new ArrayCollection();
-        $this->customerAddresses = new ArrayCollection();
-        $this->orders = new ArrayCollection();
-        $this->receiver_orders = new ArrayCollection();
-        $this->recipients = new ArrayCollection();
         $this->created_at = new \DateTime();
     }
 
@@ -457,33 +441,6 @@ class Countries
         return $this;
     }
 
-    public function getCustomerAddresses(): Collection
-    {
-        return $this->customerAddresses;
-    }
-
-    public function addCustomerAddress(CustomerAddresses $customerAddress): self
-    {
-        if (!$this->customerAddresses->contains($customerAddress)) {
-            $this->customerAddresses[] = $customerAddress;
-            $customerAddress->setCountry($this);
-        }
-
-        return $this;
-    }
-
-    public function removeCustomerAddress(CustomerAddresses $customerAddress): self
-    {
-        if ($this->customerAddresses->removeElement($customerAddress)) {
-            // set the owning side to null (unless already changed)
-            if ($customerAddress->getCountry() === $this) {
-                $customerAddress->setCountry(null);
-            }
-        }
-
-        return $this;
-    }
-
     public function getRegionType(): ?RegionType
     {
         return $this->region_type;
@@ -516,96 +473,6 @@ class Countries
     public function setVisible(?bool $visible): self
     {
         $this->visible = $visible;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Orders>
-     */
-    public function getOrders(): Collection
-    {
-        return $this->orders;
-    }
-
-    public function addOrder(Orders $order): self
-    {
-        if (!$this->orders->contains($order)) {
-            $this->orders[] = $order;
-            $order->setCustomerPhoneCode($this);
-        }
-
-        return $this;
-    }
-
-    public function removeOrder(Orders $order): self
-    {
-        if ($this->orders->removeElement($order)) {
-            // set the owning side to null (unless already changed)
-            if ($order->getCustomerPhoneCode() === $this) {
-                $order->setCustomerPhoneCode(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Orders>
-     */
-    public function getReceiverOrders(): Collection
-    {
-        return $this->receiver_orders;
-    }
-
-    public function addReceiverOrder(Orders $receiverOrder): self
-    {
-        if (!$this->receiver_orders->contains($receiverOrder)) {
-            $this->receiver_orders[] = $receiverOrder;
-            $receiverOrder->setReceiverCountry($this);
-        }
-
-        return $this;
-    }
-
-    public function removeReceiverOrder(Orders $receiverOrder): self
-    {
-        if ($this->receiver_orders->removeElement($receiverOrder)) {
-            // set the owning side to null (unless already changed)
-            if ($receiverOrder->getReceiverCountry() === $this) {
-                $receiverOrder->setReceiverCountry(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Recipients>
-     */
-    public function getRecipients(): Collection
-    {
-        return $this->recipients;
-    }
-
-    public function addRecipient(Recipients $recipient): self
-    {
-        if (!$this->recipients->contains($recipient)) {
-            $this->recipients[] = $recipient;
-            $recipient->setCountry($this);
-        }
-
-        return $this;
-    }
-
-    public function removeRecipient(Recipients $recipient): self
-    {
-        if ($this->recipients->removeElement($recipient)) {
-            // set the owning side to null (unless already changed)
-            if ($recipient->getCountry() === $this) {
-                $recipient->setCountry(null);
-            }
-        }
 
         return $this;
     }
