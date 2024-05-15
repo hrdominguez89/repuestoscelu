@@ -191,7 +191,7 @@ class CustomerCartApiController extends AbstractController
                     'shop_cart_list' => $shopping_cart_products_list,
                     'message' => 'El producto ya se encuenta en su lista de carrito.'
                 ],
-                Response::HTTP_CONFLICT,
+                Response::HTTP_BAD_REQUEST,
                 ['Content-Type' => 'application/json']
             );
         }
