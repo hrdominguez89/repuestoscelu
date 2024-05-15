@@ -819,7 +819,7 @@ class FrontApiController extends AbstractController
                 "id" => $productSalePoint->getId(),
                 "title" => $productSalePoint->getProduct()->getName(),
                 "slug" => $productSalePoint->getProduct()->getSlug(),
-                "disponible" => $productSalePoint->getLastInventory()->getAvailable(),
+                "available" => $productSalePoint->getLastInventory() ? $productSalePoint->getLastInventory()->getAvailable() : 0,
                 "breadcrumbs" => $breadcrumbs,
                 "category" => $productSalePoint->getProduct()->getCategory() ? $productSalePoint->getProduct()->getCategory()->getName() : null,
                 "subcategory" => $productSalePoint->getProduct()->getSubcategory() ? $productSalePoint->getProduct()->getSubcategory()->getName() : null,

@@ -51,7 +51,7 @@ class CustomerFavoriteApiController extends AbstractController
                     "favorite_list" => [],
                     'message' => 'No tiene productos en su lista de favoritos.'
                 ],
-                Response::HTTP_ACCEPTED,
+                Response::HTTP_NO_CONTENT,
                 ['Content-Type' => 'application/json']
             );
         }
@@ -65,6 +65,7 @@ class CustomerFavoriteApiController extends AbstractController
             [
                 "status" => true,
                 "favorite_list" => $favorite_products_list,
+                "message" => ''
             ],
             Response::HTTP_ACCEPTED,
             ['Content-Type' => 'application/json']
@@ -161,29 +162,13 @@ class CustomerFavoriteApiController extends AbstractController
         $body = $request->getContent();
         $data = json_decode($body, true);
 
-        $product = $productsSalesPointRepository->findActiveProductById($data['product_id']);
-
-
         $favorite_products = $favoriteProductRepository->findAllFavoriteProductsByStatus($this->customer->getId(), Constants::STATUS_FAVORITE_ACTIVO);
         $favorite_products_list = [];
         foreach ($favorite_products as $favorite_product) {
             $favorite_products_list[] = $favorite_product->getProductsSalesPoints()->getDataBasicProductFront();
         }
 
-
-        if (!$product) { //retorno no se encontro producto activo.
-            return $this->json(
-                [
-                    'status' => false,
-                    'favorite_list' => $favorite_products_list,
-                    'message' => 'No fue posible encontrar el producto indicado.'
-                ],
-                Response::HTTP_NOT_FOUND,
-                ['Content-Type' => 'application/json']
-            );
-        }
-
-        $favorite_product = $favoriteProductRepository->findFavoriteProductByStatus((int)$product->getId(), (int)$this->customer->getId(), Constants::STATUS_FAVORITE_ACTIVO);
+        $favorite_product = $favoriteProductRepository->findFavoriteProductByStatus((int)$data['product_id'], (int)$this->customer->getId(), Constants::STATUS_FAVORITE_ACTIVO);
 
         if (!$favorite_product) { //retorno si el producto ya fue activado como favorito..
             return $this->json(

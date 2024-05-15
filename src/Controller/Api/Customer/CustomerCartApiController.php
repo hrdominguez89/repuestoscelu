@@ -47,10 +47,11 @@ class CustomerCartApiController extends AbstractController
         if (!$shopping_cart_products) { //retorno si el producto ya fue activado al carrito..
             return $this->json(
                 [
+                    "status" => false,
                     "shop_cart_list" => [],
                     'message' => 'No tiene productos en su lista de carrito.'
                 ],
-                Response::HTTP_ACCEPTED,
+                Response::HTTP_NO_CONTENT,
                 ['Content-Type' => 'application/json']
             );
         }
@@ -62,6 +63,7 @@ class CustomerCartApiController extends AbstractController
 
         return $this->json(
             [
+                "status" => true,
                 "shop_cart_list" => $shopping_cart_products_list,
             ],
             Response::HTTP_ACCEPTED,
@@ -73,11 +75,21 @@ class CustomerCartApiController extends AbstractController
     public function addAllFavorites(ShoppingCartRepository $shoppingCartRepository,  FavoriteProductRepository $favoriteProductRepository, StatusTypeFavoriteRepository $statusTypeFavoriteRepository, StatusTypeShoppingCartRepository $statusTypeShoppingCartRepository, EntityManagerInterface $em): Response
     {
 
+        $shopping_cart_products = $shoppingCartRepository->findAllShoppingCartProductsByStatus($this->customer->getId(), Constants::STATUS_SHOPPING_CART_ACTIVO);
+
+        $shopping_cart_products_list = [];
+        foreach ($shopping_cart_products as $shopping_cart_product) {
+            $shopping_cart_products_list[] = $shopping_cart_product->getProductsSalesPoints()->getDataBasicProductFront();
+        }
+
         $favorite_products = $favoriteProductRepository->findAllFavoriteProductsByStatus($this->customer->getId(), Constants::STATUS_FAVORITE_ACTIVO);
 
-        if (!$favorite_products) { //retorno si el producto ya fue activado como favorito..
+        if (!$favorite_products) {
             return $this->json(
                 [
+                    'status' => false,
+                    "favorite_list" => [],
+                    "shop_cart_list" => $shopping_cart_products_list,
                     'message' => 'No tiene productos en su lista de favoritos.'
                 ],
                 Response::HTTP_CONFLICT,
@@ -151,10 +163,18 @@ class CustomerCartApiController extends AbstractController
         $body = $request->getContent();
         $data = json_decode($body, true);
 
+        $shopping_cart_products = $shoppingCartRepository->findAllShoppingCartProductsByStatus($this->customer->getId(), Constants::STATUS_SHOPPING_CART_ACTIVO);
+        $shopping_cart_products_list = [];
+        foreach ($shopping_cart_products as $shopping_cart_product) {
+            $shopping_cart_products_list[] = $shopping_cart_product->getProductsSalesPoints()->getDataBasicProductFront();
+        }
+
         $product = $productsSalesPointsRepository->findActiveProductById($data['product_id']);
         if (!$product) { //retorno no se encontro producto activo.
             return $this->json(
                 [
+                    'status' => false,
+                    'shop_cart_list' => $shopping_cart_products_list,
                     'message' => 'No fue posible encontrar el producto indicado.'
                 ],
                 Response::HTTP_NOT_FOUND,
@@ -167,6 +187,8 @@ class CustomerCartApiController extends AbstractController
         if ($shopping_cart_product) { //retorno si el producto ya fue fue añadido al carrito..
             return $this->json(
                 [
+                    'status' => false,
+                    'shop_cart_list' => $shopping_cart_products_list,
                     'message' => 'El producto ya se encuenta en su lista de carrito.'
                 ],
                 Response::HTTP_CONFLICT,
@@ -177,6 +199,8 @@ class CustomerCartApiController extends AbstractController
         if (!$product->getLastInventory() || $product->getLastInventory()->getAvailable() <= 0) {
             return $this->json(
                 [
+                    'status' => false,
+                    'shop_cart_list' => $shopping_cart_products_list,
                     'message' => 'No fue posible agregar el producto al carrito, por falta de disponibilidad.'
                 ],
                 Response::HTTP_CONFLICT,
@@ -207,19 +231,31 @@ class CustomerCartApiController extends AbstractController
         try {
             $em->flush();
 
+            $shopping_cart_products = $shoppingCartRepository->findAllShoppingCartProductsByStatus($this->customer->getId(), Constants::STATUS_SHOPPING_CART_ACTIVO);
+            $shopping_cart_products_list = [];
+            foreach ($shopping_cart_products as $shopping_cart_product) {
+                $shopping_cart_products_list[] = $shopping_cart_product->getProductsSalesPoints()->getDataBasicProductFront();
+            }
             return $this->json(
                 [
+                    'status' => true,
+                    'shop_cart_list' => $shopping_cart_products_list,
                     'message' => 'Producto agregado al carrito.',
-                    'status_code' => Response::HTTP_CREATED
                 ],
                 Response::HTTP_CREATED,
                 ['Content-Type' => 'application/json']
             );
         } catch (Exception $e) {
+            $shopping_cart_products = $shoppingCartRepository->findAllShoppingCartProductsByStatus($this->customer->getId(), Constants::STATUS_SHOPPING_CART_ACTIVO);
+            $shopping_cart_products_list = [];
+            foreach ($shopping_cart_products as $shopping_cart_product) {
+                $shopping_cart_products_list[] = $shopping_cart_product->getProductsSalesPoints()->getDataBasicProductFront();
+            }
             return $this->json(
                 [
-                    'status_code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                    'message' => $e->getMessage()
+                    'status' => false,
+                    'shop_cart_list' => $shopping_cart_products_list,
+                    'message' => $e->getMessage(),
                 ],
                 Response::HTTP_INTERNAL_SERVER_ERROR,
                 ['Content-Type' => 'application/json']
@@ -234,22 +270,19 @@ class CustomerCartApiController extends AbstractController
         $body = $request->getContent();
         $data = json_decode($body, true);
 
-        $product = $productsSalesPointsRepository->findActiveProductById($data['product_id']);
-        if (!$product) { //retorno no se encontro producto activo.
-            return $this->json(
-                [
-                    'message' => 'No fue posible encontrar el producto indicado.'
-                ],
-                Response::HTTP_NOT_FOUND,
-                ['Content-Type' => 'application/json']
-            );
+        $shopping_cart_products = $shoppingCartRepository->findAllShoppingCartProductsByStatus($this->customer->getId(), Constants::STATUS_SHOPPING_CART_ACTIVO);
+        $shopping_cart_products_list = [];
+        foreach ($shopping_cart_products as $shopping_cart_product) {
+            $shopping_cart_products_list[] = $shopping_cart_product->getProductsSalesPoints()->getDataBasicProductFront();
         }
 
-        $shopping_cart_product = $shoppingCartRepository->findShoppingCartProductByStatus((int)$product->getId(), (int)$this->customer->getId(), Constants::STATUS_SHOPPING_CART_ACTIVO);
+        $shopping_cart_product = $shoppingCartRepository->findShoppingCartProductByStatus((int)$data['product_id'], (int)$this->customer->getId(), Constants::STATUS_SHOPPING_CART_ACTIVO);
 
         if (!$shopping_cart_product) { //retorno si el producto se encuentra en el carrito.
             return $this->json(
                 [
+                    'status' => false,
+                    'shop_cart_list' => $shopping_cart_products_list,
                     'message' => 'El producto indicado no se encuentra su lista de carrito.'
                 ],
                 Response::HTTP_CONFLICT,
@@ -265,18 +298,30 @@ class CustomerCartApiController extends AbstractController
 
         try {
             $em->flush();
-
+            $shopping_cart_products = $shoppingCartRepository->findAllShoppingCartProductsByStatus($this->customer->getId(), Constants::STATUS_SHOPPING_CART_ACTIVO);
+            $shopping_cart_products_list = [];
+            foreach ($shopping_cart_products as $shopping_cart_product) {
+                $shopping_cart_products_list[] = $shopping_cart_product->getProductsSalesPoints()->getDataBasicProductFront();
+            }
             return $this->json(
                 [
+                    'status' => true,
+                    'shop_cart_list' => $shopping_cart_products_list,
                     'message' => 'Producto eliminado de tu lista de carrito.'
                 ],
                 Response::HTTP_ACCEPTED,
                 ['Content-Type' => 'application/json']
             );
         } catch (Exception $e) {
+            $shopping_cart_products = $shoppingCartRepository->findAllShoppingCartProductsByStatus($this->customer->getId(), Constants::STATUS_SHOPPING_CART_ACTIVO);
+            $shopping_cart_products_list = [];
+            foreach ($shopping_cart_products as $shopping_cart_product) {
+                $shopping_cart_products_list[] = $shopping_cart_product->getProductsSalesPoints()->getDataBasicProductFront();
+            }
             return $this->json(
                 [
-                    'status_code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'status' => false,
+                    'shop_cart_list' => $shopping_cart_products_list,
                     'message' => $e->getMessage()
                 ],
                 Response::HTTP_INTERNAL_SERVER_ERROR,
@@ -294,6 +339,8 @@ class CustomerCartApiController extends AbstractController
         if (!$shopping_cart_products) { //retorno si el producto ya se encuentra en carrito.
             return $this->json(
                 [
+                    'status' => false,
+                    'shop_cart_list' => [],
                     'message' => 'No tiene productos en su lista de carrito.'
                 ],
                 Response::HTTP_CONFLICT,
@@ -314,17 +361,31 @@ class CustomerCartApiController extends AbstractController
         try {
             $em->flush();
 
+            $shopping_cart_products = $shoppingCartRepository->findAllShoppingCartProductsByStatus($this->customer->getId(), Constants::STATUS_SHOPPING_CART_ACTIVO);
+            $shopping_cart_products_list = [];
+            foreach ($shopping_cart_products as $shopping_cart_product) {
+                $shopping_cart_products_list[] = $shopping_cart_product->getProductsSalesPoints()->getDataBasicProductFront();
+            }
+
             return $this->json(
                 [
+                    'status' => true,
+                    'shop_cart_list' => $shopping_cart_products_list,
                     'message' => 'Se eliminaron todos los productos de su lista de carrito.'
                 ],
                 Response::HTTP_ACCEPTED,
                 ['Content-Type' => 'application/json']
             );
         } catch (Exception $e) {
+            $shopping_cart_products = $shoppingCartRepository->findAllShoppingCartProductsByStatus($this->customer->getId(), Constants::STATUS_SHOPPING_CART_ACTIVO);
+            $shopping_cart_products_list = [];
+            foreach ($shopping_cart_products as $shopping_cart_product) {
+                $shopping_cart_products_list[] = $shopping_cart_product->getProductsSalesPoints()->getDataBasicProductFront();
+            }
             return $this->json(
                 [
-                    'status_code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                    'status' => false,
+                    'shop_cart_list' => $shopping_cart_products_list,
                     'message' => $e->getMessage()
                 ],
                 Response::HTTP_INTERNAL_SERVER_ERROR,

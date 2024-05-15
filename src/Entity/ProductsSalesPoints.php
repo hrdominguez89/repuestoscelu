@@ -207,6 +207,7 @@ class ProductsSalesPoints
     {
         return [
             'id' => $this->getId(),
+            'available' => $this->getLastInventory() ? $this->getLastInventory()->getAvailable() : 0,
             'image' => $this->getProduct()->getPrincipalImage(),
             'title' => $this->getProduct()->getName(),
             'price' => $this->getLastPrice() ?  number_format((float)$this->getLastPrice()->getPrice(), 2, ',', '.') : 'No definido',
