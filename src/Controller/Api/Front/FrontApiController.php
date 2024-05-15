@@ -459,6 +459,10 @@ class FrontApiController extends AbstractController
                 "city_name" => $customer->getCity()->getName(),
                 "cel_phone" => $customer->getCelPhone(),
                 "cel_phone_complete" => '+549' . $customer->getCodeArea() . $customer->getCelPhone(),
+                "street_address" => $customer->getStreetAddress(),
+                "number_address" => $customer->getNumberAddress(),
+                "floor_apartment" => $customer->getFloorApartment(),
+                "identity_number" => $customer->getIdentityNumber()
             ]
         ]);
     }
