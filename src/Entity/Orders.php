@@ -34,46 +34,28 @@ class Orders
     #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $customer_identity_number;
 
-    #[ORM\Column(type: "string", length: 255, nullable: true)]
-    private $bill_file;
-
     #[ORM\ManyToOne(targetEntity: States::class, inversedBy: "orders")]
     #[ORM\JoinColumn(nullable: true)]
-    private $bill_state;
+    private $customer_state;
 
     #[ORM\ManyToOne(targetEntity: Cities::class, inversedBy: "orders")]
     #[ORM\JoinColumn(nullable: true)]
-    private $bill_city;
+    private $customer_city;
 
     #[ORM\Column(type: "text", nullable: true)]
-    private $bill_address_order;
+    private $customer_street_address;
 
     #[ORM\Column(type: "string", length: 255, nullable: true)]
-    private $bill_postal_code;
+    private $customer_postal_code;
 
     #[ORM\Column(type: "text", nullable: true)]
-    private $bill_additional_info;
+    private $customer_number_address;
 
-    #[ORM\Column(type: "float", nullable: true)]
-    private $subtotal;
+    #[ORM\Column(type: "text", nullable: true)]
+    private $customer_floor_apartment;
 
-    #[ORM\Column(type: "float", nullable: true)]
-    private $total_product_discount;
-
-    #[ORM\Column(type: "float", nullable: true)]
-    private $promotional_code_discount;
-
-    #[ORM\Column(type: "float", nullable: true)]
-    private $tax;
-
-    #[ORM\Column(type: "float", nullable: true)]
-    private $shipping_cost;
-
-    #[ORM\Column(type: "float", nullable: true)]
-    private $shipping_discount;
-
-    #[ORM\Column(type: "float", nullable: true)]
-    private $paypal_service_cost;
+    #[ORM\Column(type: "string", length: 255, nullable: true)]
+    private $bill_file;
 
     #[ORM\Column(type: "float", nullable: true)]
     private $total_order;
@@ -88,56 +70,21 @@ class Orders
     #[ORM\Column(type: "datetime", nullable: false)]
     private $created_at;
 
-    #[ORM\Column(type: "string", length: 255, nullable: true)]
-    private $receiver_name;
-
-    #[ORM\Column(type: "string", length: 255, nullable: true)]
-    private $receiver_document_type;
-
-    #[ORM\Column(type: "string", length: 255, nullable: true)]
-    private $receiver_document;
-
-    #[ORM\Column(type: "string", length: 255, nullable: true)]
-    private $receiver_phone_cell;
-
-    #[ORM\Column(type: "string", length: 255, nullable: true)]
-    private $receiver_phone_home;
-
-    #[ORM\Column(type: "string", length: 255, nullable: true)]
-    private $receiver_email;
-
-    #[ORM\ManyToOne(targetEntity: States::class, inversedBy: "receiver_orders")]
-    #[ORM\JoinColumn(nullable: true)]
-    private $receiver_state;
-
-    #[ORM\ManyToOne(targetEntity: Cities::class, inversedBy: "receiver_orders")]
-    #[ORM\JoinColumn(nullable: true)]
-    private $receiver_city;
-
-    #[ORM\Column(type: "text", nullable: true)]
-    private $receiver_address;
-
-    #[ORM\Column(type: "string", length: 255, nullable: true)]
-    private $receiver_cod_zip;
-
-    #[ORM\Column(type: "text", nullable: true)]
-    private $receiver_additional_info;
-
     #[ORM\OneToMany(targetEntity: PaymentsFiles::class, mappedBy: "order_number", cascade: ["remove"])]
     private $paymentsFiles;
 
-    #[ORM\OneToMany(targetEntity: PaymentsReceivedFiles::class, mappedBy: "order_number", cascade: ["remove"])]
-    private $paymentsReceivedFiles;
+    #[ORM\ManyToOne(inversedBy: 'number_order')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?PaymentType $paymentType = null;
 
-    #[ORM\OneToMany(targetEntity: DebitCreditNotesFiles::class, mappedBy: "number_order", cascade: ["remove"])]
-    private $debitCreditNotesFiles;
+    #[ORM\ManyToOne(inversedBy: 'orders')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $sale_point = null;
 
     public function __construct()
     {
         $this->ordersProducts = new ArrayCollection();
         $this->paymentsFiles = new ArrayCollection();
-        $this->paymentsReceivedFiles = new ArrayCollection();
-        $this->debitCreditNotesFiles = new ArrayCollection();
         $this->created_at = new \DateTime();
     }
 
@@ -230,146 +177,74 @@ class Orders
         return $this;
     }
 
-    public function getBillState(): ?States
+    public function getCustomerState(): ?States
     {
-        return $this->bill_state;
+        return $this->customer_state;
     }
 
-    public function setBillState(?States $bill_state): self
+    public function setCustomerState(?States $customer_state): self
     {
-        $this->bill_state = $bill_state;
+        $this->customer_state = $customer_state;
 
         return $this;
     }
 
-    public function getBillCity(): ?Cities
+    public function getCustomerCity(): ?Cities
     {
-        return $this->bill_city;
+        return $this->customer_city;
     }
 
-    public function setBillCity(?Cities $bill_city): self
+    public function setCustomerCity(?Cities $customer_city): self
     {
-        $this->bill_city = $bill_city;
+        $this->customer_city = $customer_city;
 
         return $this;
     }
 
-    public function getBillAddressOrder(): ?string
+    public function getCustomerStreetAddress(): ?string
     {
-        return $this->bill_address_order;
+        return $this->customer_street_address;
     }
 
-    public function setBillAddressOrder(string $bill_address_order): self
+    public function setCustomerStreetAddress(string $customer_street_address): self
     {
-        $this->bill_address_order = $bill_address_order;
+        $this->customer_street_address = $customer_street_address;
 
         return $this;
     }
 
-    public function getBillPostalCode(): ?string
+    public function getCustomerPostalCode(): ?string
     {
-        return $this->bill_postal_code;
+        return $this->customer_postal_code;
     }
 
-    public function setBillPostalCode(string $bill_postal_code): self
+    public function setCustomerPostalCode(string $customer_postal_code): self
     {
-        $this->bill_postal_code = $bill_postal_code;
+        $this->customer_postal_code = $customer_postal_code;
 
         return $this;
     }
 
-    public function getBillAdditionalInfo(): ?string
+    public function getCustomerNumberAddress(): ?string
     {
-        return $this->bill_additional_info;
+        return $this->customer_number_address;
     }
 
-    public function setBillAdditionalInfo(?string $bill_additional_info): self
+    public function setCustomerNumberAddress(?string $customer_number_address): self
     {
-        $this->bill_additional_info = $bill_additional_info;
+        $this->customer_number_address = $customer_number_address;
 
         return $this;
     }
 
-    public function getSubtotal(): ?float
+    public function getCustomerFloorApartment(): ?string
     {
-        return $this->subtotal;
+        return $this->customer_floor_apartment;
     }
 
-    public function setSubtotal(float $subtotal): self
+    public function setCustomerFloorApartment(?string $customer_floor_apartment): self
     {
-        $this->subtotal = $subtotal;
-
-        return $this;
-    }
-
-    public function getTotalProductDiscount(): ?float
-    {
-        return $this->total_product_discount;
-    }
-
-    public function setTotalProductDiscount(float $total_product_discount): self
-    {
-        $this->total_product_discount = $total_product_discount;
-
-        return $this;
-    }
-
-    public function getPromotionalCodeDiscount(): ?float
-    {
-        return $this->promotional_code_discount;
-    }
-
-    public function setPromotionalCodeDiscount(float $promotional_code_discount): self
-    {
-        $this->promotional_code_discount = $promotional_code_discount;
-
-        return $this;
-    }
-
-    public function getTax(): ?float
-    {
-        return $this->tax;
-    }
-
-    public function setTax(float $tax): self
-    {
-        $this->tax = $tax;
-
-        return $this;
-    }
-
-    public function getShippingCost(): ?float
-    {
-        return $this->shipping_cost;
-    }
-
-    public function setShippingCost(float $shipping_cost): self
-    {
-        $this->shipping_cost = $shipping_cost;
-
-        return $this;
-    }
-
-    public function getShippingDiscount(): ?float
-    {
-        return $this->shipping_discount;
-    }
-
-    public function setShippingDiscount(float $shipping_discount): self
-    {
-        $this->shipping_discount = $shipping_discount;
-
-        return $this;
-    }
-
-    public function getPaypalServiceCost(): ?float
-    {
-        return $this->paypal_service_cost;
-    }
-
-    public function setPaypalServiceCost(float $paypal_service_cost): self
-    {
-        $this->paypal_service_cost = $paypal_service_cost;
+        $this->customer_floor_apartment = $customer_floor_apartment;
 
         return $this;
     }
@@ -440,151 +315,17 @@ class Orders
         return $this;
     }
 
-    public function getReceiverName(): ?string
-    {
-        return $this->receiver_name;
-    }
-
-    public function setReceiverName(string $receiver_name): self
-    {
-        $this->receiver_name = $receiver_name;
-
-        return $this;
-    }
-
-    public function getReceiverDocumentType(): ?string
-    {
-        return $this->receiver_document_type;
-    }
-
-    public function setReceiverDocumentType(string $receiver_document_type): self
-    {
-        $this->receiver_document_type = $receiver_document_type;
-
-        return $this;
-    }
-
-    public function getReceiverDocument(): ?string
-    {
-        return $this->receiver_document;
-    }
-
-    public function setReceiverDocument(string $receiver_document): self
-    {
-        $this->receiver_document = $receiver_document;
-
-        return $this;
-    }
-
-    public function getReceiverPhoneCell(): ?string
-    {
-        return $this->receiver_phone_cell;
-    }
-
-    public function setReceiverPhoneCell(string $receiver_phone_cell): self
-    {
-        $this->receiver_phone_cell = $receiver_phone_cell;
-
-        return $this;
-    }
-
-    public function getReceiverPhoneHome(): ?string
-    {
-        return $this->receiver_phone_home;
-    }
-
-    public function setReceiverPhoneHome(?string $receiver_phone_home): self
-    {
-        $this->receiver_phone_home = $receiver_phone_home;
-
-        return $this;
-    }
-
-    public function getReceiverEmail(): ?string
-    {
-        return $this->receiver_email;
-    }
-
-    public function setReceiverEmail(string $receiver_email): self
-    {
-        $this->receiver_email = $receiver_email;
-
-        return $this;
-    }
-
-    public function getReceiverState(): ?States
-    {
-        return $this->receiver_state;
-    }
-
-    public function setReceiverState(?States $receiver_state): self
-    {
-        $this->receiver_state = $receiver_state;
-
-        return $this;
-    }
-
-    public function getReceiverCity(): ?Cities
-    {
-        return $this->receiver_city;
-    }
-
-    public function setReceiverCity(?Cities $receiver_city): self
-    {
-        $this->receiver_city = $receiver_city;
-
-        return $this;
-    }
-
-    public function getReceiverAddress(): ?string
-    {
-        return $this->receiver_address;
-    }
-
-    public function setReceiverAddress(string $receiver_address): self
-    {
-        $this->receiver_address = $receiver_address;
-
-        return $this;
-    }
-
-    public function getReceiverCodZip(): ?string
-    {
-        return $this->receiver_cod_zip;
-    }
-
-    public function setReceiverCodZip(string $receiver_cod_zip): self
-    {
-        $this->receiver_cod_zip = $receiver_cod_zip;
-
-        return $this;
-    }
-
-    public function getReceiverAdditionalInfo(): ?string
-    {
-        return $this->receiver_additional_info;
-    }
-
-    public function setReceiverAdditionalInfo(string $receiver_additional_info): self
-    {
-        $this->receiver_additional_info = $receiver_additional_info;
-
-        return $this;
-    }
-
-    public function generateOrderToCRM()
+    public function generateOrder()
     {
         $orders_products_array = $this->ordersProducts;
         $orders_products_result = [];
 
         foreach ($orders_products_array as $order_product) {
             $orders_products_result[] = [
-                'product_id' => $order_product->getProduct()->getId3pl(),
-                'product_name' => $order_product->getProduct()->getName(),
-                'qty' => $order_product->getQuantity(),
-                'weight' => $order_product->getWeight(),
+                'product_name' => $order_product->getName(),
+                'quantity' => $order_product->getQuantity(),
+                'code' => $order_product->getCode(),
                 'price' => $order_product->getPrice(),
-                'discount' => $order_product->getDiscount()
             ];
         }
 
@@ -598,155 +339,29 @@ class Orders
             ];
         }
 
-        $payments_received_files_array = $this->paymentsReceivedFiles;
-        $payments_received_files_result = [];
-
-        foreach ($payments_received_files_array as $paymentReceivedFile) {
-            $payments_received_files_result[] = [
-                "payment_received_file" => $paymentReceivedFile->getPaymentReceivedFile(),
-            ];
-        }
-
-        $debit_credite_notes_files_array = $this->debitCreditNotesFiles;
-        $debit_credite_notes_files_result = [];
-
-        foreach ($debit_credite_notes_files_array as $debitCreditNoteFile) {
-            $debit_credite_notes_files_result[] = [
-                "debit_credit_note_file" => $debitCreditNoteFile->getDebitCreditNoteFile(),
-            ];
-        }
-
-
         return [
             "order_id" => $this->getId(),
             "created_at" => $this->getCreatedAt()->format('Y-m-d H:i:s'),
-            "status_order" => $this->getStatus()->getId(),
-            "items" => $orders_products_result,
-            "customer" => [
-                "id" => $this->getCustomer()->getId(),
+            "status_order_name" => $this->getStatus()->getName(),
+            "status_order_id" => $this->getStatus()->getId(),
+            "products" => $orders_products_result,
+            "order_data" => [
                 "name" => $this->getCustomerName(),
                 "email" => $this->getCustomerEmail(),
-                "code_area_phone_customer" => $this->getCodeAreaPhoneCustomer(),
-                "phone_customer" => $this->getPhoneCustomer(),
-                "customer_identity_number" => $this->getCustomerIdentityNumber()
+                "identity_number" => $this->getCustomerIdentityNumber(),
+                "code_area" => $this->getCodeAreaPhoneCustomer(),
+                "state_id" => $this->getCustomerState()->getId(),
+                "state_name" => $this->getCustomerState()->getName(),
+                "city_id" => $this->getCustomerCity()->getId(),
+                "postal_code" => $this->getCustomerPostalCode(),
+                "street_address" => $this->getCustomerStreetAddress(),
+                "number_address" => $this->getCustomerNumberAddress(),
+                "floor_apartment" => $this->getCustomerFloorApartment()
             ],
             "bill_file" => $this->getBillFile(),
             "payments_files" => $payments_files_result,
-            "payments_received_files" => $payments_received_files_result,
-            "debit_credit_notes_files" => $debit_credite_notes_files_result,
-            "receiver" => [
-                "name" => $this->getReceiverName(),
-                "document_type" => $this->getReceiverDocumentType(),
-                "document" => $this->getReceiverDocument(),
-                "phone_cell" => $this->getReceiverPhoneCell(),
-                "phone_home" => $this->getReceiverPhoneHome(),
-                "email" => $this->getReceiverEmail(),
-                "state_id" => $this->getReceiverState() ? $this->getReceiverState()->getId() : null,
-                "city_id" => $this->getReceiverCity() ? $this->getReceiverCity()->getId() : null,
-                "address" => $this->getReceiverAddress(),
-                "cod_zip" => $this->getReceiverCodZip(),
-                "additional_info" => $this->getReceiverAdditionalInfo()
-            ],
-            "bill_address" => [
-                "state_id" => $this->getBillState() ? $this->getBillState()->getId() : null,
-                "city_id" => $this->getBillCity() ? $this->getBillCity()->getId() : null,
-                "address" => $this->getBillAddressOrder(),
-                "cod_zip" => $this->getBillPostalCode()
-            ],
-            "subtotal" => $this->getSubtotal(),
-            "total_product_discount" => $this->getTotalProductDiscount(),
-            "promotional_code_discount" => $this->getPromotionalCodeDiscount(),
-            "tax" => $this->getTax(),
-            "shipping_cost" => $this->getShippingCost(),
-            "shipping_discount" => $this->getShippingDiscount(),
-            "total_order" => $this->getTotalOrder()
+            "total_order" => number_format((float)$this->getTotalOrder(), 2, ',', '.')
         ];
-    }
-
-    public function getenerateOrderToFront()
-    {
-
-        $orders_products_array = $this->ordersProducts;
-        $orders_products_result = [];
-
-        foreach ($orders_products_array as $order_product) {
-            $orders_products_result[] = [
-                'id' => $order_product->getProduct()->getId3pl(),
-                'name' => $order_product->getProduct()->getName(),
-                'quantity' => $order_product->getQuantity(),
-                'price' => $order_product->getPrice(),
-                'discount' => $order_product->getDiscount()
-            ];
-        }
-
-        // {
-        //     "items": [
-        //         {
-        //             "id": 10,
-        //             "name": "Prueba producto 1",
-        //             "quantity": 5,
-        //             "price": 10,
-        //             "0": 25
-        //         },
-        //         {
-        //             "id": 11,
-        //             "name": "Prueba producto 2",
-        //             "quantity": 4,
-        //             "price": 20,
-        //             "0": 25
-        //         },
-        //         {
-        //             "id": 13,
-        //             "name": "Prueba producto 3",
-        //             "quantity": 1,
-        //             "price": 300,
-        //             "0": 25
-        //         }
-        //     ],
-        //     "bill_data": {
-        //         "identity_type": "DNI",
-        //         "identity_number": "34987273",
-        //         "country_id": 11,
-        //         "country_name": "Argentina",
-        //         "state_id": 4545,
-        //         "state_name": "Buenos Aires",
-        //         "city_id": 42022,
-        //         "city_name": "Ciudad Autonoma de Buenos Aires",
-        //         "code_zip" : "abc123",
-        //         "additional_info": "informacion adicional",
-        //         "address": "Calle 123 4to A"
-        //     },
-        //     "recipients": [
-        //         {
-        //             "recipient_id": 1,
-        //             "country_name": "Argentina",
-        //             "state_name": "Córdoba",
-        //             "city_name": "Cosquin",
-        //             "recipient_name": "Destinatario prueba 1",
-        //             "address": "Direccion destinatario 1 23233",
-        //             "recipient_phone": "1163549766"
-        //         },
-        //         {
-        //             "recipient_id": 2,
-        //             "country_name": "Argentina",
-        //             "state_name": "Córdoba",
-        //             "city_name": "La falda",
-        //             "recipient_name": "Destinatario prueba 2",
-        //             "address": "Direccion destinatario 2 23233",
-        //             "recipient_phone": "1163549766"
-        //         },
-        //         {
-        //             "recipient_id": 3,
-        //             "country_name": "Argentina",
-        //             "state_name": "Córdoba",
-        //             "city_name": "Córdoba Capital",
-        //             "recipient_name": "Destinatario prueba 3",
-        //             "address": "Direccion destinatario 3 23233",
-        //             "recipient_phone": "1163549766"
-        //         }
-        //     ]
-        // }
-        return [];
     }
 
     /**
@@ -779,62 +394,26 @@ class Orders
         return $this;
     }
 
-    /**
-     * @return Collection<int, PaymentsReceivedFiles>
-     */
-    public function getPaymentsReceivedFiles(): Collection
+    public function getPaymentType(): ?PaymentType
     {
-        return $this->paymentsReceivedFiles;
+        return $this->paymentType;
     }
 
-    public function addPaymentsReceivedFile(PaymentsReceivedFiles $paymentsReceivedFile): self
+    public function setPaymentType(?PaymentType $paymentType): static
     {
-        if (!$this->paymentsReceivedFiles->contains($paymentsReceivedFile)) {
-            $this->paymentsReceivedFiles[] = $paymentsReceivedFile;
-            $paymentsReceivedFile->setOrderNumber($this);
-        }
+        $this->paymentType = $paymentType;
 
         return $this;
     }
 
-    public function removePaymentsReceivedFile(PaymentsReceivedFiles $paymentsReceivedFile): self
+    public function getSalePoint(): ?User
     {
-        if ($this->paymentsReceivedFiles->removeElement($paymentsReceivedFile)) {
-            // set the owning side to null (unless already changed)
-            if ($paymentsReceivedFile->getOrderNumber() === $this) {
-                $paymentsReceivedFile->setOrderNumber(null);
-            }
-        }
-
-        return $this;
+        return $this->sale_point;
     }
 
-    /**
-     * @return Collection<int, DebitCreditNotesFiles>
-     */
-    public function getDebitCreditNotesFiles(): Collection
+    public function setSalePoint(?User $sale_point): static
     {
-        return $this->debitCreditNotesFiles;
-    }
-
-    public function addDebitCreditNotesFile(DebitCreditNotesFiles $debitCreditNotesFile): self
-    {
-        if (!$this->debitCreditNotesFiles->contains($debitCreditNotesFile)) {
-            $this->debitCreditNotesFiles[] = $debitCreditNotesFile;
-            $debitCreditNotesFile->setNumberOrder($this);
-        }
-
-        return $this;
-    }
-
-    public function removeDebitCreditNotesFile(DebitCreditNotesFiles $debitCreditNotesFile): self
-    {
-        if ($this->debitCreditNotesFiles->removeElement($debitCreditNotesFile)) {
-            // set the owning side to null (unless already changed)
-            if ($debitCreditNotesFile->getNumberOrder() === $this) {
-                $debitCreditNotesFile->setNumberOrder(null);
-            }
-        }
+        $this->sale_point = $sale_point;
 
         return $this;
     }

@@ -17,6 +17,7 @@ use App\Repository\CitiesRepository;
 use App\Repository\CustomerRepository;
 use App\Repository\CustomerStatusTypeRepository;
 use App\Repository\FavoriteProductRepository;
+use App\Repository\PaymentTypeRepository;
 use App\Repository\ProductsSalesPointsRepository;
 use App\Repository\RegistrationTypeRepository;
 use App\Repository\ShoppingCartRepository;
@@ -467,6 +468,19 @@ class FrontApiController extends AbstractController
         ]);
     }
 
+    #[Route("/paymentsTypes", name: "api_get_payments_types", methods: ["GET"])]
+    public function getPaymentsTypes(PaymentTypeRepository $paymentTypeRepository): Response
+    {
+        $paymentsTypes = $paymentTypeRepository->getPaymentsFiles();
+        return $this->json(
+            [
+                'status' => true,
+                'paymentsTypes' => $paymentsTypes
+            ],
+            Response::HTTP_OK,
+            ['Content-Type' => 'application/json']
+        );
+    }
 
     #[Route("/states", name: "api_get_states", methods: ["GET"])]
     public function getStates(StatesRepository $statesRepository): Response
@@ -835,12 +849,12 @@ class FrontApiController extends AbstractController
                 "images" => $images,
                 "tags" => $tags,
                 "product_detail" => [
-                    "screen_resolution" => $productSalePoint->getProduct()->getScreenResolution() == '' ? $productSalePoint->getProduct()->getScreenResolution()->getName() : null,
-                    "screen_size" => $productSalePoint->getProduct()->getScreenSize() == '' ? $productSalePoint->getProduct()->getScreenSize()->getName() : null,
-                    "cpu" => $productSalePoint->getProduct()->getCpu() == '' ? $productSalePoint->getProduct()->getCpu()->getName() : null,
-                    "gpu" => $productSalePoint->getProduct()->getGpu() == '' ? $productSalePoint->getProduct()->getGpu()->getName() : null,
-                    "memory" => $productSalePoint->getProduct()->getMemory() == '' ? $productSalePoint->getProduct()->getMemory()->getName() : null,
-                    "os" => $productSalePoint->getProduct()->getOS() == '' ? $productSalePoint->getProduct()->getOS()->getName() : null,
+                    "screen_resolution" => $productSalePoint->getProduct()->getScreenResolution() ? $productSalePoint->getProduct()->getScreenResolution()->getName() : null,
+                    "screen_size" => $productSalePoint->getProduct()->getScreenSize() ? $productSalePoint->getProduct()->getScreenSize()->getName() : null,
+                    "cpu" => $productSalePoint->getProduct()->getCpu() ? $productSalePoint->getProduct()->getCpu()->getName() : null,
+                    "gpu" => $productSalePoint->getProduct()->getGpu() ? $productSalePoint->getProduct()->getGpu()->getName() : null,
+                    "memory" => $productSalePoint->getProduct()->getMemory() ? $productSalePoint->getProduct()->getMemory()->getName() : null,
+                    "os" => $productSalePoint->getProduct()->getOS() ? $productSalePoint->getProduct()->getOS()->getName() : null,
                     "cod" => $productSalePoint->getProduct()->getCod(),
                 ],
                 "state" => $productSalePoint->getSalePoint()->getState()->getName(),

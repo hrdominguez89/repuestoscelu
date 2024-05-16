@@ -51,7 +51,7 @@ class CustomerCartApiController extends AbstractController
                     "shop_cart_list" => [],
                     'message' => 'No tiene productos en su lista de carrito.'
                 ],
-                Response::HTTP_NO_CONTENT,
+                Response::HTTP_ACCEPTED,
                 ['Content-Type' => 'application/json']
             );
         }

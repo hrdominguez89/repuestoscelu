@@ -5,13 +5,18 @@ namespace App\Controller\Api\Customer;
 use App\Constants\Constants;
 use App\Entity\Orders;
 use App\Entity\OrdersProducts;
-use App\Helpers\SendOrderToCrm;
+use App\Entity\ShoppingCart;
+use App\Repository\CitiesRepository;
 use App\Repository\CustomerRepository;
 use App\Repository\OrdersRepository;
+use App\Repository\PaymentTypeRepository;
 use App\Repository\ProductRepository;
+use App\Repository\ProductsSalesPointsRepository;
 use App\Repository\ShoppingCartRepository;
+use App\Repository\StatesRepository;
 use App\Repository\StatusOrderTypeRepository;
 use App\Repository\StatusTypeShoppingCartRepository;
+use App\Repository\UserRepository;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -39,14 +44,18 @@ class CustomerOrderApiController extends AbstractController
         $this->customer = $customerRepository->findOneBy(['email' => $username]);
     }
 
-    #[Route("/pre-order", name: "api_customer_pre_order", methods: ["POST"])]
-    public function preOrder(
+    #[Route("/order", name: "api_customer_order", methods: ["POST"])]
+    public function order(
         Request $request,
+        StatesRepository $statesRepository,
+        CitiesRepository $citiesRepository,
         StatusOrderTypeRepository $statusOrderTypeRepository,
+        PaymentTypeRepository $paymentTypeRepository,
         ShoppingCartRepository $shoppingCartRepository,
         StatusTypeShoppingCartRepository $statusTypeShoppingCartRepository,
         EntityManagerInterface $em,
-        ProductRepository $productRepository
+        UserRepository $userRepository,
+        ProductsSalesPointsRepository $productSalesPointsRepository
     ): Response {
 
         $body = $request->getContent();
@@ -55,13 +64,52 @@ class CustomerOrderApiController extends AbstractController
         // Crear arrays para almacenar los errores
         $errors = [];
 
+        if (!@$data['name']) {
+            $errors['name'] = 'El campo name es requerido';
+        }
+        if (!@$data['email']) {
+            $errors['email'] = 'El campo email es requerido';
+        }
+        if (!@$data['identity_number']) {
+            $errors['identity_number'] = 'El campo identity_number es requerido';
+        }
+        if (!@$data['state_id']) {
+            $errors['state_id'] = 'El campo state_id es requerido';
+        }
+        if (!@$data['city_id']) {
+            $errors['city_id'] = 'El campo city_id es requerido';
+        }
+        if (!@$data['street_address']) {
+            $errors['street_address'] = 'El campo street_address es requerido';
+        }
+        if (!@$data['number_address']) {
+            $errors['number_address'] = 'El campo number_address es requerido';
+        }
+        if (!@$data['postal_code']) {
+            $errors['postal_code'] = 'El campo postal_code es requerido';
+        }
+        if (!@$data['code_area']) {
+            $errors['code_area'] = 'El campo code_area es requerido';
+        }
+        if (!@$data['phone_number']) {
+            $errors['phone_number'] = 'El campo phone_number es requerido';
+        }
+        if (!@$data['products']) {
+            $errors['products'] = 'El campo products es requerido y tiene que ser un array de objetos de product_id y quantity';
+        }
+        if (!@$data['payment_type_id']) {
+            $errors['payment_type_id'] = 'El campo payment_type_id es requerido';
+        }
+
+
+        $salesPoints = [];
         // Iterar sobre los productos enviados en la solicitud
         foreach ($data['products'] as $product_cart) {
             $productId = $product_cart['product_id'];
             $quantity = $product_cart['quantity'];
 
             // Verificar si el producto existe y está activo
-            $product = $productRepository->findActiveProductById($productId);
+            $product = $productSalesPointsRepository->findActiveProductById($productId);
             if (!$product) {
                 $errors['product_not_found'][] = $productId;
                 continue;
@@ -70,73 +118,80 @@ class CustomerOrderApiController extends AbstractController
             // Verificar si el producto está en el carrito de compras
             $product_on_cart = $shoppingCartRepository->findShoppingCartProductByStatus($productId, $this->customer->getId(), Constants::STATUS_SHOPPING_CART_ACTIVO);
             if (!$product_on_cart) {
-                $errors['product_not_added_cart'][] = $product->getBasicDataProduct();
-                continue;
+                $product_on_cart = new ShoppingCart();
+                $product_on_cart->setCustomer($this->customer)
+                    ->setStatus($statusTypeShoppingCartRepository->find(Constants::STATUS_SHOPPING_CART_ACTIVO))
+                    ->setProductsSalesPoints($product);
+                $em->persist($product_on_cart);
             }
-
             // Verificar disponibilidad de cantidad
-            if ($product_on_cart->getAvailable() < $quantity) {
-                $product_on_cart->setQuantity($quantity);
-                $errors['product_quantity_not_available'][] = $product_on_cart->getBasicDataProduct();
-
-                continue;
+            if ((!@$product_on_cart->getProductsSalesPoints()->getLastInventory()) || $product_on_cart->getProductsSalesPoints()->getLastInventory()->getAvailable() < $quantity) {
+                $errors['product_quantity_not_available'][] = $product_on_cart->getProductsSalesPoints()->getDataBasicProductFront();
             }
+            $product_on_cart->setQuantity($quantity);
 
             // Agregar producto al carrito de compras
-            $shopping_cart_products[] = $product_on_cart;
+            $salesPoints[$product_on_cart->getProductsSalesPoints()->getProduct()->getSalePoint()->getId()][] = $product_on_cart;
         }
 
         // Verificar si hubo errores
         if (!empty($errors)) {
             $response = [
-                "status_code" => Response::HTTP_CONFLICT,
+                "status" => false,
                 'message' => 'Error al intentar agregar uno o más productos a la orden.',
                 "errors" => $errors
             ];
             return $this->json($response, Response::HTTP_CONFLICT, ['Content-Type' => 'application/json']);
         }
 
-        $pre_order = new Orders();
+        $orders = [];
+        foreach ($salesPoints as $key => $shopping_cart_products) {
+            $order = new Orders();
 
-        $pre_order
-            ->setCustomer($this->customer)
-            ->setCustomerType($this->customer->getCustomerTypeRole())
-            ->setCustomerName($this->customer->getName())
-            ->setCustomerEmail($this->customer->getEmail())
-            ->setCustomerPhoneCode($this->customer->getCountryPhoneCode())
-            ->setCelPhoneCustomer($this->customer->getCelPhone())
-            ->setPhoneCustomer($this->customer->getPhone() ?: null)
-            ->setAttemptsSendCrm(0)
-            ->setStatus($statusOrderTypeRepository->findOneBy(["id" => Constants::STATUS_ORDER_PENDING]))
-            ->setCreatedAt(new \DateTime())
-            ->setWarehouse($shopping_cart_products[0]->getProduct()->getInventory()->getWarehouse()) //revisar porque estoy forzando a un warehouse
-            ->setInventoryId($shopping_cart_products[0]->getProduct()->getInventory()->getId()); //revisar porque estoy forzando a un inventario
-
-        foreach ($shopping_cart_products as $shopping_cart_product) {
-            $shopping_cart_product->setStatus($statusTypeShoppingCartRepository->findOneBy(["id" => Constants::STATUS_SHOPPING_CART_EN_ORDEN]));
-            $order_product = new OrdersProducts();
-            $order_product
-                ->setNumberOrder($pre_order)
-                ->setProduct($shopping_cart_product->getProduct())
-                ->setName($shopping_cart_product->getProduct()->getName())
-                ->setSku($shopping_cart_product->getProduct()->getSku())
-                ->setPartNumber($shopping_cart_product->getProduct()->getPartNumber() ?: null)
-                ->setCod($shopping_cart_product->getProduct()->getCod() ?: null)
-                ->setWeight($shopping_cart_product->getProduct()->getWeight() ?: null)
-                ->setQuantity($shopping_cart_product->getQuantity());
-            $em->persist($order_product);
-            $em->persist($shopping_cart_product);
-
-            $pre_order->addOrdersProduct($order_product);
+            $order
+                ->setCustomer($this->customer)
+                ->setCustomerName($data['name'])
+                ->setCustomerEmail($data['email'])
+                ->setCustomerIdentityNumber($data['identity_number'])
+                ->setCodeAreaPhoneCustomer($data['code_area'])
+                ->setPhoneCustomer($data['phone_number'])
+                ->setCustomerState($statesRepository->find($data['state_id']))
+                ->setCustomerCity($citiesRepository->find($data['city_id']))
+                ->setCustomerPostalCode($data['postal_code'])
+                ->setCustomerStreetAddress($data['street_address'])
+                ->setCustomerNumberAddress($data['number_address'])
+                ->setCustomerFloorApartment(@$data['floor_apartment'] ? $data['floor_apartment'] : null)
+                ->setPaymentType($paymentTypeRepository->find($data['payment_type_id']))
+                ->setStatus($statusOrderTypeRepository->findOneBy(["id" => Constants::STATUS_ORDER_OPEN]))
+                ->setSalePoint($userRepository->find($key))
+                ->setCreatedAt(new \DateTime());
+            $total = 0;
+            foreach ($shopping_cart_products as $shopping_cart_product) {
+                $shopping_cart_product->setStatus($statusTypeShoppingCartRepository->findOneBy(["id" => Constants::STATUS_SHOPPING_CART_EN_ORDEN]));
+                $order_product = new OrdersProducts();
+                $order_product
+                    ->setNumberOrder($order)
+                    ->setName($shopping_cart_product->getProductsSalesPoints()->getProduct()->getName())
+                    ->setName($shopping_cart_product->getProductsSalesPoints()->getProduct()->getName())
+                    ->setCod($shopping_cart_product->getProductsSalesPoints()->getProduct()->getSalePoint()->getRole()->getId() == Constants::ROLE_SUPER_ADMIN ? 'A-' . $shopping_cart_product->getProductsSalesPoints()->getProduct()->getCod() : $shopping_cart_product->getProductsSalesPoints()->getProduct()->getSalePoint()->getId() . '-' . $shopping_cart_product->getProductsSalesPoints()->getProduct()->getCod())
+                    ->setProductsSalesPoints($shopping_cart_product->getProductsSalesPoints())
+                    ->setPrice($shopping_cart_product->getProductsSalesPoints()->getLastPrice()->getPrice())
+                    ->setShoppingCart($shopping_cart_product)
+                    ->setQuantity($shopping_cart_product->getQuantity());
+                $em->persist($order_product);
+                $em->persist($shopping_cart_product);
+                $total = $total + ($shopping_cart_product->getQuantity() * $shopping_cart_product->getProductsSalesPoints()->getLastPrice()->getPrice());
+            }
+            $order->setTotalOrder($total);
+            $em->persist($order);
+            $orders[] = $order->generateOrder();
         }
-
-        $em->persist($pre_order);
         try {
             $em->flush();
             return $this->json(
                 [
-                    'status_code' => Response::HTTP_CREATED,
-                    'order_id' => $pre_order->getId(),
+                    'status' => true,
+                    'order' => $orders,
                     'message' => 'Orden creada correctamente.'
                 ],
                 Response::HTTP_CREATED,
@@ -154,8 +209,8 @@ class CustomerOrderApiController extends AbstractController
         }
     }
 
-    #[Route("/order/{order_id}", name: "api_customer_order", methods: ["GET", "POST"])]
-    public function order(
+    #[Route("/order/{order_id}", name: "api_customer_order_id", methods: ["GET", "POST"])]
+    public function orderById(
         $order_id,
         Request $request,
         StatusOrderTypeRepository $statusOrderTypeRepository,
@@ -194,7 +249,7 @@ class CustomerOrderApiController extends AbstractController
                                 "id" => $order_product->getProduct()->getId(),
                                 "name" => $order_product->getProduct()->getName(),
                                 "quantity" => $order_product->getQuantity(),
-                                "price" => $order_product->getProduct()->getPrice(),
+                                "price" => number_format((float)$order_product->getProduct()->getPrice(), 2, ',', '.'),
                                 "discount_price" => $order_product->getProduct()->getDiscountActive() ?  ($order_product->getProduct()->getPrice() - (($order_product->getProduct()->getPrice() / 100) * $order_product->getProduct()->getDiscountActive())) : 0,
                             ];
                         }
@@ -286,7 +341,7 @@ class CustomerOrderApiController extends AbstractController
                 $order = $ordersRepository->find(['id' => $order_id]);
 
                 return $this->json(
-                    $order->generateOrderToCRM(),
+                    $order->generateOrder(),
                     Response::HTTP_OK,
                     ['Content-Type' => 'application/json']
                 );
@@ -327,7 +382,7 @@ class CustomerOrderApiController extends AbstractController
                 $order = $ordersRepository->find(['id' => $id]);
 
                 return $this->json(
-                    $order->generateOrderToCRM(),
+                    $order->generateOrder(),
                     Response::HTTP_OK,
                     ['Content-Type' => 'application/json']
                 );

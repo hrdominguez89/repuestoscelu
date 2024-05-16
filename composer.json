@@ -21,6 +21,7 @@
         "intervention/image": "*",
         "jms/serializer-bundle": "^5.2",
         "knplabs/knp-paginator-bundle": "^5.7",
+        "knplabs/knp-snappy-bundle": "^1.10",
         "league/flysystem-aws-s3-v3": "*",
         "league/flysystem-bundle": "1.5.*",
         "lexik/jwt-authentication-bundle": "^2.16",

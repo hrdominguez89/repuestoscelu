@@ -38,6 +38,9 @@ class ProductsSalesPoints
     #[ORM\OneToMany(targetEntity: ShoppingCart::class, mappedBy: "productsSalesPoints")]
     private $shoppingCarts;
 
+    #[ORM\OneToMany(mappedBy: 'productsSalesPoints', targetEntity: OrdersProducts::class)]
+    private Collection $ordersProducts;
+
     public function __construct()
     {
         $this->productSalePointTags = new ArrayCollection();
@@ -45,6 +48,7 @@ class ProductsSalesPoints
         $this->productSalePointInventories = new ArrayCollection();
         $this->favoriteProducts = new ArrayCollection();
         $this->shoppingCarts = new ArrayCollection();
+        $this->ordersProducts = new ArrayCollection();
     }
 
     /**
@@ -249,5 +253,35 @@ class ProductsSalesPoints
     public function getLastInventory(): ?ProductSalePointInventory
     {
         return $this->productSalePointInventories->last() ? $this->productSalePointInventories->last() : NULL;
+    }
+
+    /**
+     * @return Collection<int, OrdersProducts>
+     */
+    public function getOrdersProducts(): Collection
+    {
+        return $this->ordersProducts;
+    }
+
+    public function addOrdersProduct(OrdersProducts $ordersProduct): static
+    {
+        if (!$this->ordersProducts->contains($ordersProduct)) {
+            $this->ordersProducts->add($ordersProduct);
+            $ordersProduct->setProductsSalesPoints($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOrdersProduct(OrdersProducts $ordersProduct): static
+    {
+        if ($this->ordersProducts->removeElement($ordersProduct)) {
+            // set the owning side to null (unless already changed)
+            if ($ordersProduct->getProductsSalesPoints() === $this) {
+                $ordersProduct->setProductsSalesPoints(null);
+            }
+        }
+
+        return $this;
     }
 }

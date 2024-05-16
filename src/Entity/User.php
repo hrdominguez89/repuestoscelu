@@ -61,6 +61,9 @@ class User extends BaseUser
     #[ORM\OneToMany(mappedBy: 'sale_point', targetEntity: Dispatch::class)]
     private Collection $dispatches;
 
+    #[ORM\OneToMany(mappedBy: 'sale_point', targetEntity: Orders::class)]
+    private Collection $orders;
+
     public function __construct()
     {
         parent::__construct();
@@ -72,6 +75,7 @@ class User extends BaseUser
         $this->products = new ArrayCollection();
         $this->productsSalesPoints = new ArrayCollection();
         $this->dispatches = new ArrayCollection();
+        $this->orders = new ArrayCollection();
     }
 
     public function getRoles(): array
@@ -302,6 +306,36 @@ class User extends BaseUser
             // set the owning side to null (unless already changed)
             if ($dispatch->getSalePoint() === $this) {
                 $dispatch->setSalePoint(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Orders>
+     */
+    public function getOrders(): Collection
+    {
+        return $this->orders;
+    }
+
+    public function addOrder(Orders $order): static
+    {
+        if (!$this->orders->contains($order)) {
+            $this->orders->add($order);
+            $order->setSalePoint($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOrder(Orders $order): static
+    {
+        if ($this->orders->removeElement($order)) {
+            // set the owning side to null (unless already changed)
+            if ($order->getSalePoint() === $this) {
+                $order->setSalePoint(null);
             }
         }
 

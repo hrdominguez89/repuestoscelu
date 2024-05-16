@@ -56,21 +56,4 @@ class CustomerRepository extends ServiceEntityRepository
     // /**
     //  * @return Customers[] Returns an array of customers objects
     //  */
-
-    public function findCustomersToSendToCrm(array $statuses, array $orders = null, int $limit = null): array
-    {
-        $customers = $this->createQueryBuilder('c')
-            ->where('c.status_sent_crm IN (:statuses)')
-            ->setParameter('statuses', $statuses);
-        if ($orders) {
-            foreach ($orders as $orderKey => $orderValue) {
-                $customers->orderBy('c.' . $orderKey, $orderValue);
-            }
-        }
-        if ($limit) {
-            $customers->setMaxResults($limit);
-        }
-        return $customers->getQuery()
-            ->getResult();
-    }
 }

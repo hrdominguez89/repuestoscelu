@@ -61,24 +61,6 @@ class BrandRepository extends ServiceEntityRepository
         )->setParameters(['brandId' => $brandId])->getResult();
     }
 
-    public function findBrandsToSendTo3pl(array $statuses, array $orders = null, int $limit = null): array
-    {
-        $brands = $this->createQueryBuilder('b')
-            ->where('b.status_sent_3pl IN (:statuses)')
-            ->setParameter('statuses', $statuses);
-        if ($orders) {
-            foreach ($orders as $orderKey => $orderValue) {
-                $brands->orderBy('b.' . $orderKey, $orderValue);
-            }
-        }
-        if ($limit) {
-            $brands->setMaxResults($limit);
-        }
-        return $brands->getQuery()
-            ->getResult();
-    }
-
-
     public function getPrincipalBrands(){
         return  $this->createQueryBuilder('b')
             ->select('b.id,b.name')

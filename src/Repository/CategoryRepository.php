@@ -101,21 +101,6 @@ class CategoryRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function findCategoriesToSendTo3pl(array $statuses, array $orders = null, int $limit = null): array
-    {
-        $categories = $this->createQueryBuilder('c');
-        if ($orders) {
-            foreach ($orders as $orderKey => $orderValue) {
-                $categories->orderBy('c.' . $orderKey, $orderValue);
-            }
-        }
-        if ($limit) {
-            $categories->setMaxResults($limit);
-        }
-        return $categories->getQuery()
-            ->getResult();
-    }
-
     public function getVisibleCategories()
     {
         return  $this->createQueryBuilder('c')

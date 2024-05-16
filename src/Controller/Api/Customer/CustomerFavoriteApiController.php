@@ -39,11 +39,11 @@ class CustomerFavoriteApiController extends AbstractController
     #[Route("/list", name: "api_favorite_list", methods: ["GET"])]
     public function favoriteList(FavoriteProductRepository $favoriteProductRepository): Response
     {
-
+        
         $favorite_products = $favoriteProductRepository->findAllFavoriteProductsByStatus($this->customer->getId(), Constants::STATUS_FAVORITE_ACTIVO);
-
-
-
+        
+        
+        
         if (!$favorite_products) { //retorno si el producto ya fue activado como favorito..
             return $this->json(
                 [
@@ -51,7 +51,7 @@ class CustomerFavoriteApiController extends AbstractController
                     "favorite_list" => [],
                     'message' => 'No tiene productos en su lista de favoritos.'
                 ],
-                Response::HTTP_NO_CONTENT,
+                Response::HTTP_ACCEPTED,
                 ['Content-Type' => 'application/json']
             );
         }
@@ -219,7 +219,7 @@ class CustomerFavoriteApiController extends AbstractController
                     'favorite_list' => [],
                     'message' => 'No tiene productos en su lista de favoritos.'
                 ],
-                Response::HTTP_NO_CONTENT,
+                Response::HTTP_ACCEPTED,
                 ['Content-Type' => 'application/json']
             );
         }

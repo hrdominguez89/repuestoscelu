@@ -20,17 +20,8 @@ class OrdersProducts
     #[ORM\Column(type: "string", length: 255)]
     private $name;
 
-    #[ORM\Column(type: "string", length: 40)]
-    private $sku;
-
-    #[ORM\Column(type: "string", length: 255, nullable: true)]
-    private $part_number;
-
     #[ORM\Column(type: "string", length: 255, nullable: true)]
     private $cod;
-
-    #[ORM\Column(type: "string", length: 255)]
-    private $weight;
 
     #[ORM\Column(type: "float", nullable: true)]
     private $price;
@@ -38,12 +29,13 @@ class OrdersProducts
     #[ORM\Column(type: "integer")]
     private $quantity;
 
-    #[ORM\Column(type: "float", nullable: true)]
-    private $discount;
-
     #[ORM\OneToOne(targetEntity: ShoppingCart::class, inversedBy: "ordersProducts", cascade: ["persist", "remove"])]
     #[ORM\JoinColumn(nullable: true)]
     private $shopping_cart;
+
+    #[ORM\ManyToOne(inversedBy: 'ordersProducts')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?ProductsSalesPoints $productsSalesPoints = null;
 
     public function getId(): ?int
     {
@@ -74,30 +66,6 @@ class OrdersProducts
         return $this;
     }
 
-    public function getSku(): ?string
-    {
-        return $this->sku;
-    }
-
-    public function setSku(string $sku): self
-    {
-        $this->sku = $sku;
-
-        return $this;
-    }
-
-    public function getPartNumber(): ?string
-    {
-        return $this->part_number;
-    }
-
-    public function setPartNumber(?string $part_number): self
-    {
-        $this->part_number = $part_number;
-
-        return $this;
-    }
-
     public function getCod(): ?string
     {
         return $this->cod;
@@ -106,18 +74,6 @@ class OrdersProducts
     public function setCod(?string $cod): self
     {
         $this->cod = $cod;
-
-        return $this;
-    }
-
-    public function getWeight(): ?string
-    {
-        return $this->weight;
-    }
-
-    public function setWeight(string $weight): self
-    {
-        $this->weight = $weight;
 
         return $this;
     }
@@ -146,18 +102,6 @@ class OrdersProducts
         return $this;
     }
 
-    public function getDiscount(): ?float
-    {
-        return $this->discount;
-    }
-
-    public function setDiscount(float $discount): self
-    {
-        $this->discount = $discount;
-
-        return $this;
-    }
-
     public function getShoppingCart(): ?ShoppingCart
     {
         return $this->shopping_cart;
@@ -166,6 +110,18 @@ class OrdersProducts
     public function setShoppingCart(ShoppingCart $shopping_cart): self
     {
         $this->shopping_cart = $shopping_cart;
+
+        return $this;
+    }
+
+    public function getProductsSalesPoints(): ?ProductsSalesPoints
+    {
+        return $this->productsSalesPoints;
+    }
+
+    public function setProductsSalesPoints(?ProductsSalesPoints $productsSalesPoints): static
+    {
+        $this->productsSalesPoints = $productsSalesPoints;
 
         return $this;
     }
