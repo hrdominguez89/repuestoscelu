@@ -259,6 +259,16 @@ class CustomerOrderApiController extends AbstractController
 
         switch ($request->getMethod()) {
             case 'GET':
+                if (!$order->getBillFile()) {
+                    $html = $this->renderView('bill/bill.html.twig', [
+                        'titulo' => 'esto es una factura proforma'
+                    ]);
+
+                    $s3Path = $fileUploader->uploadPdf($html, 'proforma', 'proforma');
+                    $order->setBillFile($_ENV['AWS_S3_URL'] . $s3Path);
+                    $em->persist($order);
+                    $em->flush();
+                }
                 return $this->json(
                     [
                         'status' => true,
@@ -330,7 +340,9 @@ class CustomerOrderApiController extends AbstractController
 
     #[Route("/orders", name: "api_customer_orders", methods: ["GET"])]
     public function orders(
-        OrdersRepository $ordersRepository
+        FileUploader $fileUploader,
+        OrdersRepository $ordersRepository,
+        EntityManagerInterface $em
     ): Response {
 
         $orders = $ordersRepository->findOrdersByCustomerId($this->customer->getId());
@@ -338,8 +350,18 @@ class CustomerOrderApiController extends AbstractController
         $ordersData = [];
         if ($orders) {
             foreach ($orders as $order) {
+                if (!$order->getBillFile()) {
+                    $html = $this->renderView('bill/bill.html.twig', [
+                        'titulo' => 'esto es una factura proforma'
+                    ]);
+
+                    $s3Path = $fileUploader->uploadPdf($html, 'proforma', 'proforma');
+                    $order->setBillFile($_ENV['AWS_S3_URL'] . $s3Path);
+                    $em->persist($order);
+                }
                 $ordersData[] = $order->generateOrder();
             }
+            $em->flush();
         }
 
         return $this->json(

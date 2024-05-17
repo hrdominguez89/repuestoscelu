@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\PaymentsFilesRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PaymentsFilesRepository::class)]
@@ -22,6 +23,12 @@ class PaymentsFiles
 
     #[ORM\Column(type: "datetime", nullable: false)]
     private $created_at;
+
+    #[ORM\Column(options: ["default" => 0])]
+    private ?float $amount = null;
+
+    #[ORM\Column(type: Types::DATE_MUTABLE)]
+    private ?\DateTimeInterface $date_paid = null;
 
     public function __construct()
     {
@@ -65,6 +72,30 @@ class PaymentsFiles
     public function setCreatedAt(\DateTimeInterface $created_at): self
     {
         $this->created_at = $created_at;
+
+        return $this;
+    }
+
+    public function getAmount(): ?float
+    {
+        return $this->amount;
+    }
+
+    public function setAmount(float $amount): static
+    {
+        $this->amount = $amount;
+
+        return $this;
+    }
+
+    public function getDatePaid(): ?\DateTimeInterface
+    {
+        return $this->date_paid;
+    }
+
+    public function setDatePaid(\DateTimeInterface $date_paid): static
+    {
+        $this->date_paid = $date_paid;
 
         return $this;
     }
