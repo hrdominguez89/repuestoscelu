@@ -5,6 +5,7 @@ namespace App\Controller\Api\Customer;
 use App\Constants\Constants;
 use App\Entity\Orders;
 use App\Entity\OrdersProducts;
+use App\Entity\PaymentsFiles;
 use App\Entity\ProductSalePointInventory;
 use App\Entity\ShoppingCart;
 use App\Repository\CitiesRepository;
@@ -186,16 +187,16 @@ class CustomerOrderApiController extends AbstractController
                 $order->addOrdersProduct($order_product);
                 $em->persist($shopping_cart_product);
 
-                // $inventory =  new ProductSalePointInventory();
+                $inventory =  new ProductSalePointInventory();
 
-                // $inventory
-                //     ->setProductSalePoint($shopping_cart_product->getProductsSalesPoints())
-                //     ->setOnHand($shopping_cart_product->getProductsSalesPoints()->getLastInventory()->getOnHand())
-                //     ->setAvailable($shopping_cart_product->getProductsSalesPoints()->getLastInventory()->getAvailable() - $shopping_cart_product->getQuantity())
-                //     ->setCommitted($shopping_cart_product->getProductsSalesPoints()->getLastInventory()->getCommitted() + $shopping_cart_product->getQuantity())
-                //     ->setSold($shopping_cart_product->getProductsSalesPoints()->getLastInventory()->getSold());
+                $inventory
+                    ->setProductSalePoint($shopping_cart_product->getProductsSalesPoints())
+                    ->setOnHand($shopping_cart_product->getProductsSalesPoints()->getLastInventory()->getOnHand())
+                    ->setAvailable($shopping_cart_product->getProductsSalesPoints()->getLastInventory()->getAvailable() - $shopping_cart_product->getQuantity())
+                    ->setCommitted($shopping_cart_product->getProductsSalesPoints()->getLastInventory()->getCommitted() + $shopping_cart_product->getQuantity())
+                    ->setSold($shopping_cart_product->getProductsSalesPoints()->getLastInventory()->getSold());
 
-                // $em->persist($inventory);
+                $em->persist($inventory);
 
                 $total = $total + ($shopping_cart_product->getQuantity() * $shopping_cart_product->getProductsSalesPoints()->getLastPrice()->getPrice());
             }
@@ -239,6 +240,8 @@ class CustomerOrderApiController extends AbstractController
     #[Route("/order/{order_id}", name: "api_customer_order_id", methods: ["GET", 'PATCH'])]
     public function orderById(
         $order_id,
+        EntityManagerInterface $em,
+        FileUploader $fileUploader,
         OrdersRepository $ordersRepository,
         Request $request
     ): Response {
@@ -269,13 +272,55 @@ class CustomerOrderApiController extends AbstractController
                 $body = $request->getContent();
                 $data = json_decode($body, true);
 
-                //actualizar imagen...
+                if (!isset($data['paymentFile'])) {
+                    return $this->json(
+                        [
+                            'status' => false,
+                            'message' => 'No se proporcionó el archivo de pago'
+                        ],
+                        Response::HTTP_BAD_REQUEST,
+                        ['Content-Type' => 'application/json']
+                    );
+                }
 
+                $fileContent = base64_decode($data['paymentFile']);
+
+                if ($fileContent === false) {
+                    return $this->json(
+                        [
+                            'status' => false,
+                            'message' => 'El archivo de pago proporcionado no es válido'
+                        ],
+                        Response::HTTP_BAD_REQUEST,
+                        ['Content-Type' => 'application/json']
+                    );
+                }
+                // Subir la imagen al bucket de S3
+                try {
+                    $path = $fileUploader->uploadBase64File($fileContent, 'payment_file', 'payments_files');
+
+                    $paymentFile =  new PaymentsFiles();
+                    $paymentFile->setPaymentFile($_ENV['AWS_S3_URL'] . $path)
+                        ->setOrderNumber($order);
+                    $em->persist($paymentFile);
+                    $order->addPaymentsFile($paymentFile);
+                    $em->flush();
+                } catch (\Exception $e) {
+                    return $this->json(
+                        [
+                            'status' => false,
+                            'message' => 'No se pudo guardar el archivo en S3'
+                        ],
+                        Response::HTTP_INTERNAL_SERVER_ERROR,
+                        ['Content-Type' => 'application/json']
+                    );
+                }
 
                 return $this->json(
                     [
                         'status' => true,
-                        'order' => $order->generateOrder()
+                        'order' => $order->generateOrder(),
+                        'message' => 'Archivo de pago subido correctamente'
                     ],
                     Response::HTTP_ACCEPTED,
                     ['Content-Type' => 'application/json']

@@ -334,7 +334,9 @@ class Orders
 
         foreach ($payments_files_array as $paymentFile) {
             $payments_files_result[] = [
+                "id" => $paymentFile->getId(),
                 "payment_file" => $paymentFile->getPaymentFile(),
+                "created_at" => $paymentFile->getCreatedAt(),
             ];
         }
 
@@ -349,6 +351,7 @@ class Orders
                 "email" => $this->getCustomerEmail(),
                 "identity_number" => $this->getCustomerIdentityNumber(),
                 "code_area" => $this->getCodeAreaPhoneCustomer(),
+                "phone"=> $this->getPhoneCustomer(),
                 "state_id" => $this->getCustomerState()->getId(),
                 "state_name" => $this->getCustomerState()->getName(),
                 "city_id" => $this->getCustomerCity()->getId(),

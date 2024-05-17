@@ -88,4 +88,56 @@ class FileUploader
 
         return $path;
     }
+
+
+
+    public function uploadBase64Image(string $fileContent, string $fileName, string $directory): string
+    {
+        $newFilename = $fileName . '-' . uniqid() . '.png'; // Asigna una extensión apropiada
+
+        // Ruta en el bucket de S3
+        $path = '/' . $this->enviro . $directory . '/' . $newFilename;
+
+        // Subir el archivo al bucket de S3
+        $result = $this->filesystem->write($path, $fileContent, ['ACL' => 'public-read']);
+        if ($result === false) {
+            throw new FileException(
+                sprintf('Could not write uploaded file %s', $newFilename)
+            );
+        }
+
+        return $path;
+    }
+
+
+    public function uploadBase64File(string $fileContent, string $fileName, string $directory): string
+    {
+
+        // Obtener la extensión del archivo a partir del tipo MIME
+        $extension = (explode('/', finfo_buffer(finfo_open(), $fileContent, FILEINFO_MIME_TYPE))[1]);
+
+        if ($extension === null) {
+            throw new \InvalidArgumentException('Invalid base64 encoded file content');
+        }
+        if ($extension == 'png' || $extension == 'jpeg' || $extension == 'pdf' || $extension == 'jpg') {
+
+
+            $newFilename = $fileName . '-' . uniqid() . '.' . $extension;
+
+            // Ruta en el bucket de S3
+            $path = '/' . $this->enviro . $directory . '/' . $newFilename;
+
+            // Subir el archivo al bucket de S3
+            $result = $this->filesystem->write($path, $fileContent, ['ACL' => 'public-read']);
+            if ($result === false) {
+                throw new FileException(
+                    sprintf('Could not write uploaded file %s', $newFilename)
+                );
+            }
+        } else {
+            throw new \InvalidArgumentException('Invalid base64 encoded file content');
+        }
+
+        return $path;
+    }
 }
