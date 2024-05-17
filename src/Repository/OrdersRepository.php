@@ -58,4 +58,13 @@ class OrdersRepository extends ServiceEntityRepository
             ->getOneOrNullResult();
     }
 
+    public function findOrdersByCustomerId($customer_id)
+    {
+        return $this->createQueryBuilder('o')
+            ->where('o.customer =:customer_id')
+            ->setParameter('customer_id', $customer_id)
+            ->orderBy('o.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }

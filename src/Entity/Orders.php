@@ -64,7 +64,7 @@ class Orders
     #[ORM\JoinColumn(nullable: false)]
     private $status;
 
-    #[ORM\OneToMany(targetEntity: OrdersProducts::class, mappedBy: "number_order", cascade: ["remove"])]
+    #[ORM\OneToMany(targetEntity: OrdersProducts::class, mappedBy: "order_number", cascade: ["remove"])]
     private $ordersProducts;
 
     #[ORM\Column(type: "datetime", nullable: false)]
@@ -285,7 +285,7 @@ class Orders
     {
         if (!$this->ordersProducts->contains($ordersProduct)) {
             $this->ordersProducts[] = $ordersProduct;
-            $ordersProduct->setNumberOrder($this);
+            $ordersProduct->setOrderNumber($this);
         }
 
         return $this;
@@ -295,8 +295,8 @@ class Orders
     {
         if ($this->ordersProducts->removeElement($ordersProduct)) {
             // set the owning side to null (unless already changed)
-            if ($ordersProduct->getNumberOrder() === $this) {
-                $ordersProduct->setNumberOrder(null);
+            if ($ordersProduct->getOrderNumber() === $this) {
+                $ordersProduct->setOrderNumber(null);
             }
         }
 
@@ -319,12 +319,11 @@ class Orders
     {
         $orders_products_array = $this->ordersProducts;
         $orders_products_result = [];
-
         foreach ($orders_products_array as $order_product) {
             $orders_products_result[] = [
                 'product_name' => $order_product->getName(),
                 'quantity' => $order_product->getQuantity(),
-                'code' => $order_product->getCode(),
+                'code' => $order_product->getCod(),
                 'price' => $order_product->getPrice(),
             ];
         }

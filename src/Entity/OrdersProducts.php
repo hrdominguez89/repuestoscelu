@@ -15,7 +15,7 @@ class OrdersProducts
 
     #[ORM\ManyToOne(targetEntity: Orders::class, inversedBy: "ordersProducts")]
     #[ORM\JoinColumn(nullable: false)]
-    private $number_order;
+    private $order_number;
 
     #[ORM\Column(type: "string", length: 255)]
     private $name;
@@ -42,14 +42,14 @@ class OrdersProducts
         return $this->id;
     }
 
-    public function getNumberOrder(): ?Orders
+    public function getOrderNumber(): ?Orders
     {
-        return $this->number_order;
+        return $this->order_number;
     }
 
-    public function setNumberOrder(?Orders $number_order): self
+    public function setOrderNumber(?Orders $order_number): self
     {
-        $this->number_order = $number_order;
+        $this->order_number = $order_number;
 
         return $this;
     }

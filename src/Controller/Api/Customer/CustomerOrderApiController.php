@@ -5,6 +5,7 @@ namespace App\Controller\Api\Customer;
 use App\Constants\Constants;
 use App\Entity\Orders;
 use App\Entity\OrdersProducts;
+use App\Entity\ProductSalePointInventory;
 use App\Entity\ShoppingCart;
 use App\Repository\CitiesRepository;
 use App\Repository\CustomerRepository;
@@ -17,9 +18,11 @@ use App\Repository\StatesRepository;
 use App\Repository\StatusOrderTypeRepository;
 use App\Repository\StatusTypeShoppingCartRepository;
 use App\Repository\UserRepository;
+use App\Service\FileUploader;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use Knp\Snappy\Pdf;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -55,12 +58,14 @@ class CustomerOrderApiController extends AbstractController
         StatusTypeShoppingCartRepository $statusTypeShoppingCartRepository,
         EntityManagerInterface $em,
         UserRepository $userRepository,
-        ProductsSalesPointsRepository $productSalesPointsRepository
+        ProductsSalesPointsRepository $productSalesPointsRepository,
+        FileUploader $fileUploader
     ): Response {
 
         $body = $request->getContent();
         $data = json_decode($body, true);
 
+        $orders = [];
         // Crear arrays para almacenar los errores
         $errors = [];
 
@@ -144,7 +149,6 @@ class CustomerOrderApiController extends AbstractController
             return $this->json($response, Response::HTTP_CONFLICT, ['Content-Type' => 'application/json']);
         }
 
-        $orders = [];
         foreach ($salesPoints as $key => $shopping_cart_products) {
             $order = new Orders();
 
@@ -170,7 +174,7 @@ class CustomerOrderApiController extends AbstractController
                 $shopping_cart_product->setStatus($statusTypeShoppingCartRepository->findOneBy(["id" => Constants::STATUS_SHOPPING_CART_EN_ORDEN]));
                 $order_product = new OrdersProducts();
                 $order_product
-                    ->setNumberOrder($order)
+                    ->setOrderNumber($order)
                     ->setName($shopping_cart_product->getProductsSalesPoints()->getProduct()->getName())
                     ->setName($shopping_cart_product->getProductsSalesPoints()->getProduct()->getName())
                     ->setCod($shopping_cart_product->getProductsSalesPoints()->getProduct()->getSalePoint()->getRole()->getId() == Constants::ROLE_SUPER_ADMIN ? 'A-' . $shopping_cart_product->getProductsSalesPoints()->getProduct()->getCod() : $shopping_cart_product->getProductsSalesPoints()->getProduct()->getSalePoint()->getId() . '-' . $shopping_cart_product->getProductsSalesPoints()->getProduct()->getCod())
@@ -179,13 +183,36 @@ class CustomerOrderApiController extends AbstractController
                     ->setShoppingCart($shopping_cart_product)
                     ->setQuantity($shopping_cart_product->getQuantity());
                 $em->persist($order_product);
+                $order->addOrdersProduct($order_product);
                 $em->persist($shopping_cart_product);
+
+                // $inventory =  new ProductSalePointInventory();
+
+                // $inventory
+                //     ->setProductSalePoint($shopping_cart_product->getProductsSalesPoints())
+                //     ->setOnHand($shopping_cart_product->getProductsSalesPoints()->getLastInventory()->getOnHand())
+                //     ->setAvailable($shopping_cart_product->getProductsSalesPoints()->getLastInventory()->getAvailable() - $shopping_cart_product->getQuantity())
+                //     ->setCommitted($shopping_cart_product->getProductsSalesPoints()->getLastInventory()->getCommitted() + $shopping_cart_product->getQuantity())
+                //     ->setSold($shopping_cart_product->getProductsSalesPoints()->getLastInventory()->getSold());
+
+                // $em->persist($inventory);
+
                 $total = $total + ($shopping_cart_product->getQuantity() * $shopping_cart_product->getProductsSalesPoints()->getLastPrice()->getPrice());
             }
             $order->setTotalOrder($total);
+
+
+
             $em->persist($order);
+            $html = $this->renderView('bill/bill.html.twig', [
+                'titulo' => 'esto es una factura proforma'
+            ]);
+
+            $s3Path = $fileUploader->uploadPdf($html, 'proforma', 'proforma');
+            $order->setBillFile($_ENV['AWS_S3_URL'] . $s3Path);
             $orders[] = $order->generateOrder();
         }
+
         try {
             $em->flush();
             return $this->json(
@@ -209,200 +236,74 @@ class CustomerOrderApiController extends AbstractController
         }
     }
 
-    #[Route("/order/{order_id}", name: "api_customer_order_id", methods: ["GET", "POST"])]
+    #[Route("/order/{order_id}", name: "api_customer_order_id", methods: ["GET", 'PATCH'])]
     public function orderById(
         $order_id,
-        Request $request,
-        StatusOrderTypeRepository $statusOrderTypeRepository,
-        ShoppingCartRepository $shoppingCartRepository,
-        StatusTypeShoppingCartRepository $statusTypeShoppingCartRepository,
-        EntityManagerInterface $em,
-        OrdersRepository $ordersRepository
-        // CustomerAd
+        OrdersRepository $ordersRepository,
+        Request $request
     ): Response {
+        $order = $ordersRepository->findOrderByCustomerId($this->customer->getId(), $order_id);
+        if (!$order) {
+            return $this->json(
+                [
+                    'status' => false,
+                    'message' => 'No se encontro la orden indicada'
+                ],
+                Response::HTTP_NOT_FOUND,
+                ['Content-Type' => 'application/json']
+            );
+        }
 
         switch ($request->getMethod()) {
             case 'GET':
-                $order = $ordersRepository->findOrderByCustomerId($this->customer->getId(), $order_id);
-                $items = [];
-                $bill_data = [
-                    "bill_data" => [
-                        "identity_type" => "DNI",
-                        "identity_number" => "34987273",
-                        "country_id" => 11,
-                        "country_name" => "Argentina",
-                        "state_id" => 4545,
-                        "state_name" => "Buenos Aires",
-                        "city_id" => 42022,
-                        "city_name" => "Ciudad Autonoma de Buenos Aires",
-                        "code_zip" => "abc123",
-                        "additional_info" => "informacion adicional",
-                        "address" => "Calle 123 4to A"
-                    ]
-                ];
-
-
-                switch ($order->getStatus()->getId()) {
-                    case Constants::STATUS_ORDER_PENDING:
-                        foreach ($order->getOrdersProducts() as $order_product) {
-                            $items[] = [
-                                "id" => $order_product->getProduct()->getId(),
-                                "name" => $order_product->getProduct()->getName(),
-                                "quantity" => $order_product->getQuantity(),
-                                "price" => number_format((float)$order_product->getProduct()->getPrice(), 2, ',', '.'),
-                                "discount_price" => $order_product->getProduct()->getDiscountActive() ?  ($order_product->getProduct()->getPrice() - (($order_product->getProduct()->getPrice() / 100) * $order_product->getProduct()->getDiscountActive())) : 0,
-                            ];
-                        }
-                        $order = [
-                            'items' => $items
-                        ];
-                        break;
-                    default:
-                        dd('default case');
-                        break;
-                }
-
-
                 return $this->json(
-                    $order,
-                    Response::HTTP_OK,
-                    ['Content-Type' => 'application/json']
-                );
-                /*
-                {
-                    "items": [
-                        {
-                            "id": 10,
-                            "name": "Prueba producto 1",
-                            "quantity": 5,
-                            "price": 10,
-                            "old_price":
-                        },
-                        {
-                            "id": 11,
-                            "name": "Prueba producto 2",
-                            "quantity": 4,
-                            "price": 20,
-                            "old_price":
-                        },
-                        {
-                            "id": 13,
-                            "name": "Prueba producto 3",
-                            "quantity": 1,
-                            "price": 300,
-                            "old_price":
-                        }
+                    [
+                        'status' => true,
+                        'order' => $order->generateOrder()
                     ],
-                    "bill_data": {
-                        "identity_type": "DNI",
-                        "identity_number": "34987273",
-                        "country_id": 11,
-                        "country_name": "Argentina",
-                        "state_id": 4545,
-                        "state_name": "Buenos Aires",
-                        "city_id": 42022,
-                        "city_name": "Ciudad Autonoma de Buenos Aires",
-                        "code_zip" : "abc123",
-                        "additional_info": "informacion adicional",
-                        "address": "Calle 123 4to A"
-                    },
-                    "recipients": [
-                        {
-                            "recipient_id": 1,
-                            "country_name": "Argentina",
-                            "state_name": "Córdoba",
-                            "city_name": "Cosquin",
-                            "recipient_name": "Destinatario prueba 1",
-                            "address": "Direccion destinatario 1 23233",
-                            "recipient_phone": "1163549766"
-                        },
-                        {
-                            "recipient_id": 2,
-                            "country_name": "Argentina",
-                            "state_name": "Córdoba",
-                            "city_name": "La falda",
-                            "recipient_name": "Destinatario prueba 2",
-                            "address": "Direccion destinatario 2 23233",
-                            "recipient_phone": "1163549766"
-                        },
-                        {
-                            "recipient_id": 3,
-                            "country_name": "Argentina",
-                            "state_name": "Córdoba",
-                            "city_name": "Córdoba Capital",
-                            "recipient_name": "Destinatario prueba 3",
-                            "address": "Direccion destinatario 3 23233",
-                            "recipient_phone": "1163549766"
-                        }
-                    ]
-                }
-                */
-
-                $order = $ordersRepository->find(['id' => $order_id]);
-
-                return $this->json(
-                    $order->generateOrder(),
-                    Response::HTTP_OK,
+                    Response::HTTP_ACCEPTED,
                     ['Content-Type' => 'application/json']
                 );
             case 'PATCH':
 
                 $body = $request->getContent();
                 $data = json_decode($body, true);
-        }
+
+                //actualizar imagen...
 
 
-        $shopping_cart_products = $shoppingCartRepository->findAllShoppingCartProductsByStatus($this->customer->getId(), 1);
-        if (!$shopping_cart_products) {
-            return $this->json(
-                [
-                    "shop_cart_list" => [],
-                    'message' => 'No tiene productos en su lista de carrito.'
-                ],
-                Response::HTTP_ACCEPTED,
-                ['Content-Type' => 'application/json']
-            );
+                return $this->json(
+                    [
+                        'status' => true,
+                        'order' => $order->generateOrder()
+                    ],
+                    Response::HTTP_ACCEPTED,
+                    ['Content-Type' => 'application/json']
+                );
         }
     }
 
     #[Route("/orders", name: "api_customer_orders", methods: ["GET"])]
     public function orders(
-        $id,
-        Request $request,
-        StatusOrderTypeRepository $statusOrderTypeRepository,
-        ShoppingCartRepository $shoppingCartRepository,
-        StatusTypeShoppingCartRepository $statusTypeShoppingCartRepository,
-        EntityManagerInterface $em,
         OrdersRepository $ordersRepository
     ): Response {
 
-        switch ($request->getMethod()) {
-            case 'GET':
+        $orders = $ordersRepository->findOrdersByCustomerId($this->customer->getId());
 
-                $order = $ordersRepository->find(['id' => $id]);
-
-                return $this->json(
-                    $order->generateOrder(),
-                    Response::HTTP_OK,
-                    ['Content-Type' => 'application/json']
-                );
-            case 'PATCH':
-
-                $body = $request->getContent();
-                $data = json_decode($body, true);
+        $ordersData = [];
+        if ($orders) {
+            foreach ($orders as $order) {
+                $ordersData[] = $order->generateOrder();
+            }
         }
 
-
-        $shopping_cart_products = $shoppingCartRepository->findAllShoppingCartProductsByStatus($this->customer->getId(), 1);
-        if (!$shopping_cart_products) {
-            return $this->json(
-                [
-                    "shop_cart_list" => [],
-                    'message' => 'No tiene productos en su lista de carrito.'
-                ],
-                Response::HTTP_ACCEPTED,
-                ['Content-Type' => 'application/json']
-            );
-        }
+        return $this->json(
+            [
+                'status' => true,
+                'orders' => $ordersData
+            ],
+            Response::HTTP_OK,
+            ['Content-Type' => 'application/json']
+        );
     }
 }
