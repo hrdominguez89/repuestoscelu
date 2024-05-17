@@ -293,7 +293,7 @@ class CustomerOrderApiController extends AbstractController
                     );
                 }
 
-                $fileContent = base64_decode($data['payment_file']);
+                $fileContent = base64_decode(explode('base64', $data['payment_file'])[1]);
 
                 if ($fileContent === false) {
                     return $this->json(
