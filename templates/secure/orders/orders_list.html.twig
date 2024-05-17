@@ -42,7 +42,7 @@
 						<tr>
 							<th class="text-center" data-orderable="false" style="width:1px"></th>
 							<th class="text-center" style="width:1px">Orden Nro</th>
-							<th data-orderable="false">Factura proforma</th>
+							<th data-orderable="false">Orden de venta</th>
 							{% if is_granted('ROLE_SUPER_ADMIN') %}
 								<th>Punto de venta</th>
 							{% endif %}
@@ -82,7 +82,7 @@
 									{{ order.customerFloorApartment }}
 									(C.P
 									{{ order.customerPostalCode }}),
-									{{order.customerState? order.customerState.name:''}}
+									{{order.customerState? order.customerState.name:''}}, 
 									{{order.customerCity? order.customerCity.name:''}}
 								</td>
 								<td>{{ order.paymentType.name }}</td>

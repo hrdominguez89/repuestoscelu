@@ -355,6 +355,7 @@ class Orders
                 "state_id" => $this->getCustomerState()->getId(),
                 "state_name" => $this->getCustomerState()->getName(),
                 "city_id" => $this->getCustomerCity()->getId(),
+                "city_name" => $this->getCustomerCity()->getName(),
                 "postal_code" => $this->getCustomerPostalCode(),
                 "street_address" => $this->getCustomerStreetAddress(),
                 "number_address" => $this->getCustomerNumberAddress(),

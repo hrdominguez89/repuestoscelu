@@ -282,7 +282,7 @@ class CustomerOrderApiController extends AbstractController
                 $body = $request->getContent();
                 $data = json_decode($body, true);
 
-                if (!isset($data['paymentFile'])) {
+                if (!isset($data['payment_file'])) {
                     return $this->json(
                         [
                             'status' => false,
@@ -293,7 +293,7 @@ class CustomerOrderApiController extends AbstractController
                     );
                 }
 
-                $fileContent = base64_decode($data['paymentFile']);
+                $fileContent = base64_decode($data['payment_file']);
 
                 if ($fileContent === false) {
                     return $this->json(
