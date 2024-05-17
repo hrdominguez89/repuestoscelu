@@ -312,7 +312,7 @@ class CustomerOrderApiController extends AbstractController
                     $paymentFile =  new PaymentsFiles();
                     $paymentFile->setPaymentFile($_ENV['AWS_S3_URL'] . $path)
                         ->setAmount((float)$data['amount'])
-                        ->setDatePaid($data['date_paid'])
+                        ->setDatePaid(new \DateTime($data['date_paid']))
                         ->setOrderNumber($order);
                     $em->persist($paymentFile);
                     $order->addPaymentsFile($paymentFile);
