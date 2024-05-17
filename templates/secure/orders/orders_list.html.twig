@@ -21,17 +21,13 @@
 		</div>
 		<div class="col-xs-12">
 			<a href="?status=1" class="btn btn-sm m-2 {{ status == 1 ? 'btn-outline-success':'btn-success' }}">
-				{% if is_granted('ROLE_SUPER_ADMIN') %}
-					En transito
-				{% else %}
-					En camino
-				{% endif %}
+				Abierta
 			</a>
 			<a href="?status=2" class="btn btn-sm m-2 {{ status == 2 ? 'btn-outline-success':'btn-success' }}">
-				Recibidos
+				Confirmadas
 			</a>
 			<a href="?status=3" class="btn btn-sm m-2 {{ status == 3 ? 'btn-outline-success':'btn-success' }}">
-				Cancelados
+				Canceladas
 			</a>
 			<a href="?status=all" class="btn btn-sm m-2 {{ status == 'all' ? 'btn-outline-success':'btn-success' }}">
 				Todos
@@ -41,27 +37,55 @@
 	<div class="row mt-5">
 		<div class="col-12">
 			<div class="table-responsive">
-				<table id="table_full_buttons" class="table table-striped table-sm nowrap" data-order="[[2, &quot;asc&quot;]]">
+				<table id="table_full_buttons" class="table table-striped table-sm nowrap" data-order="[[1, &quot;asc&quot;]]">
 					<thead>
 						<tr>
 							<th class="text-center" data-orderable="false" style="width:1px"></th>
-							<th class="text-center">Orden Despacho Nro</th>
-							<th>Punto de venta</th>
-							<th>Estado</th>
+							<th class="text-center" style="width:1px">Orden Nro</th>
+							<th data-orderable="false">Factura proforma</th>
+							{% if is_granted('ROLE_SUPER_ADMIN') %}
+								<th>Punto de venta</th>
+							{% endif %}
+							<th style="width:5px">Estado</th>
+							<th>Cliente</th>
+							<th>Tel</th>
+							<th>Dirección</th>
+							<th>Forma de pago</th>
 							<th>Fecha alta</th>
 						</tr>
 					</thead>
 					<tbody>
 						{% for order in orders %}
 							<tr>
-								<td class="text-center" style="width:1px">
-									<a href=" {{ path('secure_product_show_dispatch',{" dispatch_id":order.id}) }} ">
-										<i class="fas fa-eye text-primary"></i>
+								<td
+									class="text-center" style="width:1px">
+									{# <a href=" {{ path('secure_product_show_dispatch',{" dispatch_id":order.id}) }} "> #}
+									<i class="fas fa-eye text-primary"></i>
+									{# </a> #}
+								</td>
+								<td class="text-center" style="width:1px">{{ order.id }}</td>
+								<td class="text-center" style="width:5px">
+									<a href="{{ order.billFile }}">
+										<i class="far fa-file-pdf text-danger"></i>
 									</a>
 								</td>
-								<td class="text-center">{{ order.id }}</td>
-								<td>{{ order.salePoint.name }}</td>
-								<td>{{ order.status.name }}</td>
+								{% if is_granted('ROLE_SUPER_ADMIN') %}
+									<td>{{ order.salePoint.name }}</td>
+								{% endif %}
+								<td style="width:5px">{{ order.status.name }}</td>
+								<td>{{ order.customer.name }}</td>
+								<td>
+									<a href="tel:+549{{ order.phoneCustomer }}">+549{{ order.phoneCustomer }}</td>
+								</td>
+								<td>{{ order.customerStreetAddress }}
+									{{ order.customerNumberAddress }}
+									{{ order.customerFloorApartment }}
+									(C.P
+									{{ order.customerPostalCode }}),
+									{{order.customerState? order.customerState.name:''}}
+									{{order.customerCity? order.customerCity.name:''}}
+								</td>
+								<td>{{ order.paymentType.name }}</td>
 								<td>{{ order.createdAt|date("d/m/Y") }}</td>
 							</tr>
 						{% endfor %}
