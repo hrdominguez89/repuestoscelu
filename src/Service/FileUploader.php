@@ -64,7 +64,7 @@ class FileUploader
         $tempPdfFile = $this->tempDir . '/' . uniqid('knp_snappy') . '.pdf';
 
         // Determinar la ruta del ejecutable wkhtmltopdf
-        $wkhtmltopdfCommand = '/usr/local/bin/wkhtmltopdf'; // Ruta por defecto en Linux
+        $wkhtmltopdfCommand = '/usr/bin/wkhtmltopdf'; // Ruta por defecto en Linux
 
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
             // Si el sistema operativo es Windows
