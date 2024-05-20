@@ -209,7 +209,7 @@ class CustomerOrderApiController extends AbstractController
                 'order' => $order
             ]);
 
-            $s3Path = $fileUploader->uploadPdf($html, 'proforma', 'proforma');
+            $s3Path = $fileUploader->uploadPdf($html, 'sale_order', 'sale_order');
             $order->setBillFile($_ENV['AWS_S3_URL'] . $s3Path);
             $orders[] = $order->generateOrder();
         }
@@ -264,7 +264,7 @@ class CustomerOrderApiController extends AbstractController
                         'order' => $order
                     ]);
 
-                    $s3Path = $fileUploader->uploadPdf($html, 'proforma', 'proforma');
+                    $s3Path = $fileUploader->uploadPdf($html, 'sale_order', 'sale_order');
                     $order->setBillFile($_ENV['AWS_S3_URL'] . $s3Path);
                     $em->persist($order);
                     $em->flush();
@@ -357,7 +357,7 @@ class CustomerOrderApiController extends AbstractController
                         'order' => $order
                     ]);
 
-                    $s3Path = $fileUploader->uploadPdf($html, 'proforma', 'proforma');
+                    $s3Path = $fileUploader->uploadPdf($html, 'sale_order', 'sale_order');
                     $order->setBillFile($_ENV['AWS_S3_URL'] . $s3Path);
                     $em->persist($order);
                 }
