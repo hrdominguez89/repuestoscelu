@@ -367,7 +367,7 @@ class Orders
                 "sale_point_state_id" => $this->getSalePoint()->getState()->getId(),
                 "sale_point_state_name" => $this->getSalePoint()->getState()->getName(),
                 "sale_point_city_id" => $this->getSalePoint()->getCity()->getId(),
-                "sale_point_city_name" => $this->getSalePoint()->getCity()->getId(),
+                "sale_point_city_name" => $this->getSalePoint()->getCity()->getName(),
             ],
             "bill_file" => $this->getBillFile(),
             "payments_files" => $payments_files_result,
