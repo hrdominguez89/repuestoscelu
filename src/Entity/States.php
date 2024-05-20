@@ -58,11 +58,8 @@ class States
     #[ORM\Column(type: "boolean", nullable: true)]
     private $visible;
 
-    #[ORM\OneToMany(targetEntity: Orders::class, mappedBy: "bill_state")]
+    #[ORM\OneToMany(targetEntity: Orders::class, mappedBy: "customer_state")]
     private $orders;
-
-    #[ORM\OneToMany(targetEntity: Orders::class, mappedBy: "receiver_state")]
-    private $receiver_orders;
 
     #[ORM\OneToMany(mappedBy: 'state', targetEntity: User::class)]
     private Collection $users;
@@ -284,7 +281,7 @@ class States
     {
         if (!$this->orders->contains($order)) {
             $this->orders[] = $order;
-            $order->setBillState($this);
+            $order->setCustomerState($this);
         }
 
         return $this;
@@ -294,38 +291,8 @@ class States
     {
         if ($this->orders->removeElement($order)) {
             // set the owning side to null (unless already changed)
-            if ($order->getBillState() === $this) {
-                $order->setBillState(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Orders>
-     */
-    public function getReceiverOrders(): Collection
-    {
-        return $this->receiver_orders;
-    }
-
-    public function addReceiverOrder(Orders $receiverOrder): self
-    {
-        if (!$this->receiver_orders->contains($receiverOrder)) {
-            $this->receiver_orders[] = $receiverOrder;
-            $receiverOrder->setReceiverState($this);
-        }
-
-        return $this;
-    }
-
-    public function removeReceiverOrder(Orders $receiverOrder): self
-    {
-        if ($this->receiver_orders->removeElement($receiverOrder)) {
-            // set the owning side to null (unless already changed)
-            if ($receiverOrder->getReceiverState() === $this) {
-                $receiverOrder->setReceiverState(null);
+            if ($order->getCustomerState() === $this) {
+                $order->setCustomerState(null);
             }
         }
 

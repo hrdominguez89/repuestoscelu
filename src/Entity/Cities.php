@@ -51,11 +51,8 @@ class Cities
     #[ORM\Column(type:"boolean", nullable:true)]
     private $visible;
 
-    #[ORM\OneToMany(targetEntity:Orders::class, mappedBy:"bill_city")]
+    #[ORM\OneToMany(targetEntity:Orders::class, mappedBy:"customer_city")]
     private $orders;
-
-    #[ORM\OneToMany(targetEntity:Orders::class, mappedBy:"receiver_city")]
-    private $receiver_orders;
 
     #[ORM\OneToMany(mappedBy: 'city', targetEntity: User::class)]
     private Collection $users;
@@ -238,7 +235,7 @@ class Cities
     {
         if (!$this->orders->contains($order)) {
             $this->orders[] = $order;
-            $order->setBillCity($this);
+            $order->setCustomerCity($this);
         }
 
         return $this;
@@ -248,38 +245,8 @@ class Cities
     {
         if ($this->orders->removeElement($order)) {
             // set the owning side to null (unless already changed)
-            if ($order->getBillCity() === $this) {
-                $order->setBillCity(null);
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, Orders>
-     */
-    public function getReceiverOrders(): Collection
-    {
-        return $this->receiver_orders;
-    }
-
-    public function addReceiverOrder(Orders $receiverOrder): self
-    {
-        if (!$this->receiver_orders->contains($receiverOrder)) {
-            $this->receiver_orders[] = $receiverOrder;
-            $receiverOrder->setReceiverCity($this);
-        }
-
-        return $this;
-    }
-
-    public function removeReceiverOrder(Orders $receiverOrder): self
-    {
-        if ($this->receiver_orders->removeElement($receiverOrder)) {
-            // set the owning side to null (unless already changed)
-            if ($receiverOrder->getReceiverCity() === $this) {
-                $receiverOrder->setReceiverCity(null);
+            if ($order->getCustomerCity() === $this) {
+                $order->setCustomerCity(null);
             }
         }
 

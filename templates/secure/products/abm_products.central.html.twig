@@ -56,7 +56,7 @@
 									{{product.id}}
 								</td>
 
-								<td data-order="{{product.product.createdAt ? product.product.createdAt|date('U'):0}}" class="text-center">{{product.product.createdAt ? product.product.createdAt|date("d/m/Y"):'-'}}</td>
+								<td data-order="{{product.product.createdAt ? product.product.createdAt|date('U'):0}}" class="text-center">{{product.product.createdAt ? product.product.createdAt|date("d/m/Y", 'America/Argentina/Buenos_Aires'):'-'}}</td>
 
 								<td class="text-center">
 									<a style="font-size:16px" class="text-primary m-2" href="{{ path('secure_product_tag',{"product_sale_point_id":product.id}) }}" title="Etiqueta de producto.">

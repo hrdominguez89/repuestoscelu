@@ -120,7 +120,7 @@
 										{{price.price ? '$ ' ~ price.price|number_format(2, ',','.'): ''}}
 									</td>
 									<td data-order="{{price.createdAt ? price.createdAt|date('U'):0}}" class="text-center">
-										{{price.createdAt ? price.createdAt|date("d/m/Y"):'-'}}
+										{{price.createdAt ? price.createdAt|date("d/m/Y", 'America/Argentina/Buenos_Aires'):'-'}}
 									</td>
 								</tr>
 							{% endfor %}

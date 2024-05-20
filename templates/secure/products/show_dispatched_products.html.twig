@@ -17,7 +17,7 @@
 			<h3 class="m-1 title-table">Estado:
 				{{dispatch.status.name}}</h3>
 			<h3 class="m-1 title-table">Creada el:
-				{{dispatch.createdAt|date('d/m/Y')}}</h3>
+				{{dispatch.createdAt|date('d/m/Y', 'America/Argentina/Buenos_Aires')}}</h3>
 			<h3 class="m-1 title-table">Descripción:
 				{{dispatch.description}}</h3>
 		</div>
@@ -29,7 +29,7 @@
 					<tr>
 						<th>COD</th>
 						<th class="text-center">Cantidad a recibir</th>
-						<th>Product</th>
+						<th>Producto</th>
 						<th>Marca</th>
 						<th>Categoría</th>
 						<th>Subcategoría</th>

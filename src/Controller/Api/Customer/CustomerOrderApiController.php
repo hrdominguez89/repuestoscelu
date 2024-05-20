@@ -137,7 +137,7 @@ class CustomerOrderApiController extends AbstractController
             $product_on_cart->setQuantity($quantity);
 
             // Agregar producto al carrito de compras
-            $salesPoints[$product_on_cart->getProductsSalesPoints()->getProduct()->getSalePoint()->getId()][] = $product_on_cart;
+            $salesPoints[$product_on_cart->getProductsSalesPoints()->getSalePoint()->getId()][] = $product_on_cart;
         }
 
         // Verificar si hubo errores
@@ -205,8 +205,8 @@ class CustomerOrderApiController extends AbstractController
 
 
             $em->persist($order);
-            $html = $this->renderView('bill/bill.html.twig', [
-                'titulo' => 'esto es una factura proforma'
+            $html = $this->renderView('secure/bill/bill.html.twig', [
+                'order' => $order
             ]);
 
             $s3Path = $fileUploader->uploadPdf($html, 'proforma', 'proforma');
@@ -260,8 +260,8 @@ class CustomerOrderApiController extends AbstractController
         switch ($request->getMethod()) {
             case 'GET':
                 if (!$order->getBillFile()) {
-                    $html = $this->renderView('bill/bill.html.twig', [
-                        'titulo' => 'esto es una factura proforma'
+                    $html = $this->renderView('secure/bill/bill.html.twig', [
+                        'order' => $order
                     ]);
 
                     $s3Path = $fileUploader->uploadPdf($html, 'proforma', 'proforma');
@@ -353,8 +353,8 @@ class CustomerOrderApiController extends AbstractController
         if ($orders) {
             foreach ($orders as $order) {
                 if (!$order->getBillFile()) {
-                    $html = $this->renderView('bill/bill.html.twig', [
-                        'titulo' => 'esto es una factura proforma'
+                    $html = $this->renderView('secure/bill/bill.html.twig', [
+                        'order' => $order
                     ]);
 
                     $s3Path = $fileUploader->uploadPdf($html, 'proforma', 'proforma');

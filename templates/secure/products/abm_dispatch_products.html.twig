@@ -65,8 +65,8 @@
 								<td>{{ dispatch.salePoint.name }}</td>
 								<td>{{ dispatch.description }}</td>
 								<td>{{ dispatch.status.name }}</td>
-								<td>{{ dispatch.createdAt|date("d/m/Y") }}</td>
-								<td>{{ dispatch.modifiedAt ? dispatch.modifiedAt|date("d/m/Y"):'-' }}</td>
+								<td>{{ dispatch.createdAt|date("d/m/Y", 'America/Argentina/Buenos_Aires') }}</td>
+								<td>{{ dispatch.modifiedAt ? dispatch.modifiedAt|date("d/m/Y", 'America/Argentina/Buenos_Aires'):'-' }}</td>
 							</tr>
 						{% endfor %}
 					</tbody>

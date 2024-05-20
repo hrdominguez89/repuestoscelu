@@ -139,7 +139,7 @@
 
 								<td class="text-center">{{product_discount.getProductLimit - product_discount.getUsed}}</td>
 
-								<td data-order="{{product_discount.createdAt ? product_discount.createdAt|date('U'):0}}" class="text-center">{{product_discount.createdAt ? product_discount.createdAt|date("d/m/Y"):'-'}}</td>
+								<td data-order="{{product_discount.createdAt ? product_discount.createdAt|date('U'):0}}" class="text-center">{{product_discount.createdAt ? product_discount.createdAt|date("d/m/Y", 'America/Argentina/Buenos_Aires'):'-'}}</td>
 
 								<td class="text-center">
 									{% if (product_discount.active) %}

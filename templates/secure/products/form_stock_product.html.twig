@@ -200,7 +200,7 @@
 										{{stock.stock ? stock.description: ''}}
 									</td>
 									<td data-order="{{stock.createdAt ? stock.createdAt|date('U'):0}}" class="text-center">
-										{{stock.createdAt ? stock.createdAt|date("d/m/Y"):'-'}}
+										{{stock.createdAt ? stock.createdAt|date("d/m/Y", 'America/Argentina/Buenos_Aires'):'-'}}
 									</td>
 								</tr>
 							{% endfor %}

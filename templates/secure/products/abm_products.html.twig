@@ -84,7 +84,7 @@
 									{% endif %}
 								</td>
 
-								<td data-order="{{product.createdAt ? product.createdAt|date('U'):0}}" class="text-center">{{product.createdAt ? product.createdAt|date("d/m/Y"):'-'}}</td>
+								<td data-order="{{product.createdAt ? product.createdAt|date('U'):0}}" class="text-center">{{product.createdAt ? product.createdAt|date("d/m/Y", 'America/Argentina/Buenos_Aires'):'-'}}</td>
 
 								<td class="text-center">
 

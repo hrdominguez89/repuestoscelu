@@ -24,9 +24,13 @@ class FileUploader
         $this->tempDir = '/tmp';
     }
 
-    public function upload(UploadedFile $file, $nombre, $path = false): string
+    public function upload(UploadedFile $file, $nombre, $path = false, $no_slug = false): string
     {
-        $safeFilename =  $this->slugger->slug($nombre);
+        if ($no_slug) {
+            $safeFilename =  $nombre;
+        } else {
+            $safeFilename =  $this->slugger->slug($nombre);
+        }
         $newFilename =  $safeFilename . '-' . uniqid() . '.' . $file->guessExtension();
 
         if ($path) {
