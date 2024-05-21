@@ -140,7 +140,7 @@ class CrudCustomerController extends AbstractController
                     if (@$request->get('customer')['reset_password']) {
                         //queue the email
                         $id_email = $queue->enqueue(
-                            Constants::EMAIL_TYPE_WELCOME, //tipo de email
+                            Constants::EMAIL_TYPE_PASSWORD_CHANGE_REQUEST, //tipo de email
                             $data['customer']->getEmail(), //email destinatario
                             [ //parametros
                                 'name' => $data['customer']->getName(),
