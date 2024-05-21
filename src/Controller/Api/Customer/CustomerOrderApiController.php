@@ -240,7 +240,7 @@ class CustomerOrderApiController extends AbstractController
 
                 $id_email = $queue->enqueue(
                     Constants::EMAIL_NEW_ORDER_SALE_POINT, //tipo de email
-                    $order->getSalePoint->getSalePoint()->getEmail(), //email destinatario
+                    $order->getSalePoint()->getEmail(), //email destinatario
                     [ //parametros
                         'sale_order_number' => $order->getId(),
                         'url_sale_order' => $order->getBillFile()
