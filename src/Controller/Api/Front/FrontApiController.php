@@ -596,10 +596,10 @@ class FrontApiController extends AbstractController
     public function products(
         ProductsSalesPointsRepository $productsSalesPointsRepository,
     ): Response {
-        $productosDestacados = $productsSalesPointsRepository->findProductsByTagName('DESTACADOS', 8);
-        $productosOfertas = $productsSalesPointsRepository->findProductsByTagName('OFERTAS', 8);
-        $productosAccesorios = $productsSalesPointsRepository->findProductsByCategoryName('ACCESORIOS', 8);
-        $productosRepuestos = $productsSalesPointsRepository->findProductsByCategoryName('REPUESTOS', 8);
+        $productosDestacados = $productsSalesPointsRepository->findProductsByTagName('DESTACADOS');
+        $productosOfertas = $productsSalesPointsRepository->findProductsByTagName('OFERTAS');
+        $productosAccesorios = $productsSalesPointsRepository->findProductsByCategoryName('ACCESORIOS');
+        $productosRepuestos = $productsSalesPointsRepository->findProductsByCategoryName('REPUESTOS');
 
         $importantProducts = [];
         foreach ($productosDestacados as $product) {
