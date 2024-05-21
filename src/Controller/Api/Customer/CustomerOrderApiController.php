@@ -69,6 +69,7 @@ class CustomerOrderApiController extends AbstractController
         $data = json_decode($body, true);
 
         $orders = [];
+        $ordersGenerated = [];
         // Crear arrays para almacenar los errores
         $errors = [];
 
@@ -151,7 +152,6 @@ class CustomerOrderApiController extends AbstractController
             ];
             return $this->json($response, Response::HTTP_CONFLICT, ['Content-Type' => 'application/json']);
         }
-
         foreach ($salesPoints as $key => $shopping_cart_products) {
             $order = new Orders();
 
@@ -214,6 +214,7 @@ class CustomerOrderApiController extends AbstractController
             $s3Path = $fileUploader->uploadPdf($html, 'sale_order', 'sale_order');
             $order->setBillFile($_ENV['AWS_S3_URL'] . $s3Path);
             $orders[] = $order->generateOrder();
+            $ordersGenerated[] = $order;
         }
 
         try {
@@ -223,7 +224,7 @@ class CustomerOrderApiController extends AbstractController
 
             //Intento enviar el correo encolado
 
-            foreach ($orders as $order) {
+            foreach ($ordersGenerated as $order) {
 
                 $id_email = $queue->enqueue(
                     Constants::EMAIL_NEW_ORDER_CUSTOMER, //tipo de email
