@@ -230,7 +230,7 @@ class CRUDUserController extends AbstractController
                     if (@$request->get('user')['reset_password']) {
                         //queue the email
                         $id_email = $queue->enqueue(
-                            Constants::EMAIL_TYPE_WELCOME_BACKOFFICE, //tipo de email
+                            Constants::EMAIL_TYPE_RESET_PASSWORD_BACKOFFICE, //tipo de email
                             $data['user']->getEmail(), //email destinatario
                             [ //parametros
                                 'name' => $data['user']->getName(),
