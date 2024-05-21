@@ -1,23 +1,74 @@
-{# {% extends 'email/base.email.html.twig' %} #}
+{% extends 'email/base.backoffice.email.html' %}
 
-{# {% block title %} #}
-{# Validación de cuenta #}
-{# {% endblock %} #}
+{% block title %}
+	Bienvenido
+{% endblock %}
 
-{# {% block body %} #}
-	<div>
-	Hola,{{parameters.name}}
-!
-		Bienvenido inicia sesion en:
-</div>
-	<div><a href="{{parameters.url_back_login}}" title="Login"> Repuestos Celu</a>
-</div>
-{% if parameters.password is defined %}
-	<div>
-		<b>usuario:</b>
-		{{parameters.email}}<br>
-		<b>contraseña:</b>
-		{{parameters.password}}
-	</div>
-{% endif %}
-{# {% endblock %} #}
+{% block body %}
+	<table class="row row-2" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+		<tbody>
+			<tr>
+				<td>
+					<table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-radius: 0; color: #000000; width: 900px;" width="900">
+						<tbody>
+							<tr>
+								<td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; vertical-align: top; padding-top: 5px; padding-bottom: 50px; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+									<table class="heading_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+										<tr>
+											<td class="pad" style="text-align:center;width:100%;">
+												<h1 style="margin: 0; color: #000000; direction: ltr; font-family: 'Montserrat'">
+													Bienvenido
+												</h1>
+											</td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<table class="row row-3" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+		<tbody>
+			<tr>
+				<td>
+					<table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-radius: 0; color: #000000; width: 900px;" width="900">
+						<tbody>
+							<tr>
+								<td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; vertical-align: top; padding-top: 5px; padding-bottom: 25px; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+									<table class="paragraph_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+										<tr>
+											<td>
+												<div style="color:#000000;direction:ltr;font-family:'Montserrat';font-size:16px;font-weight:400;letter-spacing:0px;line-height:120%;text-align:center;mso-line-height-alt:28.799999999999997px;">
+													<p>
+														Hola
+														{{parameters.name}}!
+													</p>
+													<p>
+														Bienvenido a RepuestosCelu, inicia sesión en:
+														<a href="{{parameters.url_back_login}}" title="Login">RepuestosCelu</a>
+													</p>
+
+													{% if parameters.password is defined %}
+														<p>
+															<b>usuario:</b>
+															{{parameters.email}}<br>
+															<b>contraseña:</b>
+															{{parameters.password}}
+														</p>
+													{% endif %}
+												</div>
+											</td>
+										</tr>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+{% endblock %}
