@@ -356,16 +356,6 @@ class CustomerOrderApiController extends AbstractController
                     $order->addPaymentsFile($paymentFile);
                     $em->flush();
 
-                    $id_email = $queue->enqueue(
-                        Constants::EMAIL_NEW_PAYMENT_FILE, //tipo de email
-                        $order->getSalePoint()->getEmail(), //email destinatario
-                        [ //parametros
-                            'sale_order_number' => $order->getId(),
-                        ]
-                    );
-
-                    //Intento enviar el correo encolado
-                    $queue->sendEnqueue($id_email);
                 } catch (\Exception $e) {
                     return $this->json(
                         [
@@ -376,6 +366,17 @@ class CustomerOrderApiController extends AbstractController
                         ['Content-Type' => 'application/json']
                     );
                 }
+
+                $id_email = $queue->enqueue(
+                    Constants::EMAIL_NEW_PAYMENT_FILE, //tipo de email
+                    $order->getSalePoint()->getEmail(), //email destinatario
+                    [ //parametros
+                        'sale_order_number' => $order->getId(),
+                    ]
+                );
+
+                //Intento enviar el correo encolado
+                $queue->sendEnqueue($id_email);
 
                 return $this->json(
                     [
