@@ -49,7 +49,7 @@ class CustomerApiController extends AbstractController
     }
 
     #[Route("/data", name: "api_customer_data", methods: ["GET", "PATCH"])]
-    public function userData(
+    public function data(
         Request $request,
         StatesRepository $statesRepository,
         CitiesRepository $citiesRepository,
@@ -81,7 +81,7 @@ class CustomerApiController extends AbstractController
                             "floor_apartment" => $this->customer->getFloorApartment()
                         ]
                     ],
-                    Response::HTTP_INTERNAL_SERVER_ERROR,
+                    Response::HTTP_ACCEPTED,
                     ['Content-Type' => 'application/json']
                 );
                 break;
@@ -142,7 +142,7 @@ class CustomerApiController extends AbstractController
                 if (!empty($errors)) {
                     $response = [
                         "status" => false,
-                        'message' => 'Error al intentar agregar uno o más productos a la orden.',
+                        'message' => 'Error al intentar modificar sus datos de perfil.',
                         "errors" => $errors
                     ];
                     return $this->json($response, Response::HTTP_CONFLICT, ['Content-Type' => 'application/json']);
@@ -169,13 +169,49 @@ class CustomerApiController extends AbstractController
                 return $this->json($response, Response::HTTP_ACCEPTED, ['Content-Type' => 'application/json']);
                 break;
         }
+    }
 
+    #[Route("/changePassword", name: "api_customer_change_password", methods: ["POST"])]
+    public function changePassword(
+        Request $request,
+        StatesRepository $statesRepository,
+        CitiesRepository $citiesRepository,
+        EntityManagerInterface $em,
+        CustomerRepository $customerRepository,
+    ): Response {
+
+        $body = $request->getContent();
+        $data = json_decode($body, true);
+
+        if (!@$data['password']) {
+            $errors['password'] = 'El campo passwprd es requerido';
+        }
+        if (!@$data['repassword']) {
+            $errors['repassword'] = 'El campo repassword es requerido';
+        }
+
+        if (@$data['password'] !== @$data['repassword']) {
+            $errors['repassword'] = 'El campo password y repassword deben coincidir';
+        }
+
+        if (!empty($errors)) {
+            $response = [
+                "status" => false,
+                'message' => 'Error al intentar modificar sus datos de perfil.',
+                "errors" => $errors
+            ];
+            return $this->json($response, Response::HTTP_CONFLICT, ['Content-Type' => 'application/json']);
+        }
+
+        $this->customer->setPassword(@$data['password']);
+        $em->persist($this->customer);
+        $em->flush();
         return $this->json(
             [
-                'status_code' => Response::HTTP_INTERNAL_SERVER_ERROR,
-                'message' => '$e->getMessage()'
+                'status' => true,
+                'message' => 'Password modificada correctamente'
             ],
-            Response::HTTP_INTERNAL_SERVER_ERROR,
+            Response::HTTP_CONFLICT,
             ['Content-Type' => 'application/json']
         );
     }
