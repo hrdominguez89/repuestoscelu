@@ -90,14 +90,13 @@ class ResetPasswordController extends AbstractController
 
         return $this->redirectToRoute('app_reset_password', array('token' => $resetToken->getToken()));
     }
-    #[Route("/reset/{token}", name: "app_reset_password")]
+    #[Route("/reset/{token?}", name: "app_reset_password")]
     public function reset(Request $request, UserPasswordHasherInterface $passwordEncoder, string $token = null, EntityManagerInterface $em): Response
     {
         if ($token) {
             // We store the token in session and remove it from the URL, to avoid the URL being
             // loaded in a browser and potentially leaking the token to 3rd party JavaScript.
             $this->storeTokenInSession($token);
-
             return $this->redirectToRoute('app_reset_password');
         }
 
@@ -123,15 +122,10 @@ class ResetPasswordController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             // A password reset token should be used only once, remove it.
-            $this->resetPasswordHelper->removeResetRequest($token);
+            // $this->resetPasswordHelper->removeResetRequest($token);
 
-            // Encode the plain password, and set it.
-            $encodedPassword = $passwordEncoder->hashPassword(
-                $user,
-                $form->get('plainPassword')->getData()
-            );
 
-            $user->setPassword($encodedPassword);
+            $user->setPassword($form->get('plainPassword')->getData());
             $em->flush();
 
             // The session is cleaned up after the password has been changed.
@@ -172,7 +166,7 @@ class ResetPasswordController extends AbstractController
         }
 
         $email = (new TemplatedEmail())
-            ->from(new Address('noreply@bymia.do', 'MIACARGO'))
+            ->from(new Address('info@repuestoscelu.com.ar', 'REPUESTOS CELU'))
             ->to($user->getEmail())
             ->subject('Your password reset request')
             ->htmlTemplate('reset_password/email.html.twig')

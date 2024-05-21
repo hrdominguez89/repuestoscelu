@@ -97,8 +97,8 @@ class CustomerOrderApiController extends AbstractController
         if (!@$data['code_area']) {
             $errors['code_area'] = 'El campo code_area es requerido';
         }
-        if (!@$data['phone_number']) {
-            $errors['phone_number'] = 'El campo phone_number es requerido';
+        if (!@$data['cel_phone']) {
+            $errors['cel_phone'] = 'El campo cel_phone es requerido';
         }
         if (!@$data['products']) {
             $errors['products'] = 'El campo products es requerido y tiene que ser un array de objetos de product_id y quantity';
@@ -159,7 +159,7 @@ class CustomerOrderApiController extends AbstractController
                 ->setCustomerEmail($data['email'])
                 ->setCustomerIdentityNumber($data['identity_number'])
                 ->setCodeAreaPhoneCustomer($data['code_area'])
-                ->setPhoneCustomer($data['phone_number'])
+                ->setPhoneCustomer($data['cel_phone'])
                 ->setCustomerState($statesRepository->find($data['state_id']))
                 ->setCustomerCity($citiesRepository->find($data['city_id']))
                 ->setCustomerPostalCode($data['postal_code'])

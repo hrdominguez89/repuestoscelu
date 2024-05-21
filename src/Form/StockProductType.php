@@ -22,7 +22,7 @@ class StockProductType extends AbstractType
                 'required' => true,
             ])
             ->add('description', TextareaType::class, [
-                'label' => 'Descripción',
+                'label' => 'Obvservaciones/Información adicional',
                 'required' => false,
             ])
             ->add('cost', MoneyType::class, [

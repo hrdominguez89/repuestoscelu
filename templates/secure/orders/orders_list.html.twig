@@ -9,11 +9,6 @@
 		<div class="col-6">
 			<h1 class="mr-auto mb-0 title-table">{{title}}</h1>
 		</div>
-		{% if is_granted('ROLE_SUPER_ADMIN') %}
-			<div class="col-6 text-end align-self-center">
-				<a class="btn btn-success" href="{{ path('secure_product_new_dispatch') }}">Gestionar Ordenes</a>
-			</div>
-		{% endif %}
 	</div>
 	<div class="row">
 		<div class="col-xs-12">
@@ -74,7 +69,7 @@
 								<td style="width:5px" class="text-center">$
 									{{ order.totalOrder|number_format(2, ',', '.') }}</td>
 									{% if is_granted('ROLE_SUPER_ADMIN') %}
-										<td>{{ order.salePoint.name }}</td>
+										<td>{{ order.salePoint.state.name }} - {{ order.salePoint.city.name }}</td>
 									{% endif %}
 								<td>{{ order.customer.name }}</td>
 								<td>

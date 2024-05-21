@@ -51,10 +51,10 @@
 									<th class="text-center">Precio &nbsp;</th>
 								{% endif %}
 							{% else %}
-
 								<th class="text-center">Precio &nbsp;</th>
-
 							{% endif %}
+
+							<th>Disponible &nbsp;</th>
 
 							<th>Nombre &nbsp;</th>
 
@@ -97,13 +97,6 @@
 											<a style="font-size:16px" class="text-{{ product.productsSalesPoints[0] ? (product.productsSalesPoints[0].lastPrice ? 'success':'secondary' ): 'secondary'}} m-2" href="{{ path('secure_product_price',{"product_sale_point_id":product.productsSalesPoints[0]? product.productsSalesPoints[0].id:product.id}) }}" title="Etiqueta de producto.">
 												<i class="fas fa-dollar-sign"></i>
 											</a>
-
-										{% else %}
-											<a style="font-size:16px" class="text-primary m-2" href="{{ path('secure_product_tag',{"product_sale_point_id":product.id}) }}" title="Etiqueta de producto.">
-												<i class="fas fa-tag"></i>
-											</a>
-
-
 										{% endif %}
 
 									{% else %}
@@ -144,8 +137,6 @@
 
 								{% if sale_point is defined %}
 									<td>
-										{{product.salePoint.name}}
-										-
 										{{product.salePoint.state.name}}
 										-
 										{{product.salePoint.city.name}}
@@ -157,10 +148,15 @@
 								{% if is_granted('ROLE_SUPER_ADMIN') %}
 									{% if sale_point is defined %}
 										<td class="text-center">{{ product.productsSalesPoints[0] ? (product.productsSalesPoints[0].lastPrice ? '$ ' ~ product.productsSalesPoints[0].lastPrice.price|number_format(2, ',','.'):'No definido' ): 'No definido'}}</td>
+										<td class="text-center">{{product.productsSalesPoints[0]? (product.productsSalesPoints[0].lastInventory? product.productsSalesPoints[0].lastInventory.available:0):0}}</td>
+									{% else %}
+										<td class="text-center">{{product.lastInventory? product.lastInventory.available:0}}</td>
 									{% endif %}
 								{% else %}
 									<td class="text-center">{{ product.productsSalesPoints[0] ? (product.productsSalesPoints[0].lastPrice ? '$ ' ~ product.productsSalesPoints[0].lastPrice.price|number_format(2, ',','.'):'No definido' ): 'No definido'}}</td>
+									<td class="text-center">{{product.productsSalesPoints[0]? (product.productsSalesPoints[0].lastInventory? product.productsSalesPoints[0].lastInventory.available:0):0}}</td>
 								{% endif %}
+
 
 								<td>{{product.name}}</td>
 

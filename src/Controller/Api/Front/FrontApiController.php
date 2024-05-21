@@ -357,7 +357,6 @@ class FrontApiController extends AbstractController
                 $validation["password"] =  "El campo password es obligatorio.";
             }
             if (!@$data['recaptcha_token']) {
-                var_dump('aca');
                 $validation["recaptcha_token"] = 'Token reCAPTCHA es obligatorio.';
             }
 

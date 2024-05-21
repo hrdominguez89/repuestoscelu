@@ -47,7 +47,7 @@ class DispatchType extends AbstractType
                 ]
             ])
             ->add('description', TextareaType::class, [
-                'label' => 'Descripción',
+                'label' => 'Obvservaciones/Información adicional',
                 'required' => false,
             ]);
         foreach ($products as $product) {
@@ -83,7 +83,7 @@ class DispatchType extends AbstractType
 
     public function validateSalePoint($value, ExecutionContextInterface $context): void
     {
-        if(!$value){
+        if (!$value) {
             $context->buildViolation('Debe seleccionar un punto de venta.')->addViolation();
         }
     }

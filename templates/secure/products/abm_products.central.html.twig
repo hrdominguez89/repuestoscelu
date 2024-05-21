@@ -14,8 +14,6 @@
 		<div class="col-6 text-end">
 			{% if sale_point is defined %}
 				<a class="btn btn-success" href="{{ path('secure_product_new',{"sale_point":"sale_point"}) }}">Nuevo producto</a>
-			{% else %}
-				<a class="btn btn-success" href="{{ path('secure_product_new') }}">Nuevo producto</a>
 			{% endif %}
 		</div>
 	</div>
@@ -36,6 +34,8 @@
 							<th>COD &nbsp;</th>
 
 							<th class="text-center">Precio &nbsp;</th>
+
+							<th class="text-center">Disponible &nbsp;</th>
 
 							<th>Nombre &nbsp;</th>
 
@@ -71,6 +71,8 @@
 								<td class="text-nowrap">{{product.product.salePoint.role.id == 1? 'A':product.product.salePoint.id}}-{{product.product.cod}}</td>
 
 								<td class="text-center">{{ product.lastPrice ? '$ ' ~ product.lastPrice.price|number_format(2, ',','.') : 'No definido'}}</td>
+
+								<td class="text-center">{{product.lastInventory? product.lastInventory.available:0}}</td>
 
 								<td>{{product.product.name}}</td>
 

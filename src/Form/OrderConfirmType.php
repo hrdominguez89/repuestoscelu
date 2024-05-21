@@ -15,48 +15,29 @@ use Symfony\Component\Validator\Context\ExecutionContextInterface;
 class OrderConfirmType extends AbstractType
 {
     private $user;
-    
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $this->user = $options['user'];
 
-        if ($this->user->getRole()->getId() == Constants::ROLE_SUPER_ADMIN) {
-            $builder
-                ->add('status', EntityType::class, [
-                    'placeholder' => 'Seleccione una opción',
-                    'label' => 'Cambiar estado de la orden',
-                    'class'  => StatusOrderType::class,
-                    'required' => true,
-                    'choice_label' => 'name',
-                    'query_builder' => function (StatusOrderTypeRepository $so) {
-                        return $so->createQueryBuilder('so')
-                            ->where('so.id = :id')
-                            ->setParameter('id', Constants::STATUS_ORDER_CANCELED)
-                            ->orderBy('so.name');
-                    },
-                    'constraints' => [
-                        new Callback([$this, 'validateStatus'])
-                    ]
-                ]);
-        } else {
-            $builder
-                ->add('status', EntityType::class, [
-                    'placeholder' => 'Seleccione una opción',
-                    'label' => 'Cambiar estado de la orden',
-                    'class'  => StatusOrderType::class,
-                    'required' => true,
-                    'choice_label' => 'name',
-                    'query_builder' => function (StatusOrderTypeRepository $so) {
-                        return $so->createQueryBuilder('so')
-                            ->where('so.id != :id')
-                            ->setParameter('id', Constants::STATUS_ORDER_OPEN)
-                            ->orderBy('so.name');
-                    },
-                    'constraints' => [
-                        new Callback([$this, 'validateStatus'])
-                    ]
-                ]);
-        }
+
+        $builder
+            ->add('status', EntityType::class, [
+                'placeholder' => 'Seleccione una opción',
+                'label' => 'Cambiar estado de la orden',
+                'class'  => StatusOrderType::class,
+                'required' => true,
+                'choice_label' => 'name',
+                'query_builder' => function (StatusOrderTypeRepository $so) {
+                    return $so->createQueryBuilder('so')
+                        ->where('so.id != :id')
+                        ->setParameter('id', Constants::STATUS_ORDER_OPEN)
+                        ->orderBy('so.name');
+                },
+                'constraints' => [
+                    new Callback([$this, 'validateStatus'])
+                ]
+            ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void

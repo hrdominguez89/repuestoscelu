@@ -1,0 +1,285 @@
+<?php
+
+namespace App\Controller\Api\Customer;
+
+use App\Constants\Constants;
+use App\Entity\Orders;
+use App\Entity\OrdersProducts;
+use App\Entity\PaymentsFiles;
+use App\Entity\ProductSalePointInventory;
+use App\Entity\ShoppingCart;
+use App\Repository\CitiesRepository;
+use App\Repository\CustomerRepository;
+use App\Repository\OrdersRepository;
+use App\Repository\PaymentTypeRepository;
+use App\Repository\ProductRepository;
+use App\Repository\ProductsSalesPointsRepository;
+use App\Repository\ShoppingCartRepository;
+use App\Repository\StatesRepository;
+use App\Repository\StatusOrderTypeRepository;
+use App\Repository\StatusTypeShoppingCartRepository;
+use App\Repository\UserRepository;
+use App\Service\FileUploader;
+use DateTime;
+use Doctrine\ORM\EntityManagerInterface;
+use Exception;
+use Knp\Snappy\Pdf;
+use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+
+
+#[Route("/api/customer")]
+class CustomerApiController extends AbstractController
+{
+
+    private $customer;
+
+    public function __construct(JWTEncoderInterface $jwtEncoder, CustomerRepository $customerRepository, RequestStack $requestStack)
+    {
+        $request = $requestStack->getCurrentRequest();
+        $token = explode(' ', $request->headers->get('Authorization'))[1];
+
+        $username = @$jwtEncoder->decode($token)['username'] ?: '';
+
+        $this->customer = $customerRepository->findOneBy(['email' => $username]);
+    }
+
+    #[Route("/data", name: "api_customer_data", methods: ["GET", "PATCH"])]
+    public function order(
+        Request $request,
+        StatesRepository $statesRepository,
+        CitiesRepository $citiesRepository,
+        EntityManagerInterface $em,
+        CustomerRepository $customerRepository,
+    ): Response {
+
+        $body = $request->getContent();
+        $data = json_decode($body, true);
+
+        switch ($request->getMethod()) {
+            case 'GET':
+                return $this->json(
+                    [
+                        'status' => true,
+                        "user_data" => [
+                            "id" => (int)$this->customer->getId(),
+                            "name" => $this->customer->getName(),
+                            "identity_number" => $this->customer->getIdentityNumber(),
+                            "email" => $this->customer->getEmail(),
+                            "state_id" => $this->customer->getState()->getId(),
+                            "state_name" => $this->customer->getState()->getName(),
+                            "city_id" => $this->customer->getCity()->getId(),
+                            "city_name" => $this->customer->getCity()->getName(),
+                            "code_area" => $this->customer->getCodeArea(),
+                            "cel_phone" => $this->customer->getCelPhone(),
+                            "street_address" => $this->customer->getStreetAddress(),
+                            "number_address" => $this->customer->getNumberAddress(),
+                            "floor_apartment" => $this->customer->getFloorApartment()
+                        ]
+                    ],
+                    Response::HTTP_INTERNAL_SERVER_ERROR,
+                    ['Content-Type' => 'application/json']
+                );
+                break;
+            case 'PATCH':
+                if (!@$data['name']) {
+                    $errors['name'] = 'El campo name es requerido';
+                }
+                if (!@$data['identity_number']) {
+                    $errors['identity_number'] = 'El campo identity_number es requerido';
+                }
+                if (!@$data['email']) {
+                    $errors['email'][] = 'El campo email es requerido';
+                }
+                if (!@$data['state_id']) {
+                    $errors['state_id'][] = 'El campo state_id es requerido';
+                }
+                if (!@$data['city_id']) {
+                    $errors['city_id'][] = 'El campo city_id es requerido';
+                }
+                if (!@$data['street_address']) {
+                    $errors['street_address'] = 'El campo street_address es requerido';
+                }
+                if (!@$data['number_address']) {
+                    $errors['number_address'] = 'El campo number_address es requerido';
+                }
+                if (!@$data['postal_code']) {
+                    $errors['postal_code'] = 'El campo postal_code es requerido';
+                }
+                if (!@$data['code_area']) {
+                    $errors['code_area'] = 'El campo code_area es requerido';
+                }
+                if (!@$data['cel_phone']) {
+                    $errors['cel_phone'] = 'El campo cel_phone es requerido';
+                }
+
+                if (@$data['email']) {
+                    if ($this->customer->getEmail() != @$data['email']) {
+                        $customer = $customerRepository->findOneBy(['email' => @$data['email']]);
+                        if ($customer) {
+                            $errors['email'][] = 'Esta cuenta ya se encuentra registrada';
+                        }
+                    }
+                }
+
+                if (@$data['state_id']) {
+                    $state = $statesRepository->find(@$data['state_id']);
+                    if (!$state) {
+                        $errors['state_id'][] = 'La provincia indicada no existe.';
+                    }
+                }
+                if (@$data['city_id']) {
+                    $city = $citiesRepository->find(@$data['city_id']);
+                    if (!$city) {
+                        $errors['city_id'][] = 'La ciudad indicada no existe.';
+                    }
+                }
+
+                if (!empty($errors)) {
+                    $response = [
+                        "status" => false,
+                        'message' => 'Error al intentar agregar uno o más productos a la orden.',
+                        "errors" => $errors
+                    ];
+                    return $this->json($response, Response::HTTP_CONFLICT, ['Content-Type' => 'application/json']);
+                }
+
+                $this->customer
+                    ->setName(@$data['name'])
+                    ->setIdentityNumber(@$data['identity_number'])
+                    ->setEmail(@$data['email'])
+                    ->setState($state)
+                    ->setCity($city)
+                    ->setCodeArea(@$data['code_area'])
+                    ->setCelPhone(@$data['cel_phone'])
+                    ->setStreetAddress(@$data['street_address'])
+                    ->setNumberAddress(@$data['number_address'])
+                    ->setFloorApartment(@$data['floor_apartment']);
+
+                $em->persist($this->customer);
+                $em->flush();
+                $response = [
+                    "status" => true,
+                    "message" => "Usuario modificado correctamente"
+                ];
+                return $this->json($response, Response::HTTP_ACCEPTED, ['Content-Type' => 'application/json']);
+                break;
+        }
+
+        return $this->json(
+            [
+                'status_code' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'message' => '$e->getMessage()'
+            ],
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            ['Content-Type' => 'application/json']
+        );
+    }
+
+    #[Route("/order2/{order_id}", name: "api_customer_order_id2", methods: ["GET", 'PATCH'])]
+    public function orderById2(
+        $order_id,
+        EntityManagerInterface $em,
+        FileUploader $fileUploader,
+        OrdersRepository $ordersRepository,
+        Request $request
+    ): Response {
+        $order = $ordersRepository->findOrderByCustomerId($this->customer->getId(), $order_id);
+        if (!$order) {
+            return $this->json(
+                [
+                    'status' => false,
+                    'message' => 'No se encontro la orden indicada'
+                ],
+                Response::HTTP_NOT_FOUND,
+                ['Content-Type' => 'application/json']
+            );
+        }
+
+        switch ($request->getMethod()) {
+            case 'GET':
+                if (!$order->getBillFile()) {
+                    $html = $this->renderView('secure/bill/bill.html.twig', [
+                        'order' => $order
+                    ]);
+
+                    $s3Path = $fileUploader->uploadPdf($html, 'sale_order', 'sale_order');
+                    $order->setBillFile($_ENV['AWS_S3_URL'] . $s3Path);
+                    $em->persist($order);
+                    $em->flush();
+                }
+                return $this->json(
+                    [
+                        'status' => true,
+                        'order' => $order->generateOrder()
+                    ],
+                    Response::HTTP_ACCEPTED,
+                    ['Content-Type' => 'application/json']
+                );
+            case 'PATCH':
+
+                $body = $request->getContent();
+                $data = json_decode($body, true);
+
+                if (!isset($data['payment_file'])) {
+                    return $this->json(
+                        [
+                            'status' => false,
+                            'message' => 'No se proporcionó el archivo de pago'
+                        ],
+                        Response::HTTP_BAD_REQUEST,
+                        ['Content-Type' => 'application/json']
+                    );
+                }
+
+                $fileContent = base64_decode(explode('base64', $data['payment_file'])[1]);
+
+                if ($fileContent === false) {
+                    return $this->json(
+                        [
+                            'status' => false,
+                            'message' => 'El archivo de pago proporcionado no es válido'
+                        ],
+                        Response::HTTP_BAD_REQUEST,
+                        ['Content-Type' => 'application/json']
+                    );
+                }
+                // Subir la imagen al bucket de S3
+                try {
+                    $path = $fileUploader->uploadBase64File($fileContent, 'payment_file', 'payments_files');
+
+                    $paymentFile =  new PaymentsFiles();
+                    $paymentFile->setPaymentFile($_ENV['AWS_S3_URL'] . $path)
+                        ->setAmount((float)$data['amount'])
+                        ->setDatePaid(new \DateTime($data['date_paid']))
+                        ->setOrderNumber($order);
+                    $em->persist($paymentFile);
+                    $order->addPaymentsFile($paymentFile);
+                    $em->flush();
+                } catch (\Exception $e) {
+                    return $this->json(
+                        [
+                            'status' => false,
+                            'message' => 'No se pudo guardar el archivo en S3'
+                        ],
+                        Response::HTTP_INTERNAL_SERVER_ERROR,
+                        ['Content-Type' => 'application/json']
+                    );
+                }
+
+                return $this->json(
+                    [
+                        'status' => true,
+                        'order' => $order->generateOrder(),
+                        'message' => 'Archivo de pago subido correctamente'
+                    ],
+                    Response::HTTP_ACCEPTED,
+                    ['Content-Type' => 'application/json']
+                );
+        }
+    }
+}

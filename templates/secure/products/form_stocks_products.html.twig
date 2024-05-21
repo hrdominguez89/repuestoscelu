@@ -34,13 +34,13 @@
 						{% if is_granted('ROLE_SUPER_ADMIN') %}
 							{# si soy admin y si el producto es admin  #}
 							<th class="text-center">
-								Despachando
+								En transito
 							</th>
 							<th class="text-center">
-								Distribuido en Pto. de venta
+								Disp en Ptos. de venta
 							</th>
 							<th class="text-center">
-								Vendido por los Pto. de venta
+								Vendido en Ptos. de venta
 							</th>
 						{% else %}
 							<th class="text-center">
@@ -57,7 +57,7 @@
 				<tbody>
 					{% for product in products %}
 						<tr>
-						
+
 							<td class="text-nowrap">{{product.salePoint.role.id == 1? 'A':product.salePoint.id}}-{{product.cod}}</td>
 							<td>{{ product.name }}</td>
 

@@ -48,7 +48,7 @@ class SendMail
             </table>";
 
         $email = (new Email())
-            ->from(new Address('noreply@bymia.do', 'MIACARGO'))
+            ->from(new Address('info@repuestoscelu.com.ar', 'REPUESTOS CELU'))
             ->to($mailTo)
             ->subject($subject)
             ->html($body);

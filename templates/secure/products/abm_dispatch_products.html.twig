@@ -57,12 +57,14 @@
 						{% for dispatch in dispatches %}
 							<tr>
 								<td class="text-center" style="width:1px">
-									<a href=" {{ path('secure_product_show_dispatch',{"dispatch_id":dispatch.id}) }} ">
+									<a href="{{ path("secure_product_show_dispatch",{'dispatch_id':dispatch.id}) }} ">
 										<i class="fas fa-eye text-primary"></i>
 									</a>
 								</td>
 								<td class="text-center">{{ dispatch.id }}</td>
-								<td>{{ dispatch.salePoint.name }}</td>
+								<td>{{ dispatch.salePoint.state.name }}
+									-
+									{{ dispatch.salePoint.city.name }}</td>
 								<td>{{ dispatch.description }}</td>
 								<td>{{ dispatch.status.name }}</td>
 								<td>{{ dispatch.createdAt|date("d/m/Y", 'America/Argentina/Buenos_Aires') }}</td>

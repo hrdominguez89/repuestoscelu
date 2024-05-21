@@ -20,7 +20,7 @@ class StocksProductsType extends AbstractType
     {
         $products = $options['products'];
         $builder->add('description', TextareaType::class, [
-            'label' => 'Descripción general (se aplicará a cada producto)',
+            'label' => 'Obvservaciones/Información adicional (se aplicará a cada producto)',
             'required' => false,
         ]);
 
