@@ -199,7 +199,7 @@ class CRUDUserController extends AbstractController
         EntityManagerInterface $entityManager,
         UserRepository $userRepository
     ): Response {
-        $data['user'] = $userRepository->findOneBy(['id' => $id, 'active' => true]);
+        $data['user'] = $userRepository->findOneBy(['id' => $id]);
 
         $data['form'] = $this->createForm(UserType::class, $data['user']);
         $data['form']->handleRequest($request);
