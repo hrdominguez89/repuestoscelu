@@ -8,6 +8,7 @@ use App\Entity\OrdersProducts;
 use App\Entity\PaymentsFiles;
 use App\Entity\ProductSalePointInventory;
 use App\Entity\ShoppingCart;
+use App\Helpers\EnqueueEmail;
 use App\Repository\CitiesRepository;
 use App\Repository\CustomerRepository;
 use App\Repository\OrdersRepository;
@@ -59,6 +60,7 @@ class CustomerOrderApiController extends AbstractController
         StatusTypeShoppingCartRepository $statusTypeShoppingCartRepository,
         EntityManagerInterface $em,
         UserRepository $userRepository,
+        EnqueueEmail $queue,
         ProductsSalesPointsRepository $productSalesPointsRepository,
         FileUploader $fileUploader
     ): Response {
@@ -216,6 +218,40 @@ class CustomerOrderApiController extends AbstractController
 
         try {
             $em->flush();
+
+
+
+            //Intento enviar el correo encolado
+
+            foreach ($orders as $order) {
+
+                $id_email = $queue->enqueue(
+                    Constants::EMAIL_NEW_ORDER_CUSTOMER, //tipo de email
+                    $this->customer->getEmail(), //email destinatario
+                    [ //parametros
+                        'name' => $this->customer->getName(),
+                        'url_front_login' => $_ENV['FRONT_URL'],
+                        'url_sale_order' => $order->getBillFile()
+                    ]
+                );
+
+                $queue->sendEnqueue($id_email);
+
+                $id_email = $queue->enqueue(
+                    Constants::EMAIL_NEW_ORDER_SALE_POINT, //tipo de email
+                    $order->getSalePoint->getSalePoint()->getEmail(), //email destinatario
+                    [ //parametros
+                        'sale_order_number' => $order->getId(),
+                        'url_sale_order' => $order->getBillFile()
+                    ]
+                );
+
+                $queue->sendEnqueue($id_email);
+            }
+
+
+
+
             return $this->json(
                 [
                     'status' => true,
@@ -243,7 +279,8 @@ class CustomerOrderApiController extends AbstractController
         EntityManagerInterface $em,
         FileUploader $fileUploader,
         OrdersRepository $ordersRepository,
-        Request $request
+        Request $request,
+        EnqueueEmail $queue
     ): Response {
         $order = $ordersRepository->findOrderByCustomerId($this->customer->getId(), $order_id);
         if (!$order) {
@@ -317,6 +354,17 @@ class CustomerOrderApiController extends AbstractController
                     $em->persist($paymentFile);
                     $order->addPaymentsFile($paymentFile);
                     $em->flush();
+
+                    $id_email = $queue->enqueue(
+                        Constants::EMAIL_NEW_PAYMENT_FILE, //tipo de email
+                        $order->getSalePoint()->getEmail(), //email destinatario
+                        [ //parametros
+                            'sale_order_number' => $order->getId(),
+                        ]
+                    );
+
+                    //Intento enviar el correo encolado
+                    $queue->sendEnqueue($id_email);
                 } catch (\Exception $e) {
                     return $this->json(
                         [

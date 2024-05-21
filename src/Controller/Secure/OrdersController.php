@@ -9,6 +9,7 @@ use App\Entity\ProductAdminInventory;
 use App\Entity\ProductSalePointInventory;
 use App\Form\OrderConfirmType;
 use App\Form\PaymentFileType;
+use App\Helpers\EnqueueEmail;
 use App\Repository\OrdersRepository;
 use App\Repository\StatusOrderTypeRepository;
 use App\Service\FileUploader;
@@ -82,6 +83,7 @@ class OrdersController extends AbstractController
         StatusOrderTypeRepository $statusOrderTypeRepository,
         EntityManagerInterface $em,
         Request $request,
+        EnqueueEmail $queue,
         $order_id
     ): Response {
         $data['user'] = $this->getUser();
@@ -160,6 +162,34 @@ class OrdersController extends AbstractController
 
                 $em->persist($data['order']);
                 $em->flush();
+
+
+                if ($request->get('order_confirm')['status'] == Constants::STATUS_ORDER_CONFIRMED) {
+                    $id_email = $queue->enqueue(
+                        Constants::EMAIL_ORDER_CONFIRMED_CUSTOMER, //tipo de email
+                        $data['order']->getCustomer()->getEmail(), //email destinatario
+                        [ //parametros
+                            'name' => $data['order']->getCustomer()->getName(),
+                            'sale_order_number' => $data['order']->getId(),
+                        ]
+                    );
+
+                    //Intento enviar el correo encolado
+                    $queue->sendEnqueue($id_email);
+                } else {
+                    $id_email = $queue->enqueue(
+                        Constants::EMAIL_ORDER_CANCELED_CUSTOMER, //tipo de email
+                        $data['order']->getCustomer()->getEmail(), //email destinatario
+                        [ //parametros
+                            'name' => $data['order']->getCustomer()->getName(),
+                            'sale_order_number' => $data['order']->getId(),
+                        ]
+                    );
+
+                    //Intento enviar el correo encolado
+                    $queue->sendEnqueue($id_email);
+                }
+
                 $message['type'] = 'modal';
                 $message['alert'] = 'success';
                 $message['title'] = 'Cambios guardados';

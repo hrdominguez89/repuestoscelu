@@ -1,7 +1,7 @@
 {% extends 'email/base.email.html.twig' %}
 
 {% block title %}
-BIENVENIDO A REPUESTOSCELU
+	CANCELACIÓN DE ORDEN
 {% endblock %}
 
 {% block body %}
@@ -19,7 +19,7 @@ BIENVENIDO A REPUESTOSCELU
 											<td class="pad" style="padding-bottom:35px;">
 												<div style="color:#101112;direction:ltr;font-family:'Montserrat', 'Trebuchet MS', 'Lucida Grande', 'Lucida Sans Unicode', 'Lucida Sans', Tahoma, sans-serif;font-size:24px;font-weight:400;letter-spacing:0px;line-height:120%;text-align:center;mso-line-height-alt:28.799999999999997px;">
 													<h3 style="margin: 0;">
-														<span style="color: #000000;">BIENVENIDO A REPUESTOSCELU</span>
+														<span style="color: #000000;">CANCELACIÓN DE ORDEN NRO {{ parameters.sale_order_number }}</span>
 													</h3>
 												</div>
 											</td>
@@ -50,12 +50,11 @@ BIENVENIDO A REPUESTOSCELU
 														{{parameters.name}}!
 													</p>
 													<p>
-														Te damos la bienvenida a REPUESTOSCELU, la red de repuestos y accesorios para celulares más grande del país. Ahora ya podés empezar. Gracias por confiar en nosotros. Todos nuestros productos están a tu disposición.
+														Hemos procesado tu cancelación de la orden.
 													</p>
 													<p>
-														Comprar en RepuestosCelu es sencillo e intuitivo. Ante una duda, consultanos en <a href="{{parameters.url_front_login}}" title="Login">repuestoscelu.com.ar</a>
+														Gracias por elegir RepuestosCelu.
 													</p>
-													
 												</div>
 											</td>
 										</tr>
