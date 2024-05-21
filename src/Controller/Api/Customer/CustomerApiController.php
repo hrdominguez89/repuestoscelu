@@ -49,7 +49,7 @@ class CustomerApiController extends AbstractController
     }
 
     #[Route("/data", name: "api_customer_data", methods: ["GET", "PATCH"])]
-    public function order(
+    public function userData(
         Request $request,
         StatesRepository $statesRepository,
         CitiesRepository $citiesRepository,
@@ -178,108 +178,5 @@ class CustomerApiController extends AbstractController
             Response::HTTP_INTERNAL_SERVER_ERROR,
             ['Content-Type' => 'application/json']
         );
-    }
-
-    #[Route("/order2/{order_id}", name: "api_customer_order_id2", methods: ["GET", 'PATCH'])]
-    public function orderById2(
-        $order_id,
-        EntityManagerInterface $em,
-        FileUploader $fileUploader,
-        OrdersRepository $ordersRepository,
-        Request $request
-    ): Response {
-        $order = $ordersRepository->findOrderByCustomerId($this->customer->getId(), $order_id);
-        if (!$order) {
-            return $this->json(
-                [
-                    'status' => false,
-                    'message' => 'No se encontro la orden indicada'
-                ],
-                Response::HTTP_NOT_FOUND,
-                ['Content-Type' => 'application/json']
-            );
-        }
-
-        switch ($request->getMethod()) {
-            case 'GET':
-                if (!$order->getBillFile()) {
-                    $html = $this->renderView('secure/bill/bill.html.twig', [
-                        'order' => $order
-                    ]);
-
-                    $s3Path = $fileUploader->uploadPdf($html, 'sale_order', 'sale_order');
-                    $order->setBillFile($_ENV['AWS_S3_URL'] . $s3Path);
-                    $em->persist($order);
-                    $em->flush();
-                }
-                return $this->json(
-                    [
-                        'status' => true,
-                        'order' => $order->generateOrder()
-                    ],
-                    Response::HTTP_ACCEPTED,
-                    ['Content-Type' => 'application/json']
-                );
-            case 'PATCH':
-
-                $body = $request->getContent();
-                $data = json_decode($body, true);
-
-                if (!isset($data['payment_file'])) {
-                    return $this->json(
-                        [
-                            'status' => false,
-                            'message' => 'No se proporcionó el archivo de pago'
-                        ],
-                        Response::HTTP_BAD_REQUEST,
-                        ['Content-Type' => 'application/json']
-                    );
-                }
-
-                $fileContent = base64_decode(explode('base64', $data['payment_file'])[1]);
-
-                if ($fileContent === false) {
-                    return $this->json(
-                        [
-                            'status' => false,
-                            'message' => 'El archivo de pago proporcionado no es válido'
-                        ],
-                        Response::HTTP_BAD_REQUEST,
-                        ['Content-Type' => 'application/json']
-                    );
-                }
-                // Subir la imagen al bucket de S3
-                try {
-                    $path = $fileUploader->uploadBase64File($fileContent, 'payment_file', 'payments_files');
-
-                    $paymentFile =  new PaymentsFiles();
-                    $paymentFile->setPaymentFile($_ENV['AWS_S3_URL'] . $path)
-                        ->setAmount((float)$data['amount'])
-                        ->setDatePaid(new \DateTime($data['date_paid']))
-                        ->setOrderNumber($order);
-                    $em->persist($paymentFile);
-                    $order->addPaymentsFile($paymentFile);
-                    $em->flush();
-                } catch (\Exception $e) {
-                    return $this->json(
-                        [
-                            'status' => false,
-                            'message' => 'No se pudo guardar el archivo en S3'
-                        ],
-                        Response::HTTP_INTERNAL_SERVER_ERROR,
-                        ['Content-Type' => 'application/json']
-                    );
-                }
-
-                return $this->json(
-                    [
-                        'status' => true,
-                        'order' => $order->generateOrder(),
-                        'message' => 'Archivo de pago subido correctamente'
-                    ],
-                    Response::HTTP_ACCEPTED,
-                    ['Content-Type' => 'application/json']
-                );
-        }
     }
 }
