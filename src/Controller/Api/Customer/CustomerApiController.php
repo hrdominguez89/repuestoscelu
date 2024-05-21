@@ -107,9 +107,6 @@ class CustomerApiController extends AbstractController
                 if (!@$data['number_address']) {
                     $errors['number_address'] = 'El campo number_address es requerido';
                 }
-                if (!@$data['postal_code']) {
-                    $errors['postal_code'] = 'El campo postal_code es requerido';
-                }
                 if (!@$data['code_area']) {
                     $errors['code_area'] = 'El campo code_area es requerido';
                 }
