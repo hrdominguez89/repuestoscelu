@@ -208,7 +208,7 @@ class CustomerApiController extends AbstractController
                 'status' => true,
                 'message' => 'Password modificada correctamente'
             ],
-            Response::HTTP_CONFLICT,
+            Response::HTTP_ACCEPTED,
             ['Content-Type' => 'application/json']
         );
     }
