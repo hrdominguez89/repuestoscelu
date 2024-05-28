@@ -85,6 +85,15 @@ class Orders
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $modified_at = null;
 
+    #[ORM\ManyToOne(inversedBy: 'orders')]
+    private ?ShippingType $shipping_type = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $tracking_name = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $tracking_number = null;
+
     public function __construct()
     {
         $this->ordersProducts = new ArrayCollection();
@@ -437,6 +446,42 @@ class Orders
     public function setModifiedAt(?\DateTimeInterface $modified_at): static
     {
         $this->modified_at = $modified_at;
+
+        return $this;
+    }
+
+    public function getShippingType(): ?ShippingType
+    {
+        return $this->shipping_type;
+    }
+
+    public function setShippingType(?ShippingType $shipping_type): static
+    {
+        $this->shipping_type = $shipping_type;
+
+        return $this;
+    }
+
+    public function getTrackingName(): ?string
+    {
+        return $this->tracking_name;
+    }
+
+    public function setTrackingName(?string $tracking_name): static
+    {
+        $this->tracking_name = $tracking_name;
+
+        return $this;
+    }
+
+    public function getTrackingNumber(): ?string
+    {
+        return $this->tracking_number;
+    }
+
+    public function setTrackingNumber(?string $tracking_number): static
+    {
+        $this->tracking_number = $tracking_number;
 
         return $this;
     }

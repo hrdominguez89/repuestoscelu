@@ -11,6 +11,7 @@ use App\Form\OrderConfirmType;
 use App\Form\PaymentFileType;
 use App\Helpers\EnqueueEmail;
 use App\Repository\OrdersRepository;
+use App\Repository\ShippingTypeRepository;
 use App\Repository\StatusOrderTypeRepository;
 use App\Service\FileUploader;
 use Doctrine\ORM\EntityManagerInterface;
@@ -81,6 +82,7 @@ class OrdersController extends AbstractController
     public function show(
         OrdersRepository $ordersRepository,
         StatusOrderTypeRepository $statusOrderTypeRepository,
+        ShippingTypeRepository $shippingTypeRepository,
         EntityManagerInterface $em,
         Request $request,
         EnqueueEmail $queue,
@@ -108,12 +110,15 @@ class OrdersController extends AbstractController
             array('path' => 'secure_order_index', 'title' => 'Ordenes'),
             array('active' => true, 'title' => $data['title'])
         );
-        $data['files_js'] = array('table_simple.js?v=' . rand());
+        $data['files_js'] = array('table_simple.js?v=' . rand(), 'orders/orders.js?v=' . rand());
         if ($data['order']->getStatus()->getId() == Constants::STATUS_ORDER_OPEN) {
             $data['form'] = $this->createForm(OrderConfirmType::class, null, ["user" => $data['user']]);
             $data['form']->handleRequest($request);
             if ($data['form']->isSubmitted() && $data['form']->isValid()) {
-                $data['order']->setStatus($statusOrderTypeRepository->find(($request->get('order_confirm')['status'])));
+                $data['order']->setStatus($statusOrderTypeRepository->find(@$request->get('order_confirm')['status']));
+                $data['order']->setShippingType($shippingTypeRepository->find(@$request->get('order_confirm')['shipping_type']));
+                $data['order']->setTrackingName(@$request->get('order_confirm')['tracking_name']);
+                $data['order']->setTrackingNumber(@$request->get('order_confirm')['tracking_number']);
                 $data['order']->setModifiedAt(new \DateTime());
 
                 if ($request->get('order_confirm')['status'] == Constants::STATUS_ORDER_CONFIRMED) {
@@ -171,6 +176,9 @@ class OrdersController extends AbstractController
                         [ //parametros
                             'name' => $data['order']->getCustomer()->getName(),
                             'sale_order_number' => $data['order']->getId(),
+                            'tracking_name' => $data['order']->getTrackingName(),
+                            'tracking_number' => $data['order']->getTrackingNumber(),
+                            'sale_point_address' => $data['order']->getSalePoint()->getStreetAddress() . ' ' . $data['order']->getSalePoint()->getNumberAddress() . ', ' . $data['order']->getSalePoint()->getState()->getName() . ' - ' . $data['order']->getSalePoint()->getCity()->getName()
                         ]
                     );
 

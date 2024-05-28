@@ -94,6 +94,13 @@ class Constants
 
     //FIN STATUS ORDERS
 
+    //SHIPPING TYPE
+
+    const SHIPPING_TYPE_ADDRESS = 1;
+    const SHIPPING_TYPE_PICKUP = 2;
+
+    //FIN SHIPPING TYPE
+
     // ROLES
 
     const ROLE_SUPER_ADMIN = 1;
