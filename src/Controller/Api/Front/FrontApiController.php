@@ -930,7 +930,8 @@ class FrontApiController extends AbstractController
                     Constants::EMAIL_TYPE_FORGET_PASSWORD, //tipo de email
                     $customer->getEmail(), //email destinatario
                     [ //parametros
-                        'url_front_login' => $_ENV['FRONT_URL'].'/resetPassword?token='.$token,
+                        'name' => $customer->getName(),
+                        'url_front_login' => $_ENV['FRONT_URL'] . '/resetPassword?token=' . $token,
                     ]
                 );
 
@@ -961,7 +962,7 @@ class FrontApiController extends AbstractController
                     return $this->json($response, Response::HTTP_CONFLICT, ['Content-Type' => 'application/json']);
                 }
 
-                $customer = $customerRepository->findOneBy(['resetPasswordToken' => $data['token']]);
+                $customer = $customerRepository->findOneBy(['reset_password_token' => $data['token']]);
 
                 if (!$customer) {
                     return $this->json(
@@ -989,7 +990,7 @@ class FrontApiController extends AbstractController
                 );
 
                 $queue->sendEnqueue($id_email);
-                
+
                 return $this->json(
                     [
                         'status' => true,
