@@ -181,7 +181,7 @@ class CustomerApiController extends AbstractController
         $data = json_decode($body, true);
 
         if (!@$data['password']) {
-            $errors['password'] = 'El campo passwprd es requerido';
+            $errors['password'] = 'El campo password es requerido';
         }
         if (!@$data['repassword']) {
             $errors['repassword'] = 'El campo repassword es requerido';

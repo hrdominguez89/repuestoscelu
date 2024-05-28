@@ -81,6 +81,9 @@ class Customer extends BaseUser
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $datetime_verification_code = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $reset_password_token = null;
+
 
     public function __construct()
     {
@@ -406,6 +409,18 @@ class Customer extends BaseUser
     public function setDatetimeVerificationCode(?\DateTimeInterface $datetime_verification_code): static
     {
         $this->datetime_verification_code = $datetime_verification_code;
+
+        return $this;
+    }
+
+    public function getResetPasswordToken(): ?string
+    {
+        return $this->reset_password_token;
+    }
+
+    public function setResetPasswordToken(?string $reset_password_token): static
+    {
+        $this->reset_password_token = $reset_password_token;
 
         return $this;
     }

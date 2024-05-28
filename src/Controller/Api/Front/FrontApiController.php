@@ -881,6 +881,128 @@ class FrontApiController extends AbstractController
         );
     }
 
+    #[Route("/forgotPassword", name: "api_customer_forgot_password", methods: ["POST", "PATCH"])]
+    public function forgonPassword(
+        Request $request,
+        EnqueueEmail $queue,
+        CustomerRepository $customerRepository,
+        EntityManagerInterface $em
+    ) {
+        $body = $request->getContent();
+        $data = json_decode($body, true);
+
+        switch ($request->getMethod()) {
+            case 'POST':
+                if (!@$data['email']) {
+                    $errors['email'] = 'El campo email es requerido';
+                }
+                if (!empty($errors)) {
+                    $response = [
+                        "status" => false,
+                        'message' => 'Error.',
+                        "errors" => $errors
+                    ];
+                    return $this->json($response, Response::HTTP_CONFLICT, ['Content-Type' => 'application/json']);
+                }
+
+                $customer = $customerRepository->findOneBy(['status' => Constants::CUSTOMER_STATUS_VALIDATED, 'email' => $data['email']]);
+                if (!$customer) {
+                    return $this->json(
+                        [
+                            'status' => false,
+                            'message' => 'No se encontro el usuario'
+                        ],
+                        Response::HTTP_NOT_FOUND,
+                        ['Content-Type' => 'application/json']
+                    );
+                }
+
+                $customer->setChangePassword(true);
+                $customer->setPassword($data['password']);
+                $changePasswordDate = new \DateTime;
+                $customer->setChangePasswordDate($changePasswordDate);
+                $token = md5($changePasswordDate->format('Y-m-d H:i:s')) . uniqid();
+                $customer->setResetPasswordToken($token);
+                $em->persist($customer);
+                $em->flush();
+
+                $id_email = $queue->enqueue(
+                    Constants::EMAIL_TYPE_FORGET_PASSWORD, //tipo de email
+                    $customer->getEmail(), //email destinatario
+                    [ //parametros
+                        'url_front_login' => $_ENV['FRONT_URL'].'/resetPassword?token='.$token,
+                    ]
+                );
+
+                $queue->sendEnqueue($id_email);
+
+                return $this->json(
+                    [
+                        'status' => true,
+                        'message' => 'Se envio mail para reinicio de contraseña'
+                    ],
+                    Response::HTTP_ACCEPTED,
+                    ['Content-Type' => 'application/json']
+                );
+                break;
+            case 'PATCH':
+                if (!@$data['token']) {
+                    $errors['token'] = 'El campo token es requerido';
+                }
+                if (!@$data['password']) {
+                    $errors['password'] = 'El campo password es requerido';
+                }
+                if (!empty($errors)) {
+                    $response = [
+                        "status" => false,
+                        'message' => 'Error',
+                        "errors" => $errors
+                    ];
+                    return $this->json($response, Response::HTTP_CONFLICT, ['Content-Type' => 'application/json']);
+                }
+
+                $customer = $customerRepository->findOneBy(['resetPasswordToken' => $data['token']]);
+
+                if (!$customer) {
+                    return $this->json(
+                        [
+                            'status' => false,
+                            'message' => 'No se encontro el usuario'
+                        ],
+                        Response::HTTP_NOT_FOUND,
+                        ['Content-Type' => 'application/json']
+                    );
+                }
+
+                $customer->setChangePassword(false);
+                $customer->setResetPasswordToken(null);
+                $customer->setChangePasswordDate(null);
+                $em->persist($customer);
+                $em->flush();
+
+                $id_email = $queue->enqueue(
+                    Constants::EMAIL_TYPE_PASSWORD_CHANGE_SUCCESSFUL, //tipo de email
+                    $customer->getEmail(), //email destinatario
+                    [ //parametros
+                        'name' => $customer->getName(),
+                    ]
+                );
+
+                $queue->sendEnqueue($id_email);
+                
+                return $this->json(
+                    [
+                        'status' => true,
+                        'message' => 'Se cambio la password correctamente'
+                    ],
+                    Response::HTTP_ACCEPTED,
+                    ['Content-Type' => 'application/json']
+                );
+
+                break;
+        }
+    }
+
 
     private function getErrorsFromForm(FormInterface $form)
     {
