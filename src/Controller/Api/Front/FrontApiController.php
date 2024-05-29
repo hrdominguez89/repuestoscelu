@@ -918,7 +918,6 @@ class FrontApiController extends AbstractController
                 }
 
                 $customer->setChangePassword(true);
-                $customer->setPassword($data['password']);
                 $changePasswordDate = new \DateTime;
                 $customer->setChangePasswordDate($changePasswordDate);
                 $token = md5($changePasswordDate->format('Y-m-d H:i:s')) . uniqid();
@@ -976,6 +975,7 @@ class FrontApiController extends AbstractController
                 }
 
                 $customer->setChangePassword(false);
+                $customer->setPassword($data['password']);
                 $customer->setResetPasswordToken(null);
                 $customer->setChangePasswordDate(null);
                 $em->persist($customer);
